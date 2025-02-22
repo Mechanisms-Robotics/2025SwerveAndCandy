@@ -1,0 +1,27 @@
+{
+  "location": {
+    "front": 13.375,
+    "left": 10.875
+  },
+  "absoluteEncoderOffset": 219.726562,
+  "drive": {
+    "type": "falcon500foc",
+    "id": 2,
+    "canbus": "rio"
+  },
+  "angle": {
+    "type": "sparkmax_neo",
+    "id": 6,
+    "canbus": "rio"
+  },
+  "inverted": {
+    "angle": true,
+    "drive": false
+  },
+  "encoder": {
+    "type": "cancoder",
+    "id": 6,
+    "canbus": "rio"
+  },
+  "absoluteEncoderInverted": false
+}
