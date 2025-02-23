@@ -33,19 +33,19 @@ public class RobotContainer
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                () -> Math.pow(driverController.getLeftY(),3),
-                                                                () -> Math.pow(driverController.getLeftX(),3))
-                                                            .withControllerRotationAxis(driverController::getRightX)
-                                                            .deadband(OperatorConstants.DEADBAND)
-                                                            .scaleTranslation(0.8)
-                                                            .allianceRelativeControl(true);
+        () -> Math.pow(driverController.getLeftY(), 3),
+        () -> Math.pow(driverController.getLeftX(), 3))
+    .withControllerRotationAxis(() -> -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2))
+    .deadband(OperatorConstants.DEADBAND)
+    .scaleTranslation(0.8)
+    .allianceRelativeControl(true);
 
   /**
    * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
