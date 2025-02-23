@@ -2,16 +2,6 @@ package frc.robot.subsystems;
 
 /*
 
-WIP!!!!! 
-
-Alex says to use velocity control, not max motion. The motion profile will trapezodial and
-will happen in this code (see link above). When we get a new position setpoint, we create
-a trapezoidal profile using the WPILib class (you feed it current position and desired position).
-In the periodic, we sample the profile and get a desired velocity and acceleration based on the
-current position (or maybe time, more likely). We feed that into the Feedforward class (see below)
-and pass the desired velocity and the arbitrary feedforward to the SparkMax which is running
-and onboard velocity PID.
-
 TUNING PROCEDURE
 
 NOTE THAT I DIDN'T FINISH THIS, SO GO BACK THROUGH MONDAY AND REWORK BASED ON ABOVE
@@ -76,6 +66,7 @@ public class Elevator extends SubsystemBase {
     // TODO: Set soft limits
     // TODO: Limit switches (see getForwardLimitSwitch)
     // TODO: Zero encoder at init?
+    // TODO: Put the motor in brake mode to prevent collapsing (maybe)
 
     // Elevator positions in encoder ticks
     // TODO: Determine experimentally and then write an equation for offline
@@ -125,9 +116,11 @@ public class Elevator extends SubsystemBase {
 
     // TODO: This assumes the elevator starts at 0 position and 0 velocity, which may
     // need to be thunk about...
+    private final TrapezoidProfile profile = new TrapezoidProfile(
+        new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private TrapezoidProfile.State m_setpoint  // The elevator's current position
         = new TrapezoidProfile.State(0.0, 0.0);
-    private TrapezoidProfile.State m_goal = null; // The elevator's goal setting
+    private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
     public Elevator() {
         // Initialize the motor controllers
@@ -178,31 +171,24 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        final double DT = 0.02; // seconds (based on periodic time)
 
-        if (m_goal != null) {
-            TrapezoidProfile profile = new TrapezoidProfile(
-                new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
+        m_setpoint = profile.calculate(
+            DT, // Time since last setpoint update
+            m_setpoint, // Where we are in the current motion
+            m_goal); // Where we want to be at the end of the motion
+        
+        if (Math.abs(m_setpoint.position - m_goal.position) > EPSILON) {
+            // keep moving to the goal
 
-            final double DT = 0.02; // seconds (based on periodic time)
-
-            m_setpoint = profile.calculate(
-                DT, // Time since last setpoint update
-                m_setpoint, // Where we are in the current motion
-                m_goal); // Where we want to be at the end of the motion
+            ElevatorFeedforward feedforward
+                = new ElevatorFeedforward(KS, KG, KV, KA);
             
-            if (Math.abs(m_setpoint.position - m_goal.position) < EPSILON) {
-                m_goal = null; // end of motion
-            }
-            else { // we aren't there yet...
-                ElevatorFeedforward feedforward
-                    = new ElevatorFeedforward(KS, KG, KV, KA);
-
-                m_sparkClosedLoopController.setReference(
-                    m_setpoint.velocity,
-                    ControlType.kVelocity,
-                    ClosedLoopSlot.kSlot0,
-                    feedforward.calculate(m_setpoint.velocity));
-            }
+            m_sparkClosedLoopController.setReference(
+                m_setpoint.position,
+                ControlType.kPosition,
+                ClosedLoopSlot.kSlot0,
+                feedforward.calculate(m_setpoint.velocity));
         }
     }
 }
