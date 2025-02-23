@@ -1,5 +1,20 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.RelativeEncoder;
+
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 /*
 
 STARTUP AND TUNING PROCEDURE
@@ -16,13 +31,17 @@ STARTUP AND TUNING PROCEDURE
     once on the RoboRIO to put those limits on the motor controllers.
 5. Use the Rev hardware client to check that the soft limits stuck. Run
     it up and down to make sure it respects the soft limits.
-
-6. Set MAX_ACCEL to something low like 1 RPM/s.
-7. Set MAX_VEL to something like 60 RPM.
-8. Set ALLOWED_ERROR to something like 50 (the encoder has 8192 ticks / revolution)
-9. Set MAX_OUTPUT to 6 V.
-10. Adjust KG until the elevator just starts to stuggle to lift.
-11. FINISH THIS CHECKLIST
+6. Put in reasonable numbers for MAX_VELOCITY, MAX_ACCELERATION, and EPSILON
+    on the trapezoidal profile.
+7. Increase Kg until the elevator is "weightless" (just starting to move up).
+    This may take two decimal places of precision.
+8. Increase the velocity feedforward gain (KV) until the straight segments of the
+    elevator actual motion have the same slope as the desired motion.
+9. Increase the velocity feedforward gain until the straight segments of the elevator
+    actual motion have the same slope as the desired motion.
+10. Increase KP until the actual position starts to overshoot the target, then back
+    it off by 20%.
+11. Keep tuning... Somehow...
 
 REFERENCES
 
@@ -38,21 +57,6 @@ https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/tr
 ElevatorFeedforward documentation
 https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/ElevatorFeedforward.html
 */
-
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
     // TODO: Hard limit switches (see getForwardLimitSwitch)
