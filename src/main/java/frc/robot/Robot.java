@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -70,6 +72,7 @@ public class Robot extends TimedRobot
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    outputRobotPose();
   }
 
   /**
@@ -125,6 +128,8 @@ public class Robot extends TimedRobot
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
+    m_robotContainer.setMotorBrake(true);
+    
     if (m_autonomousCommand != null)
     {
       m_autonomousCommand.cancel();
@@ -140,6 +145,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
+
   }
 
   @Override
@@ -171,5 +177,14 @@ public class Robot extends TimedRobot
   @Override
   public void simulationPeriodic()
   {
+  }
+
+
+  public void outputRobotPose()
+  {
+    Pose2d robotPose = m_robotContainer.drivebase.getPose();
+    SmartDashboard.putNumber("Pose X: ", robotPose.getTranslation().getX());
+    SmartDashboard.putNumber("Pose Y: ", robotPose.getTranslation().getY()); 
+    SmartDashboard.putNumber("Pose Theta: ", robotPose.getRotation().getDegrees());
   }
 }

@@ -33,7 +33,7 @@ public class RobotContainer
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
 
   /**
