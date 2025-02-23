@@ -4,18 +4,19 @@ package frc.robot.subsystems;
 
 STARTUP AND TUNING PROCEDURE
 
-0. Set up soft limits somehow.
-1. Set the motor CAN IDs.
-2. Run this code on the robot to set leader and follower, etc.
+1. Set the motor CAN IDs in the code.
+2. Run this code on the robot to set leader and follower, soft limits, etc.
 3. Using the Rev hardware client, verify the leader ond follower
-    configuration, especially the inversion of the follower. Power the
-    leader at low power in the hardware client and see that the elevator
-    moves up and down. Verify that the encoder is zeroed.
+    configuration, especially the inversion of the follower. Verify the
+    soft limits. Power the leader at low power in the hardware client and see
+    that the elevator moves up and down. Verify that the encoder is zeroed and
+    that the limits are respected.
 4. Determine the bottom and top soft limits using the Rev hardware client
-    and then set the soft limits in this code based on that. Run that code once the RoboRIO to
-    put those limits on the motor controllers.
+    and then set the new soft limits in this code based on that. Run that code
+    once on the RoboRIO to put those limits on the motor controllers.
 5. Use the Rev hardware client to check that the soft limits stuck. Run
     it up and down to make sure it respects the soft limits.
+
 6. Set MAX_ACCEL to something low like 1 RPM/s.
 7. Set MAX_VEL to something like 60 RPM.
 8. Set ALLOWED_ERROR to something like 50 (the encoder has 8192 ticks / revolution)
@@ -102,6 +103,10 @@ public class Elevator extends SubsystemBase {
     private static final double MAX_ACCELERATION = 0.0; // Ticks per second per second?
     private static final double EPSILON = 0.0; // Allowed error, presumably in ticks
 
+    // Soft limits
+    private static final double FORWARD_SOFT_LIMIT = 8192.0; // Ticks
+    private static final double REVERSE_SOFT_LIMIT = 4096.0; // Ticks
+
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private TrapezoidProfile.State m_setpoint  // The elevator's current position
@@ -115,6 +120,12 @@ public class Elevator extends SubsystemBase {
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
         leaderConfig.idleMode(IdleMode.kBrake); // maybe it won't freefall or drift
+
+        leaderConfig.softLimit.forwardSoftLimit(FORWARD_SOFT_LIMIT)
+            .forwardSoftLimitEnabled(true);
+        leaderConfig.softLimit.reverseSoftLimit(REVERSE_SOFT_LIMIT)
+            .reverseSoftLimitEnabled(true);
+
         leaderConfig.closedLoop
             .p(KP)
             .i(KI)
