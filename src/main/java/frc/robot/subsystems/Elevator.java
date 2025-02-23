@@ -24,7 +24,7 @@ STARTING AROUND STEP 10.
 8. Set ALLOWED_ERROR to something like 50 (the encoder has 8192 ticks / revolution)
 9. Set MAX_OUTPUT to 6 V.
 10. Adjust KG until the elevator just starts to stuggle to lift.
-11. Increase KV 
+11. FINISH THIS CHECKLIST
 
 REFERENCES
 
@@ -48,6 +48,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -65,8 +66,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
     // TODO: Set soft limits
     // TODO: Limit switches (see getForwardLimitSwitch)
-    // TODO: Zero encoder at init?
-    // TODO: Put the motor in brake mode to prevent collapsing (maybe)
 
     // Elevator positions in encoder ticks
     // TODO: Determine experimentally and then write an equation for offline
@@ -114,12 +113,10 @@ public class Elevator extends SubsystemBase {
     private static final double MAX_ACCELERATION = 0.0; // Again, decide on units
     private static final double EPSILON = 0.0; // Allowed error, probably in ticks
 
-    // TODO: This assumes the elevator starts at 0 position and 0 velocity, which may
-    // need to be thunk about...
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
     private TrapezoidProfile.State m_setpoint  // The elevator's current position
-        = new TrapezoidProfile.State(0.0, 0.0);
+        = new TrapezoidProfile.State(0.0, 0.0); // Starting lowered
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
     public Elevator() {
@@ -132,6 +129,7 @@ public class Elevator extends SubsystemBase {
         SparkMaxConfig leaderConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
+        leaderConfig.idleMode(IdleMode.kBrake); // maybe it won't freefall or drift
         leaderConfig.closedLoop
             .p(KP)
             .i(KI)
@@ -145,6 +143,7 @@ public class Elevator extends SubsystemBase {
 
         // Get the encoder from the leader (the throughbore encoder on the output shaft)
         m_outputEncoder = m_leader.getAlternateEncoder();
+        m_outputEncoder.setPosition(0.0); // zero the encodes
 
         // The onboard controller
         m_sparkClosedLoopController = m_leader.getClosedLoopController();
