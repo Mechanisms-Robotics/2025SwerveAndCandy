@@ -32,7 +32,8 @@ STARTUP AND TUNING PROCEDURE
 5. Use the Rev hardware client to check that the soft limits stuck. Run
     it up and down to make sure it respects the soft limits.
 6. Put in reasonable numbers for MAX_VELOCITY, MAX_ACCELERATION, and EPSILON
-    on the trapezoidal profile.
+    on the trapezoidal profile. Note that I've mapped square to L1 and circle to
+    RESTING for testing.
 7. Increase Kg until the elevator is "weightless" (just starting to move up).
     This may take two decimal places of precision.
 8. Increase the velocity feedforward gain (KV) until the straight segments of the
@@ -66,17 +67,17 @@ public class Elevator extends SubsystemBase {
     // TODO: Determine experimentally and then write an equation for offline
     //   estimation of changes and put that here for posterity
     // TODO: We may need separate levels (or an offset) for algae vs. coral
-    public final int RESTING = 0;
-    public final int PROCESSOR = 0;
-    public final int LOADING = 0;
-    public final int L1 = 0;
-    public final int L2 = 0;
-    public final int L3 = 0;
-    public final int L4 = 0;
-    public final int BARGE = 0;
+    public static final int RESTING = 1000;
+    public static final int PROCESSOR = 0;
+    public static final int LOADING = 0;
+    public static final int L1 = 10000;
+    public static final int L2 = 0;
+    public static final int L3 = 0;
+    public static final int L4 = 0;
+    public static final int BARGE = 0;
 
-    private final int LEADER_CAN_ID = 0;
-    private final int FOLLOWER_CAN_ID = 0;
+    private static final int LEADER_CAN_ID = 0;
+    private static final int FOLLOWER_CAN_ID = 0;
 
     // Motor controllers: one leader and one follower
     private final SparkMax m_leader = new SparkMax(LEADER_CAN_ID, MotorType.kBrushless);

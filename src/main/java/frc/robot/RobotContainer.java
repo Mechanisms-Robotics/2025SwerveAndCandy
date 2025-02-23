@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -32,14 +33,16 @@ public class RobotContainer
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+
   // The robot's subsystems and commands are defined here...
-  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                                "swerve"));
+  public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+    "swerve"));
+  public final Elevator m_elevator = new Elevator();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
         () -> Math.pow(driverController.getLeftY(), 3),
         () -> Math.pow(driverController.getLeftX(), 3))
     .withControllerRotationAxis(() -> -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2))
@@ -60,7 +63,7 @@ public class RobotContainer
   SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                              .allianceRelativeControl(false);
 
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
+  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
                                                                         () -> -driverController.getLeftY(),
                                                                         () -> -driverController.getLeftX())
                                                                     .withControllerRotationAxis(() -> driverController.getRawAxis(
@@ -106,22 +109,22 @@ public class RobotContainer
    */
   private void configureBindings()
   {
-    Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
+    Command driveFieldOrientedDirectAngle      = m_drivebase.driveFieldOriented(driveDirectAngle);
+    Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity);
+    Command driveRobotOrientedAngularVelocity  = m_drivebase.driveFieldOriented(driveRobotOriented);
+    Command driveSetpointGen = m_drivebase.driveWithSetpointGeneratorFieldRelative(
         driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
+    Command driveFieldOrientedDirectAngleKeyboard      = m_drivebase.driveFieldOriented(driveDirectAngleKeyboard);
+    Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+    Command driveSetpointGenKeyboard = m_drivebase.driveWithSetpointGeneratorFieldRelative(
         driveDirectAngleKeyboard);
 
     if (RobotBase.isSimulation())
     {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     } else
     {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
     if (Robot.isSimulation())
@@ -141,31 +144,35 @@ public class RobotContainer
                                                                              360),
                                                                          Math.toRadians(
                                                                              90))));
-      driverController.options().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+      driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+      driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
       driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
                                                      () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
     }
     if (DriverStation.isTest())
     {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
-      driverController.square().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverController.triangle().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-      driverController.options().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.share().whileTrue(drivebase.centerModulesCommand());
+      driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
+      driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
+      driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+      driverController.share().whileTrue(m_drivebase.centerModulesCommand());
       driverController.L2().onTrue(Commands.none());
       driverController.R2().onTrue(Commands.none());
     } else
     //The following code is the acutal drive code used
     {
-      driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      //driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      driverController.circle().whileTrue(Commands.none());
+      driverController.cross().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+      driverController.square().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L1)
+      ));
+      driverController.circle().whileTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.RESTING)
+      ));
       driverController.options().whileTrue(Commands.none());
       driverController.share().whileTrue(Commands.none());
-      driverController.L2().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+      driverController.L2().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
       driverController.R2().onTrue(Commands.none());
     }
 
@@ -179,11 +186,11 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Auto");
+    return m_drivebase.getAutonomousCommand("New Auto");
   }
 
   public void setMotorBrake(boolean brake)
   {
-    drivebase.setMotorBrake(brake);
+    m_drivebase.setMotorBrake(brake);
   }
 }

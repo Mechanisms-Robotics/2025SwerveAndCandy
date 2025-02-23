@@ -182,7 +182,7 @@ public class Robot extends TimedRobot
 
   public void outputRobotPose()
   {
-    Pose2d robotPose = m_robotContainer.drivebase.getPose();
+    Pose2d robotPose = m_robotContainer.m_drivebase.getPose();
     SmartDashboard.putNumber("Pose X: ", robotPose.getTranslation().getX());
     SmartDashboard.putNumber("Pose Y: ", robotPose.getTranslation().getY()); 
     SmartDashboard.putNumber("Pose Theta: ", robotPose.getRotation().getDegrees());
