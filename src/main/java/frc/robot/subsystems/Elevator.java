@@ -47,6 +47,8 @@ https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/t
 WIPLib documentation on trapezodial motion profiles
 https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/trapezoidal-profiles.html
 
+ElevatorFeedforward documentation
+https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/ElevatorFeedforward.html
 */
 
 // TODO: Remove unused imports, commented out code, general cleanup...
@@ -73,9 +75,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
     // TODO: Set soft limits
     // TODO: Limit switches (see getForwardLimitSwitch)
+    // TODO: Zero encoder at init?
 
     // Elevator positions in encoder ticks
-    // TODO: Determine experimentally and then put an equation for offline
+    // TODO: Determine experimentally and then write an equation for offline
     //   estimation of changes and put that here for posterity
     // TODO: We may need separate levels (or an offset) for algae vs. coral
     public final int RESTING = 0; // TODO make sure powered down completely when resting or very low to avoid power draw
@@ -99,29 +102,26 @@ public class Elevator extends SubsystemBase {
     private final RelativeEncoder m_outputEncoder;
 
     // REV's built-in PID controller on the leader
-    // private final SparkClosedLoopController m_sparkClosedLoopController;
+    private final SparkClosedLoopController m_sparkClosedLoopController;
 
-    // TODO: Tune and clean up comments and unused constants
-
-    // private static final double MAX_ACCEL = 0.0; // RPM/s
-    // private static final double MAX_VEL = 0.0; // RPM
-    // private static final double ALLOWED_ERROR = 0.0; // In encoder ticks
-
-    // Tunables for the motor's onboard PID
+    // Tunables for the SparkMax PID and output
     private static final double KP = 0.0;
     private static final double KI = 0.0;
     private static final double KD = 0.0;
     private static final double MIN_OUTPUT = 0.0; // Volts
     private static final double MAX_OUTPUT = 0.0; // Volts
     
-    // private static final double KA = 0.0; // Acceleration feedforward Volts per something
-    // private static final double KS = 0.0; // Constant of static friction or whatever
-    // private static final double KG = 0.0; // Volts required to overcome gravity
-    // private static final double KV = 0.0; // Velocity constant in Volts per distance per second
+    // Tunables for the elevator feedforward
+    private static final double KA = 0.0; // Acceleration feedforward Volts per something
+    private static final double KS = 0.0; // Constant of static friction or whatever
+    private static final double KG = 0.0; // Volts required to overcome gravity
+    private static final double KV = 0.0; // Velocity constant in Volts per distance per second
 
-
+    // Tunables for the elevator's trapezoidal motion profile
+    // TODO: Decide on units and update the code below
     private static final double MAX_VELOCITY = 0.0; // I can probably put this in ticks
     private static final double MAX_ACCELERATION = 0.0; // Again, decide on units
+    private static final double EPSILON = 0.0; // Allowed error, probably in ticks
 
     // TODO: This assumes the elevator starts at 0 position and 0 velocity, which may
     // need to be thunk about...
@@ -129,11 +129,8 @@ public class Elevator extends SubsystemBase {
         = new TrapezoidProfile.State(0.0, 0.0);
     private TrapezoidProfile.State m_goal = null; // The elevator's goal setting
 
-    /**
-     * Constructs the Elevator subsystem.
-     */
     public Elevator() {
-        // Initialize motor controllers
+        // Initialize the motor controllers
         m_leader = new SparkMax(LEADER_CAN_ID, MotorType.kBrushless);
         m_follower = new SparkMax(FOLLOWER_CAN_ID, MotorType.kBrushless);
 
@@ -141,11 +138,6 @@ public class Elevator extends SubsystemBase {
 
         SparkMaxConfig leaderConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
-
-        // leaderConfig.closedLoop.maxMotion
-        //     .maxAcceleration(MAX_ACCEL)
-        //     .maxVelocity(MAX_VEL)
-        //     .allowedClosedLoopError(ALLOWED_ERROR);
 
         leaderConfig.closedLoop
             .p(KP)
@@ -162,7 +154,7 @@ public class Elevator extends SubsystemBase {
         m_outputEncoder = m_leader.getAlternateEncoder();
 
         // The onboard controller
-        // m_sparkClosedLoopController = m_leader.getClosedLoopController();
+        m_sparkClosedLoopController = m_leader.getClosedLoopController();
     }
 
     /**
@@ -171,6 +163,7 @@ public class Elevator extends SubsystemBase {
      * @param position The target position in TODO what units to use throughout?
      */
     public void setTargetPosition(double position) {
+        // assumes final velocity is always zero
         m_goal = new TrapezoidProfile.State(position, 0.0);
     }
 
@@ -190,26 +183,26 @@ public class Elevator extends SubsystemBase {
             TrapezoidProfile profile = new TrapezoidProfile(
                 new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
 
-            final double DT = 0.02; // seconds
+            final double DT = 0.02; // seconds (based on periodic time)
 
             m_setpoint = profile.calculate(
                 DT, // Time since last setpoint update
                 m_setpoint, // Where we are in the current motion
                 m_goal); // Where we want to be at the end of the motion
+            
+            if (Math.abs(m_setpoint.position - m_goal.position) < EPSILON) {
+                m_goal = null; // end of motion
+            }
+            else { // we aren't there yet...
+                ElevatorFeedforward feedforward
+                    = new ElevatorFeedforward(KS, KG, KV, KA);
+
+                m_sparkClosedLoopController.setReference(
+                    m_setpoint.velocity,
+                    ControlType.kVelocity,
+                    ClosedLoopSlot.kSlot0,
+                    feedforward.calculate(m_setpoint.velocity));
+            }
         }
-
-    
-
-        // ElevatorFeedforward feedforward = new ElevatorFeedforward(
-        //     KS, KG, KV, KA);
-
-        // TODO: This ain't right
-        // double ff = feedforward.calculate(m_sparkClosedLoopController.)
-
-        // m_sparkClosedLoopController.setReference(
-        //     position,
-        //     ControlType.kMAXMotionPositionControl,
-        //     ClosedLoopSlot.kSlot0, // TODO This allows multiple PID constants
-        //     ff);
     }
 }
