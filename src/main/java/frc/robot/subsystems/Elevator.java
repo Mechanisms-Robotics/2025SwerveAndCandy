@@ -19,7 +19,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 STARTUP AND TUNING PROCEDURE
 
-1. Set the motor CAN IDs in the code.
+1. Set the motor CAN IDs in the code. Use the Rev Hardware client to check them,
+    if necessary.
 2. Run this code on the robot to set leader and follower, soft limits, etc.
 3. Using the Rev hardware client, verify the leader ond follower
     configuration, especially the inversion of the follower. Verify the
@@ -42,7 +43,7 @@ STARTUP AND TUNING PROCEDURE
     actual motion have the same slope as the desired motion.
 10. Increase KP until the actual position starts to overshoot the target, then back
     it off by 20%.
-11. Keep tuning... Somehow...
+11. Keep tuning... Somehow... Set the MAX output voltage to 12 if anything is amiss.
 
 REFERENCES
 
@@ -63,7 +64,7 @@ public class Elevator extends SubsystemBase {
     // TODO: Hard limit switches (see getForwardLimitSwitch)
     // TODO make sure powered down completely when resting or very low to avoid power draw
 
-    // Elevator positions in encoder ticks
+    // Elevator positions in encoder ticks (8,192 ticks per revolution)
     // TODO: Determine experimentally and then write an equation for offline
     //   estimation of changes and put that here for posterity
     // TODO: We may need separate levels (or an offset) for algae vs. coral
@@ -76,15 +77,15 @@ public class Elevator extends SubsystemBase {
     public static final int L4 = 0;
     public static final int BARGE = 0;
 
-    private static final int LEADER_CAN_ID = 0;
-    private static final int FOLLOWER_CAN_ID = 0;
+    private static final int LEADER_CAN_ID = 11;
+    private static final int FOLLOWER_CAN_ID = 10;
 
     // Motor controllers: one leader and one follower
     private final SparkMax m_leader = new SparkMax(LEADER_CAN_ID, MotorType.kBrushless);
     private final SparkMax m_follower = new SparkMax(FOLLOWER_CAN_ID, MotorType.kBrushless);
 
     // The throughbore encoder is on the leader
-    private final RelativeEncoder m_outputEncoder = m_leader.getAlternateEncoder();
+    private RelativeEncoder m_outputEncoder = null;
 
     // REV's built-in PID controller on the leader
     private final SparkClosedLoopController m_sparkClosedLoopController
@@ -95,7 +96,7 @@ public class Elevator extends SubsystemBase {
     private static final double KI = 0.0;
     private static final double KD = 0.0;
     private static final double MIN_OUTPUT = 0.0; // Volts
-    private static final double MAX_OUTPUT = 0.0; // Volts
+    private static final double MAX_OUTPUT = 6.0; // Volts
     
     // Tunables for the elevator feedforward
     private static final double KA = 0.0; // Acceleration feedforward Volts per something
@@ -137,13 +138,14 @@ public class Elevator extends SubsystemBase {
             .d(KD)
             .outputRange(MIN_OUTPUT, MAX_OUTPUT);
 
-        followerConfig.follow(m_leader, true /* inverted */);
+        followerConfig.follow(m_leader, false /* NOT inverted */);
 
         m_leader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         m_follower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Zero the encoder
-        m_outputEncoder.setPosition(0.0);
+        //m_outputEncoder = m_leader.getAlternateEncoder();
+        //m_outputEncoder.setPosition(0.0);
     }
 
     /**
@@ -161,9 +163,9 @@ public class Elevator extends SubsystemBase {
      *
      * @return The current position in ticks.
      */
-    public double getCurrentPosition() {
-        return m_outputEncoder.getPosition();
-    }
+    // public double getCurrentPosition() {
+    //     return m_outputEncoder.getPosition();
+    // }
 
     @Override
     public void periodic() {
