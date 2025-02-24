@@ -19,14 +19,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 STARTUP AND TUNING PROCEDURE
 
+0. Verify that the throughbore encoder switch is on A and the breakout board
+    is on ABS PWM.
 1. Set the motor CAN IDs in the code. Use the Rev Hardware client to check them,
     if necessary.
 2. Run this code on the robot to set leader and follower, soft limits, etc.
 3. Using the Rev hardware client, verify the leader ond follower
-    configuration, especially the inversion of the follower. Verify the
-    soft limits. Power the leader at low power in the hardware client and see
-    that the elevator moves up and down. Verify that the encoder is zeroed and
-    that the limits are respected.
+    configuration. Verify the soft limits are set and enabled. Power the leader at
+    low power in the hardware client and see that the elevator moves up and down
+    and respects the limits. Verify that the encoder is zeroed and that the limits
+    are respected.
 4. Determine the bottom and top soft limits using the Rev hardware client
     and then set the new soft limits in this code based on that. Run that code
     once on the RoboRIO to put those limits on the motor controllers.
@@ -58,6 +60,12 @@ https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/tr
 
 ElevatorFeedforward documentation
 https://github.wpilib.org/allwpilib/docs/release/java/edu/wpi/first/math/controller/ElevatorFeedforward.html
+
+Chief Delphi thread on througbore as an alternate encoder
+https://www.chiefdelphi.com/t/rev-through-bore-encoder-not-working-in-alternate-mode/491304
+
+That same team's elevator code
+https://github.com/FRC3546/2025-Reefscape-Competition/blob/main/src/main/java/frc/robot/subsystems/ElevatorSubsystem.java
 */
 
 public class Elevator extends SubsystemBase {
@@ -68,6 +76,7 @@ public class Elevator extends SubsystemBase {
     // TODO: Determine experimentally and then write an equation for offline
     //   estimation of changes and put that here for posterity
     // TODO: We may need separate levels (or an offset) for algae vs. coral
+
     public static final int RESTING = 1000;
     public static final int PROCESSOR = 0;
     public static final int LOADING = 0;
@@ -125,7 +134,12 @@ public class Elevator extends SubsystemBase {
         SparkMaxConfig leaderConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
-        leaderConfig.idleMode(IdleMode.kBrake); // maybe it won't freefall or drift
+        final int THROUGHBORE_TICKS_PER_REVOLUTION = 8192;
+        leaderConfig.alternateEncoder
+            .countsPerRevolution(THROUGHBORE_TICKS_PER_REVOLUTION)
+            .setSparkMaxDataPortConfig();
+
+        leaderConfig.idleMode(IdleMode.kBrake); // helps prevent freefall with disabled
 
         leaderConfig.softLimit.forwardSoftLimit(FORWARD_SOFT_LIMIT)
             .forwardSoftLimitEnabled(true);
@@ -144,8 +158,8 @@ public class Elevator extends SubsystemBase {
         m_follower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Zero the encoder
-        //m_outputEncoder = m_leader.getAlternateEncoder();
-        //m_outputEncoder.setPosition(0.0);
+        m_outputEncoder = m_leader.getAlternateEncoder();
+        m_outputEncoder.setPosition(0.0);
     }
 
     /**
