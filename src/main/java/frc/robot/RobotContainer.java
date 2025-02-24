@@ -163,7 +163,9 @@ public class RobotContainer
     } else
     //The following code is the acutal drive code used
     {
-      driverController.cross().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      driverController.square().onTrue(Commands.runOnce(m_elevator::runMotorUpSlowly));
+      driverController.circle().onTrue(Commands.runOnce(m_elevator::runMotorDownSlowly));
       // driverController.square().onTrue(Commands.runOnce(
       //   () -> m_elevator.setTargetPosition(Elevator.L1)
       // ));

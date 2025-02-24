@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 STARTUP AND TUNING PROCEDURE
 
+We deviated from these instructions a bit. Use some common sense.
+
 0. Verify that the throughbore encoder switch is on A and the breakout board
     is on ABS PWM.
 1. Set the motor CAN IDs in the code. Use the Rev Hardware client to check them,
@@ -79,6 +81,8 @@ public class Elevator extends SubsystemBase {
     //   estimation of changes and put that here for posterity
     // TODO: We may need separate levels (or an offset) for algae vs. coral
 
+    // TODO: How to prevent drive team from enabling while elevator is still drifting down?
+
     public static final int RESTING = 1000;
     public static final int PROCESSOR = 0;
     public static final int LOADING = 0;
@@ -120,9 +124,10 @@ public class Elevator extends SubsystemBase {
     private static final double MAX_ACCELERATION = 0.0; // Ticks per second per second?
     private static final double EPSILON = 0.0; // Allowed error, presumably in ticks
 
-    // Soft limits
-    private static final double FORWARD_SOFT_LIMIT = 8192.0; // Ticks
-    private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks (> 0 so it doesn't hit bottom)
+    // Soft limits determined experimentally. We set the lower limit at 100, at
+    // which time gravity will let it fall a little lower.
+    private static final double FORWARD_SOFT_LIMIT = 40000.0; // Ticks
+    private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -177,6 +182,14 @@ public class Elevator extends SubsystemBase {
             leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         m_follower.configure(
             followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void runMotorUpSlowly() { // TODO
+        m_leader.setVoltage(1);
+    }
+
+    public void runMotorDownSlowly() {
+        m_leader.setVoltage(-0.2);
     }
 
     /**
