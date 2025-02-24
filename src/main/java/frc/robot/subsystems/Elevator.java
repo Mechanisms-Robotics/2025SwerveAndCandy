@@ -14,6 +14,7 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /*
@@ -121,7 +122,7 @@ public class Elevator extends SubsystemBase {
 
     // Soft limits
     private static final double FORWARD_SOFT_LIMIT = 8192.0; // Ticks
-    private static final double REVERSE_SOFT_LIMIT = 4096.0; // Ticks
+    private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks (> 0 so it doesn't hit bottom)
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -143,7 +144,10 @@ public class Elevator extends SubsystemBase {
         final int THROUGHBORE_TICKS_PER_REVOLUTION = 8192;
         leaderConfig.alternateEncoder
             .countsPerRevolution(THROUGHBORE_TICKS_PER_REVOLUTION)
-            .setSparkMaxDataPortConfig();
+            .setSparkMaxDataPortConfig()
+            .positionConversionFactor(THROUGHBORE_TICKS_PER_REVOLUTION)
+            .velocityConversionFactor(THROUGHBORE_TICKS_PER_REVOLUTION)
+            .inverted(true);
 
         leaderConfig
             .idleMode(IdleMode.kBrake)
@@ -196,6 +200,8 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
+        SmartDashboard.putNumber("Elevator/Position", getCurrentPosition());
+
         final double DT = 0.02; // seconds (based on periodic time)
 
         m_setpoint = profile.calculate(
