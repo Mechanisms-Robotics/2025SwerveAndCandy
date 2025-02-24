@@ -129,6 +129,8 @@ public class Elevator extends SubsystemBase {
         = new TrapezoidProfile.State(0.0, 0.0); // Starting lowered
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
+    private static final int CURRENT_LIMIT = 40; // Amps
+
     public Elevator() {
         // Zero the encoder
         m_outputEncoder.setPosition(0.0);
@@ -143,7 +145,13 @@ public class Elevator extends SubsystemBase {
             .countsPerRevolution(THROUGHBORE_TICKS_PER_REVOLUTION)
             .setSparkMaxDataPortConfig();
 
-        leaderConfig.idleMode(IdleMode.kBrake); // helps prevent freefall with disabled
+        leaderConfig
+            .idleMode(IdleMode.kBrake)
+            .smartCurrentLimit(CURRENT_LIMIT);
+        
+        followerConfig
+            .idleMode(IdleMode.kBrake)
+            .smartCurrentLimit(CURRENT_LIMIT);
 
         leaderConfig.softLimit
             .forwardSoftLimit(FORWARD_SOFT_LIMIT)
@@ -182,9 +190,9 @@ public class Elevator extends SubsystemBase {
      *
      * @return The current position in ticks.
      */
-    // public double getCurrentPosition() {
-    //     return m_outputEncoder.getPosition();
-    // }
+    public double getCurrentPosition() {
+        return m_outputEncoder.getPosition();
+    }
 
     @Override
     public void periodic() {
