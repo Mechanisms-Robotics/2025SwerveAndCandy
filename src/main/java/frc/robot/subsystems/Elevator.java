@@ -9,6 +9,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
@@ -94,7 +95,7 @@ public class Elevator extends SubsystemBase {
     private final SparkMax m_follower = new SparkMax(FOLLOWER_CAN_ID, MotorType.kBrushless);
 
     // The throughbore encoder is on the leader
-    private RelativeEncoder m_outputEncoder = null;
+    private RelativeEncoder m_outputEncoder = m_leader.getAlternateEncoder();
 
     // REV's built-in PID controller on the leader
     private final SparkClosedLoopController m_sparkClosedLoopController
@@ -129,6 +130,9 @@ public class Elevator extends SubsystemBase {
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
     public Elevator() {
+        // Zero the encoder
+        m_outputEncoder.setPosition(0.0);
+
         // Configure the motors
 
         SparkMaxConfig leaderConfig = new SparkMaxConfig();
@@ -141,25 +145,26 @@ public class Elevator extends SubsystemBase {
 
         leaderConfig.idleMode(IdleMode.kBrake); // helps prevent freefall with disabled
 
-        leaderConfig.softLimit.forwardSoftLimit(FORWARD_SOFT_LIMIT)
+        leaderConfig.softLimit
+            .forwardSoftLimit(FORWARD_SOFT_LIMIT)
             .forwardSoftLimitEnabled(true);
-        leaderConfig.softLimit.reverseSoftLimit(REVERSE_SOFT_LIMIT)
+        leaderConfig.softLimit
+            .reverseSoftLimit(REVERSE_SOFT_LIMIT)
             .reverseSoftLimitEnabled(true);
 
         leaderConfig.closedLoop
             .p(KP)
             .i(KI)
             .d(KD)
-            .outputRange(MIN_OUTPUT, MAX_OUTPUT);
+            .outputRange(MIN_OUTPUT, MAX_OUTPUT)
+            .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder);
 
         followerConfig.follow(m_leader, false /* NOT inverted */);
 
-        m_leader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        m_follower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        // Zero the encoder
-        m_outputEncoder = m_leader.getAlternateEncoder();
-        m_outputEncoder.setPosition(0.0);
+        m_leader.configure(
+            leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_follower.configure(
+            followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     /**
