@@ -1,8 +1,11 @@
 package frc.robot.subsystems.coralmech;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +26,10 @@ public class CoralMech extends SubsystemBase {
     public CoralMech() {
         // motor configuration
         SparkMaxConfig config = new SparkMaxConfig();
+        // kCoast might be worth trying but these wheels will be powering the motors holding the coral in place
+        config.idleMode(IdleMode.kBrake);
+        motorL.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motorR.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         SmartDashboard.putNumber("CoralMech/ejectVoltage", ejectVoltage);
     }
 
