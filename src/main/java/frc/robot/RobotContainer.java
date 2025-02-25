@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -32,6 +33,7 @@ public class RobotContainer
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+  public final AlgaeMech algaeMech = new AlgaeMech();
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
@@ -162,12 +164,16 @@ public class RobotContainer
     {
       driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       //driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      driverController.circle().whileTrue(Commands.none());
+      // driverController.circle().whileTrue(Commands.none());
       driverController.options().whileTrue(Commands.none());
       driverController.share().whileTrue(Commands.none());
       driverController.L2().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverController.R2().onTrue(Commands.none());
     }
+
+    driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
+    driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+    driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
 
   }
 

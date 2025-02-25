@@ -3,23 +3,23 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeMech extends SubsystemBase {
     private TalonFX m_wristMotor = new TalonFX(0);
-    // the left and right wheel motors are controlled by one spark
-    private static final SparkMax m_wheelMotors = new SparkMax(10, MotorType.kBrushed);
     private static final CANcoder canCoder = new CANcoder(12);
-    private static final double intakeVoltage = 1;
+    // the left and right wheel motors are controlled by one spark
+    private static final SparkMax m_wheelMotors = new SparkMax(21, MotorType.kBrushed);
     enum State {
       INTAKING,
+      PLACING,
       IDLE
     }
 
@@ -34,12 +34,17 @@ public class AlgaeMech extends SubsystemBase {
 
 
     public void intake() {
-        m_wheelMotors.setVoltage(intakeVoltage);
+        m_wheelMotors.getClosedLoopController().setReference(-.7, ControlType.kDutyCycle);
         state = State.INTAKING;
     }
 
+    public void place() {
+      m_wheelMotors.getClosedLoopController().setReference(1, ControlType.kDutyCycle);
+      state = State.PLACING;
+    }
+
     public void stop() {
-      m_wheelMotors.setVoltage(0);
+      m_wheelMotors.getClosedLoopController().setReference(0, ControlType.kDutyCycle);
       state = State.IDLE;
     }
 
