@@ -171,9 +171,9 @@ public class RobotContainer
       driverController.R2().onTrue(Commands.none());
     }
 
-    driverController.triangle().onTrue(Commands.runOnce(coralMech::intakeCoral, coralMech));
+    // TODO: get the right buttons from Leif and Ada
+    driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
     driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
-
   }
 
   /**
