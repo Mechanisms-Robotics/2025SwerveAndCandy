@@ -81,6 +81,7 @@ public class Robot extends TimedRobot
   @Override
   public void disabledInit()
   {
+    m_robotContainer.setElevatorToWhereItsAt();
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
@@ -103,6 +104,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit()
   {
+    m_robotContainer.setElevatorToWhereItsAt();
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -124,6 +126,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    m_robotContainer.setElevatorToWhereItsAt();
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -151,6 +155,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit()
   {
+    m_robotContainer.setElevatorToWhereItsAt();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -169,6 +174,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
+    m_robotContainer.setElevatorToWhereItsAt();
   }
 
   /**
@@ -182,7 +188,7 @@ public class Robot extends TimedRobot
 
   public void outputRobotPose()
   {
-    Pose2d robotPose = m_robotContainer.drivebase.getPose();
+    Pose2d robotPose = m_robotContainer.m_drivebase.getPose();
     SmartDashboard.putNumber("Pose X: ", robotPose.getTranslation().getX());
     SmartDashboard.putNumber("Pose Y: ", robotPose.getTranslation().getY()); 
     SmartDashboard.putNumber("Pose Theta: ", robotPose.getRotation().getDegrees());
