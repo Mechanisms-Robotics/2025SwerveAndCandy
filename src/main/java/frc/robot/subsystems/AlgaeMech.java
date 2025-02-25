@@ -1,7 +1,8 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -9,60 +10,97 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;  
 
 public class AlgaeMech extends SubsystemBase {
-    private TalonFX m_wristMotor = new TalonFX(0);
-    private static final CANcoder canCoder = new CANcoder(12);
-    // the left and right wheel motors are controlled by one spark
-    private static final SparkMax m_wheelMotors = new SparkMax(21, MotorType.kBrushed);
-    enum State {
-      INTAKING,
-      PLACING,
-      IDLE
+  private static final TalonFX m_wristMotor = new TalonFX(22);
+  private final PIDController m_controller = new PIDController(0.0001, 0, 0);
+  /* Angle of the arm on boot, rather what it should be on boot. When turning on the robot hold the arm up as far as it can go
+  which should be an 86 degree anglr. */
+  private static final double wristStartingAngle = 86;
+  /* Angle the wrist id PIDing toward */
+  private static double desiredAngle = wristStartingAngle;
+  /* number of rotations of the motor per rotation of the hex shaft (note the hex shaft should never 
+  make a full rotation because the arms of the algae mechanism cannot move like that)
+  The falcon motor is attached to 2 5 to 1 gear boxes, a 18t pulley and a 27t pulley on a */
+  private final double gearRatio = (27.0/18.0) * 25.0;
+  // the left and right wheel motors are controlled by one spark
+  private static final SparkMax m_wheelMotors = new SparkMax(21, MotorType.kBrushed);
+
+  enum State {
+    INTAKING,
+    PLACING,
+    IDLE
+  }
+  State state = State.INTAKING;
+
+  public AlgaeMech() {
+      SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
+      SmartDashboard.putData("AlgaeMech/controler", m_controller);
+      SmartDashboard.putNumber("AlgaeMech/Wrist/gear ratio", gearRatio);
+      TalonFXConfiguration wristConfig = new TalonFXConfiguration();
+      wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+      m_wristMotor.getConfigurator().apply(wristConfig);
+      m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  /**
+   * Spin the wheels toward the robot using DutyCycle to intake the Algae
+   */
+  public void intake() {
+      m_wheelMotors.getClosedLoopController().setReference(-.7, ControlType.kDutyCycle);
+      state = State.INTAKING;
+  }
+
+  /**
+   * Spin the wheels away from the robot to place algae
+   */
+  public void place() {
+    m_wheelMotors.getClosedLoopController().setReference(1, ControlType.kDutyCycle);
+    state = State.PLACING;
+  }
+
+  /**
+   * Stop the motors
+   */
+  public void stop() {
+    m_wheelMotors.getClosedLoopController().setReference(0, ControlType.kDutyCycle);
+    state = State.IDLE;
+  }
+
+  public void toggleIntake() {
+    if (state == State.INTAKING) {
+      stop();
+    } else {
+      intake();
     }
+  }
 
-    State state = State.INTAKING;
+  /**
+   * Outputs the angle of the arm based on the internal encoder of the wrist motor
+   * @return
+   */
+  public double getWristAngle() {
+    return m_wristMotor.getPosition().getValueAsDouble() * 360 / gearRatio + wristStartingAngle;
+  }
 
+  /**
+   * Start piding to an angle
+   * 
+   * @param angle angle to pid to
+   */
+  public void setWristAngle(double angle) {
+    this.desiredAngle = angle;
+  }
 
-    public AlgaeMech() {
-        SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
-
-        m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
-
-
-    public void intake() {
-        m_wheelMotors.getClosedLoopController().setReference(-.7, ControlType.kDutyCycle);
-        state = State.INTAKING;
-    }
-
-    public void place() {
-      m_wheelMotors.getClosedLoopController().setReference(1, ControlType.kDutyCycle);
-      state = State.PLACING;
-    }
-
-    public void stop() {
-      m_wheelMotors.getClosedLoopController().setReference(0, ControlType.kDutyCycle);
-      state = State.IDLE;
-    }
-
-    public void toggleIntake() {
-      if (state == State.INTAKING) {
-        stop();
-      } else {
-        intake();
-      }
-    }
-
-    @Override
-    public void periodic() {
-        // ranges from -.5-.5
-        SmartDashboard.putNumber("AlgaeMech/Wrist/absolute position", canCoder.getAbsolutePosition().getValueAsDouble());
-        SmartDashboard.putNumber("AlgaeMech/Wrist/position", canCoder.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("AlgaeMech/Wrist/position since boot", canCoder.getPositionSinceBoot().getValueAsDouble());
-        SmartDashboard.putNumber("AlgaeMech/Wrist/angle", canCoder.getPositionSinceBoot().getValueAsDouble()%.5 * 2 * 360);
-        SmartDashboard.putString("AlgaeMech/State", state.toString());
-    }
+  @Override
+  public void periodic() {
+    m_wristMotor.set(m_controller.calculate(getWristAngle(), desiredAngle));
+    // ranges from -.5-.5
+    SmartDashboard.putString("AlgaeMech/State", state.toString());
+    SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
+    System.out.println(m_wristMotor.getPosition().getValueAsDouble() + " " + gearRatio + " " + getWristAngle());
+  }
 }

@@ -167,14 +167,15 @@ public class RobotContainer
       // driverController.circle().whileTrue(Commands.none());
       driverController.options().whileTrue(Commands.none());
       driverController.share().whileTrue(Commands.none());
-      driverController.L2().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+      // driverController.L2().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverController.R2().onTrue(Commands.none());
     }
 
     driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
     driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
     driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
-
+    driverController.L2().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(0), algaeMech));
+    driverController.L1().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(45), algaeMech));
   }
 
   /**
