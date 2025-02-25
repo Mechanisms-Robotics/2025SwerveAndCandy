@@ -16,7 +16,7 @@ public class CoralMech extends SubsystemBase {
     private static final SparkMax m_motors = new SparkMax(20, MotorType.kBrushed);
     // not currently in use
     // Will be used to detect when a coral is in the mechanism, needed for knowing when to brake the motors
-    private static final double intakeDutyCycle = .6;
+    private static final double feedDutyCycle = .6;
     /* DutyCycle equation: D = PW/T 
     Duty cycle is the ratio of the pulse width (active pulse time) over total time
     Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
@@ -34,7 +34,7 @@ public class CoralMech extends SubsystemBase {
      * Spin the coral mech wheels so the coral moves out of the mechanism at intakeVoltage
      */
     public void feedCoral() {
-        m_motors.getClosedLoopController().setReference(intakeDutyCycle, ControlType.kDutyCycle);
+        m_motors.getClosedLoopController().setReference(feedDutyCycle, ControlType.kDutyCycle);
         SmartDashboard.putString("CoralsMech/State", "intaking");
     }
 
