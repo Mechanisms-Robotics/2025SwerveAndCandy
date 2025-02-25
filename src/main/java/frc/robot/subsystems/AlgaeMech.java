@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.revrobotics.spark.SparkMax;
@@ -28,6 +30,8 @@ public class AlgaeMech extends SubsystemBase {
   private final double gearRatio = (27.0/18.0) * 25.0;
   // the left and right wheel motors are controlled by one spark
   private static final SparkMax m_wheelMotors = new SparkMax(21, MotorType.kBrushed);
+  private static final double intakeDutyCycle = -.7;
+  private static final double placingDutyCycle = 1;
 
   enum State {
     INTAKING,
@@ -50,7 +54,7 @@ public class AlgaeMech extends SubsystemBase {
    * Spin the wheels toward the robot using DutyCycle to intake the Algae
    */
   public void intake() {
-      m_wheelMotors.getClosedLoopController().setReference(-.7, ControlType.kDutyCycle);
+      m_wheelMotors.getClosedLoopController().setReference(intakeDutyCycle, ControlType.kDutyCycle);
       state = State.INTAKING;
   }
 
@@ -58,7 +62,7 @@ public class AlgaeMech extends SubsystemBase {
    * Spin the wheels away from the robot to place algae
    */
   public void place() {
-    m_wheelMotors.getClosedLoopController().setReference(1, ControlType.kDutyCycle);
+    m_wheelMotors.getClosedLoopController().setReference(placingDutyCycle, ControlType.kDutyCycle);
     state = State.PLACING;
   }
 
@@ -101,6 +105,5 @@ public class AlgaeMech extends SubsystemBase {
     // ranges from -.5-.5
     SmartDashboard.putString("AlgaeMech/State", state.toString());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
-    System.out.println(m_wristMotor.getPosition().getValueAsDouble() + " " + gearRatio + " " + getWristAngle());
   }
 }
