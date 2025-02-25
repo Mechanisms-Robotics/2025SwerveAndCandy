@@ -74,9 +74,6 @@ https://github.com/FRC3546/2025-Reefscape-Competition/blob/main/src/main/java/fr
 
 public class Elevator extends SubsystemBase {
     // TODO: Hard limit switches (see getForwardLimitSwitch)
-    // TODO make sure powered down completely when resting or very low to avoid power draw
-    // TODO: How to prevent drive team from enabling while elevator is still drifting down?
-    //     Or is that really a problem?
 
     // Soft limits determined experimentally. We set the lower limit at 100, at
     // which time gravity will let it fall a little lower.
