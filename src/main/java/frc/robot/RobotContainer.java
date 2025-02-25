@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.coralmech.CoralMech;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -32,6 +33,7 @@ public class RobotContainer
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+  public final CoralMech coralMech = new CoralMech();
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
@@ -168,6 +170,9 @@ public class RobotContainer
       driverController.L2().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverController.R2().onTrue(Commands.none());
     }
+
+    driverController.triangle().onTrue(Commands.runOnce(coralMech::intakeCoral, coralMech));
+    driverController.cross().onTrue(Commands.runOnce(coralMech::intakeCoral, coralMech));
 
   }
 

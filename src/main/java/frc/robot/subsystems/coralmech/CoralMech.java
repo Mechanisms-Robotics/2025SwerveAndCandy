@@ -19,14 +19,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class CoralMech extends SubsystemBase {
     // We use REV-41-1600
-    // Motor on the left of the coral mechanism, and the right of the coral mechanism
-    private static final SparkMax m_motorL = new SparkMax(0, MotorType.kBrushed); // TODO, find right id
-    private static final SparkMax m_motorR = new SparkMax(1, MotorType.kBrushed); // TODO, find right id
+    // Motor on the left of the coral mechanism, and the right of the coral mechanism, controlled by one spark
+    private static final SparkMax m_motors = new SparkMax(0, MotorType.kBrushed); // TODO, find right id
     // not currently in use
     // Will be used to detect when a coral is in the mechanism, needed for knowing when to brake the motors
     private static final DigitalInput m_sensor = new DigitalInput(0);
 
-    private static final double ejectVoltage = 1; // TODO: tune
+    private static final double placeVoltage = 1; // TODO: tune
     private static final double intakeVoltage = 1; // TODO: tune
 
 
@@ -35,17 +34,15 @@ public class CoralMech extends SubsystemBase {
         SparkMaxConfig config = new SparkMaxConfig();
         // kCoast might be worth trying but these wheels will be powering the motors holding the coral in place
         config.idleMode(IdleMode.kBrake);
-        m_motorL.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-        m_motorR.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-        SmartDashboard.putNumber("CoralMech/ejectVoltage", ejectVoltage);
+        m_motors.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        SmartDashboard.putNumber("CoralMech/ejectVoltage", placeVoltage);
     }
 
     /**
      * Runs the coral wheel motors at ejectVoltage in opposite directions
      */
     public void placeCoral() {
-        m_motorL.setVoltage(ejectVoltage);
-        m_motorR.setVoltage(-ejectVoltage);
+        m_motors.setVoltage(placeVoltage);
         SmartDashboard.putString("CoralMech/State", "placing");
     }
 
@@ -53,8 +50,7 @@ public class CoralMech extends SubsystemBase {
      * Runs the coral wheels at intakeVoltage in opposite directions
      */
     public void intakeCoral() {
-        m_motorL.setVoltage(intakeVoltage);
-        m_motorR.setVoltage(-intakeVoltage);
+        m_motors.setVoltage(intakeVoltage);
         SmartDashboard.putString("CoralsMech/State", "intaking");
     }
 
