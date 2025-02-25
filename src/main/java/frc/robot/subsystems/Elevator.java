@@ -41,7 +41,7 @@ We deviated from these instructions a bit. Use some common sense.
 6. Put in reasonable numbers for MAX_VELOCITY, MAX_ACCELERATION, and EPSILON
     on the trapezoidal profile. Note that I've mapped square to L1 and circle to
     RESTING for testing.
-7. Increase Kg until the elevator is "weightless" (just starting to move up).
+7. Increase KG until the elevator is "weightless" (just starting to move up).
     This may take two decimal places of precision.
 8. Increase the velocity feedforward gain (KV) until the straight segments of the
     elevator actual motion have the same slope as the desired motion.
@@ -49,7 +49,7 @@ We deviated from these instructions a bit. Use some common sense.
     actual motion have the same slope as the desired motion.
 10. Increase KP until the actual position starts to overshoot the target, then back
     it off by 20%.
-11. Keep tuning... Somehow... Set the MAX output voltage to 12 if anything is amiss.
+11. Keep tuning... Somehow...
 
 REFERENCES
 
@@ -75,22 +75,27 @@ https://github.com/FRC3546/2025-Reefscape-Competition/blob/main/src/main/java/fr
 public class Elevator extends SubsystemBase {
     // TODO: Hard limit switches (see getForwardLimitSwitch)
     // TODO make sure powered down completely when resting or very low to avoid power draw
+    // TODO: How to prevent drive team from enabling while elevator is still drifting down?
+    //     Or is that really a problem?
+
+    // Soft limits determined experimentally. We set the lower limit at 100, at
+    // which time gravity will let it fall a little lower.
+    private static final double FORWARD_SOFT_LIMIT = 40000.0; // Ticks
+    private static final double REVERSE_SOFT_LIMIT = 500.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
     // TODO: Determine experimentally and then write an equation for offline
     //   estimation of changes and put that here for posterity
     // TODO: We may need separate levels (or an offset) for algae vs. coral
 
-    // TODO: How to prevent drive team from enabling while elevator is still drifting down?
-
-    public static final int RESTING = 1000;
+    public static final int RESTING = (int)REVERSE_SOFT_LIMIT + 10;
     public static final int PROCESSOR = 0;
     public static final int LOADING = 0;
-    public static final int L1 = 10000;
+    public static final int L1 = 0;
     public static final int L2 = 0;
     public static final int L3 = 0;
     public static final int L4 = 0;
-    public static final int BARGE = 0;
+    public static final int BARGE = 39000;
 
     private static final int LEADER_CAN_ID = 11;
     private static final int FOLLOWER_CAN_ID = 10;
@@ -107,11 +112,11 @@ public class Elevator extends SubsystemBase {
         = m_leader.getClosedLoopController();
 
     // Tunables for the SparkMax PID and output
-    private static final double KP = 0.0;
+    private static final double KP = 0.0001;
     private static final double KI = 0.0;
     private static final double KD = 0.0;
-    private static final double MIN_OUTPUT = 0.0; // Volts
-    private static final double MAX_OUTPUT = 6.0; // Volts
+    private static final double MIN_OUTPUT = -10.0; // Volts
+    private static final double MAX_OUTPUT = 10.0; // Volts
     
     // Tunables for the elevator feedforward
     private static final double KA = 0.0; // Acceleration feedforward Volts per something
@@ -120,14 +125,9 @@ public class Elevator extends SubsystemBase {
     private static final double KV = 0.0; // Velocity constant in Volts per distance per second
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 0.0; // Ticks per second?
-    private static final double MAX_ACCELERATION = 0.0; // Ticks per second per second?
-    private static final double EPSILON = 0.0; // Allowed error, presumably in ticks
-
-    // Soft limits determined experimentally. We set the lower limit at 100, at
-    // which time gravity will let it fall a little lower.
-    private static final double FORWARD_SOFT_LIMIT = 40000.0; // Ticks
-    private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks
+    private static final double MAX_VELOCITY = 3*8192.0; // Ticks per second?
+    private static final double MAX_ACCELERATION = 5*8192; // Ticks per second per second?
+    private static final double EPSILON = 100.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -135,7 +135,7 @@ public class Elevator extends SubsystemBase {
         = new TrapezoidProfile.State(0.0, 0.0); // Starting lowered
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
-    private static final int CURRENT_LIMIT = 40; // Amps
+    private static final int CURRENT_LIMIT = 20; // Amps
 
     public Elevator() {
         // Zero the encoder
@@ -184,14 +184,6 @@ public class Elevator extends SubsystemBase {
             followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public void runMotorUpSlowly() { // TODO
-        m_leader.setVoltage(1);
-    }
-
-    public void runMotorDownSlowly() {
-        m_leader.setVoltage(-0.2);
-    }
-
     /**
      * Sets the desired elevator position.
      *
@@ -227,12 +219,14 @@ public class Elevator extends SubsystemBase {
 
             ElevatorFeedforward feedforward
                 = new ElevatorFeedforward(KS, KG, KV, KA);
+            double ff = feedforward.calculate(m_setpoint.velocity);
+            ff = 0; // TODO, if necessary
             
             m_sparkClosedLoopController.setReference(
                 m_setpoint.position,
                 ControlType.kPosition,
                 ClosedLoopSlot.kSlot0,
-                feedforward.calculate(m_setpoint.velocity));
+                ff);
         }
     }
 }

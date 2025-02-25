@@ -39,6 +39,11 @@ public class RobotContainer
     "swerve"));
   public final Elevator m_elevator = new Elevator();
 
+  public void setElevatorToWhereItsAt() {
+    // Prevents the elevator from moving on enable
+    m_elevator.setTargetPosition(m_elevator.getCurrentPosition());
+  }
+
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
@@ -164,14 +169,12 @@ public class RobotContainer
     //The following code is the acutal drive code used
     {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
-      driverController.square().onTrue(Commands.runOnce(m_elevator::runMotorUpSlowly));
-      driverController.circle().onTrue(Commands.runOnce(m_elevator::runMotorDownSlowly));
-      // driverController.square().onTrue(Commands.runOnce(
-      //   () -> m_elevator.setTargetPosition(Elevator.L1)
-      // ));
-      // driverController.circle().whileTrue(Commands.runOnce(
-      //   () -> m_elevator.setTargetPosition(Elevator.RESTING)
-      // ));
+      driverController.square().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.BARGE)
+      ));
+      driverController.circle().whileTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.RESTING)
+      ));
       driverController.options().whileTrue(Commands.none());
       driverController.share().whileTrue(Commands.none());
       driverController.L2().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
