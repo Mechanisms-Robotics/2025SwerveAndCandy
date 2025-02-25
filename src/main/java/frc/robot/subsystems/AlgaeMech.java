@@ -46,6 +46,11 @@ public class AlgaeMech extends SubsystemBase {
       SmartDashboard.putNumber("AlgaeMech/Wrist/gear ratio", gearRatio);
       TalonFXConfiguration wristConfig = new TalonFXConfiguration();
       wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+      // wristConfig.Slot0.kG = 0;
+      // wristConfig.Slot0.kV = 0;
+      // wristConfig.Slot0.kP = 0;
+      // wristConfig.Slot0.kI = 0;
+      // wristConfig.Slot0.kD = 0;
       m_wristMotor.getConfigurator().apply(wristConfig);
       m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
@@ -91,6 +96,15 @@ public class AlgaeMech extends SubsystemBase {
   }
 
   /**
+   * Get velocity in degrees per seconds
+   * 
+   * @return velocity in degrees per second
+   */
+  public double getWristVelocity() {
+    return m_wristMotor.getVelocity().getValueAsDouble() * 360 / gearRatio;
+  }
+
+  /**
    * Start piding to an angle
    * 
    * @param angle angle to pid to
@@ -99,11 +113,16 @@ public class AlgaeMech extends SubsystemBase {
     this.desiredAngle = angle;
   }
 
+  
+
   @Override
   public void periodic() {
     m_wristMotor.set(m_controller.calculate(getWristAngle(), desiredAngle));
     // ranges from -.5-.5
     SmartDashboard.putString("AlgaeMech/State", state.toString());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
+    SmartDashboard.putNumber("AlgaeMech/Wrist/Velocity (degrees per seconds)", getWristVelocity());
+    SmartDashboard.putNumber("AlgaeMech/wrist motor/velocity", m_wristMotor.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("AlgaeMech/wrist motor/position", m_wristMotor.getPosition().getValueAsDouble());
   }
 }
