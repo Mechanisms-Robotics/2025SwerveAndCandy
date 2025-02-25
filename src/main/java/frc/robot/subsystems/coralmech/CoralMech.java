@@ -54,6 +54,10 @@ public class CoralMech extends SubsystemBase {
         SmartDashboard.putString("CoralsMech/State", "intaking");
     }
 
+    public void idle() {
+        m_motors.setVoltage(0);
+    }
+
     @Override
     public void periodic() {
     }

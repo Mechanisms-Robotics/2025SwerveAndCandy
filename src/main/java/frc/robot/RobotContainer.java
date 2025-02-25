@@ -172,7 +172,7 @@ public class RobotContainer
     }
 
     driverController.triangle().onTrue(Commands.runOnce(coralMech::intakeCoral, coralMech));
-    driverController.cross().onTrue(Commands.runOnce(coralMech::intakeCoral, coralMech));
+    driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
 
   }
 
