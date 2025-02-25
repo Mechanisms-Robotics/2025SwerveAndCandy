@@ -27,6 +27,12 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
+  public void resetMotorPositionsOnInit() {
+    m_robotContainer.algaeMech.setWristAngle(
+      m_robotContainer.algaeMech.getWristAngle()
+    );
+  }
+
   public Robot()
   {
     instance = this;
@@ -55,6 +61,8 @@ public class Robot extends TimedRobot
     {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
+
+    resetMotorPositionsOnInit();
   }
 
   /**
@@ -103,6 +111,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit()
   {
+    resetMotorPositionsOnInit();
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -124,6 +133,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    resetMotorPositionsOnInit();
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -151,6 +162,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit()
   {
+    resetMotorPositionsOnInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -169,6 +181,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
+    resetMotorPositionsOnInit();
   }
 
   /**
