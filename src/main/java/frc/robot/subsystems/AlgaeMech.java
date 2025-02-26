@@ -153,7 +153,6 @@ public class AlgaeMech extends SubsystemBase {
     // 2. We can set a P to about 0.01 and get an output of [ -1.0, 1.0 ], roughly
     // 3. So let's verify that on the robot
 
-    m_wristMotor.set(m_controller.calculate(getWristAngle(), m_desiredAngle));
     double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
     m_wristMotor.set(output);
     SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
