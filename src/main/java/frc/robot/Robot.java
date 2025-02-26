@@ -29,8 +29,8 @@ public class Robot extends TimedRobot
   private Timer disabledTimer;
 
   public void resetMotorPositionsOnInit() {
-    m_robotContainer.algaeMech.setWristAngle(
-      m_robotContainer.algaeMech.getWristAngle()
+    m_robotContainer.m_algaeMech.setWristAngle(
+      m_robotContainer.m_algaeMech.getWristAngle()
     );
 
     m_robotContainer.setElevatorToWhereItsAt();

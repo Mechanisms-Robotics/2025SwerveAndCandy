@@ -43,8 +43,8 @@ public class RobotContainer {
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
     "swerve"));
   public final Elevator m_elevator = new Elevator();
-  public final CoralMech coralMech = new CoralMech();
-  public final AlgaeMech algaeMech = new AlgaeMech();
+  public final CoralMech m_coralMech = new CoralMech();
+  public final AlgaeMech m_algaeMech = new AlgaeMech();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -175,34 +175,46 @@ public class RobotContainer {
     } else
     // ******** The following code is the acutal drive code used *******
     {
-      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
-      // driverController.square().onTrue(Commands.runOnce(
-        //   () -> m_elevator.setTargetPosition(Elevator.BARGE)
+      // driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      // // driverController.square().onTrue(Commands.runOnce(
+      //   //   () -> m_elevator.setTargetPosition(Elevator.BARGE)
+      // // ));
+      // // driverController.circle().whileTrue(Commands.runOnce(
+      // //   () -> m_elevator.setTargetPosition(Elevator.RESTING)
+      // // ));
+      // // driverController.options().whileTrue(Commands.none());
+      // // driverController.share().whileTrue(Commands.none());
+      // // driverController.L2().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
+      // // driverController.R2().onTrue(Commands.none());
+      // // TODO: get the right buttons from Leif and Ada
+      // // driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
+      // // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
+
+      // driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
+      // //driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      // driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
+      // driverController.L1().onTrue(Commands.none());  
+      // driverController.L2().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
+      // driverController.R1().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
+      // driverController.R2().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      
+      // driverController.triangle().onTrue(Commands.runOnce(
+      //   () -> m_elevator.setTargetPosition(Elevator.BARGE)
       // ));
-      // driverController.circle().whileTrue(Commands.runOnce(
+      
+      // driverController.cross().onTrue(Commands.runOnce(
       //   () -> m_elevator.setTargetPosition(Elevator.RESTING)
       // ));
-      // driverController.options().whileTrue(Commands.none());
-      // driverController.share().whileTrue(Commands.none());
-      // driverController.L2().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-      // driverController.R2().onTrue(Commands.none());
-      // TODO: get the right buttons from Leif and Ada
-      // driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
-      // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
 
-      driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
-      //driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
-      driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
-      driverController.L1().onTrue(Commands.none());  
-      driverController.L2().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
-      driverController.R1().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
-      driverController.R2().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
-      
+
+
       driverController.triangle().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.BARGE)
+        //() -> m_algaeMech.setWristAngle(80)
+        () -> m_elevator.setTargetPosition(Elevator.L2)
       ));
       
       driverController.cross().onTrue(Commands.runOnce(
+        //() -> m_algaeMech.setWristAngle(10)
         () -> m_elevator.setTargetPosition(Elevator.RESTING)
       ));
     }

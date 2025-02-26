@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -65,13 +67,14 @@ public class AlgaeMech extends SubsystemBase {
       wristConfig.CurrentLimits.StatorCurrentLimit = WRIST_MOTOR_CURRENT_LIMIT;
       wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
+      
       // wristConfig.Slot0.kG = 0;
       // wristConfig.Slot0.kV = 0;
       // wristConfig.Slot0.kP = 0;
       // wristConfig.Slot0.kI = 0;
       // wristConfig.Slot0.kD = 0;
       m_wristMotor.getConfigurator().apply(wristConfig);
+      m_wristMotor.setNeutralMode(NeutralModeValue.Brake);
 
       //SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
       //m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -154,8 +157,8 @@ public class AlgaeMech extends SubsystemBase {
       output /= 10.0;
     }
     m_wristMotor.set(output);
-    SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
 
+    SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Velocity (degrees per seconds)", getWristVelocity());
