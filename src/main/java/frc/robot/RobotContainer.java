@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -25,6 +27,8 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.coralmech.CoralMech;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.function.Supplier;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -206,27 +210,31 @@ public class RobotContainer {
         () -> m_elevator.setTargetPosition(Elevator.RESTING)
       ));
     }
-
+    
     driverController.povDown().onTrue(Commands.runOnce(
       () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
-    );
+      );
+      
+      driverController.povUp().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
+        );
+        
 
-    driverController.povUp().onTrue(Commands.runOnce(
-      () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
-    );
-
-
+    Supplier<Boolean> clutch = () -> petal.getRawButton(1);
     new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(
+      Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L2_ALGAE_OFFSET : Elevator.L2), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(
+      Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L3_ALGAE_OFFSET : Elevator.L3), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(
+      Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
     // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
     // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-    //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+      //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
 
-    /****************** */
+      /****************** */
   }
-
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -237,7 +245,7 @@ public class RobotContainer {
     // An example command will be run in autonomous
     return m_drivebase.getAutonomousCommand("New Auto");
   }
-
+  
   public void setMotorBrake(boolean brake)
   {
     m_drivebase.setMotorBrake(brake);
