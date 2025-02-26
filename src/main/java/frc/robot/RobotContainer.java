@@ -38,6 +38,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+  private final CommandPS4Controller secondaryController = new CommandPS4Controller(3);
   private final Joystick shifter = new Joystick(1);
   private final Joystick gamePad = new Joystick(2);
 
@@ -45,8 +46,8 @@ public class RobotContainer {
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
     "swerve"));
   public final Elevator m_elevator = new Elevator();
-  public final CoralMech coralMech = new CoralMech();
-  public final AlgaeMech algaeMech = new AlgaeMech();
+  public final CoralMech m_coralMech = new CoralMech();
+  public final AlgaeMech m_algaeMech = new AlgaeMech();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -123,15 +124,7 @@ public class RobotContainer {
    */
   private void configureBindings()
   {
-    Command driveFieldOrientedDirectAngle      = m_drivebase.driveFieldOriented(driveDirectAngle);
     Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity  = m_drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = m_drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard      = m_drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = m_drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
 
     if (RobotBase.isSimulation())
     {
@@ -178,58 +171,67 @@ public class RobotContainer {
     // ******** The following code is the acutal drive code used *******
     {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
-      // driverController.square().onTrue(Commands.runOnce(
-        //   () -> m_elevator.setTargetPosition(Elevator.BARGE)
-      // ));
-      // driverController.circle().whileTrue(Commands.runOnce(
-      //   () -> m_elevator.setTargetPosition(Elevator.RESTING)
-      // ));
-      // driverController.options().whileTrue(Commands.none());
-      // driverController.share().whileTrue(Commands.none());
-      // driverController.L2().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-      // driverController.R2().onTrue(Commands.none());
-      // TODO: get the right buttons from Leif and Ada
-      // driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
-      // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
 
-      driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
-      //driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
-      driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
-      driverController.L1().onTrue(Commands.none());  
-      driverController.L2().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
-      driverController.R1().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
-      driverController.R2().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      // Algae Mech
+      driverController.L2().onTrue(Commands.runOnce(m_algaeMech::toggleIntake, m_algaeMech));
+      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace, m_algaeMech));
+
+
+      // Coral Mech
+      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
       
-      driverController.triangle().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.BARGE)
-      ));
-      
-      driverController.cross().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.RESTING)
-      ));
-    }
-    
-    driverController.povDown().onTrue(Commands.runOnce(
-      () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
+      // Elevator
+      // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
+      // May be removed if at all needed. - Micah
+      driverController.povDown().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
       );
-      
+        
       driverController.povUp().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
-        );
-        
+      );
 
-    Supplier<Boolean> clutch = () -> gamePad.getRawButton(1);
-    new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(
-      Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L2_ALGAE_OFFSET : Elevator.L2), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(
-      Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L3_ALGAE_OFFSET : Elevator.L3), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(
-      Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
-    // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
-    // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-      //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+      
+      Supplier<Boolean> clutch = () -> secondaryController.touchpad().getAsBoolean() || gamePad.getRawButton(1);
+      secondaryController.cross().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
 
+      secondaryController.square().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+
+      secondaryController.circle().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+
+      secondaryController.triangle().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+  
+      secondaryController.povUp().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
+      );
+
+      secondaryController.povRight().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator)
+      );
+
+      secondaryController.povDown().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
+      );  
+  
+      new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
+      new Trigger(() -> shifter.getRawButton(2)).whileTrue(
+        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L2_ALGAE_OFFSET : Elevator.L2), m_elevator));
+      new Trigger(() -> shifter.getRawButton(3)).whileTrue(
+        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L3_ALGAE_OFFSET : Elevator.L3), m_elevator));
+      new Trigger(() -> shifter.getRawButton(4)).whileTrue(
+        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
+        // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
+      // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
+        //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+    }  
       /****************** */
   }
   

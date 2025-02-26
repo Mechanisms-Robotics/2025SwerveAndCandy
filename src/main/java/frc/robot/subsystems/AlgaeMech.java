@@ -99,7 +99,7 @@ public class AlgaeMech extends SubsystemBase {
   }
 
   /**
-   * Stop the motors
+   * Stop the wheels motors
    */
   public void stop() {
     m_wheelMotors.getClosedLoopController().setReference(
@@ -107,11 +107,27 @@ public class AlgaeMech extends SubsystemBase {
     state = State.IDLE;
   }
 
+  /**
+   * If it is not (i.e. in any other state other than), intaking, start intaknig.
+   * Otherwise, if it is in intaking, stop the wheels motors
+   */
   public void toggleIntake() {
     if (state == State.INTAKING) {
       stop();
     } else {
       intake();
+    }
+  }
+
+  /**
+   * If it is not (i.e. in any other state other than), placing, start placing.
+   * Otherwise, if it is in placing, stop the wheels from spinning
+   */
+  public void togglePlace() {
+    if (state == State.PLACING) {
+      stop();
+    } else {
+      place();
     }
   }
 
