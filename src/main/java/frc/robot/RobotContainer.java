@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -41,7 +39,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
   private final Joystick shifter = new Joystick(1);
-  private final Joystick petal = new Joystick(2);
+  private final Joystick gamePad = new Joystick(2);
 
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -220,7 +218,7 @@ public class RobotContainer {
         );
         
 
-    Supplier<Boolean> clutch = () -> petal.getRawButton(1);
+    Supplier<Boolean> clutch = () -> gamePad.getRawButton(1);
     new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(
       Commands.runOnce(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L2_ALGAE_OFFSET : Elevator.L2), m_elevator));
