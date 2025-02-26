@@ -89,9 +89,12 @@ public class Elevator extends SubsystemBase {
     public static final int PROCESSOR = 1000;
     public static final int LOADING = 1000;
     public static final int L1 = 5000;
-    public static final int L2 = 12000; // algae 14600
-    public static final int L3 = 19700; // algae 22600
-    public static final int L4 = 31500; //offset to 34000
+    public static final int L2 = 12000;
+    public static final int L2_ALGAE_OFFSET = 14600;
+    public static final int L3 = 19700;
+    public static final int L3_ALGAE_OFFSET = 22600;
+    public static final int L4 = 31500; 
+    public static final int L4_OFFSET = 34000;
     public static final int BARGE = 39000;
 
     private static final int LEADER_CAN_ID = 11;
