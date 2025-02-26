@@ -21,6 +21,12 @@ public class CoralMech extends SubsystemBase {
     Duty cycle is the ratio of the pulse width (active pulse time) over total time
     Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
 
+    enum State {
+        FEEDING,
+        IDLING
+    }
+    State state = State.IDLING;
+
     public CoralMech() {
         // Create motor configuration to apply to the wheel motors
         SparkMaxConfig config = new SparkMaxConfig();
@@ -34,6 +40,7 @@ public class CoralMech extends SubsystemBase {
      * Spin the coral mech wheels so the coral moves out of the mechanism at intakeVoltage
      */
     public void feedCoral() {
+        state = State.FEEDING;
         m_motors.getClosedLoopController().setReference(feedDutyCycle, ControlType.kDutyCycle);
         SmartDashboard.putString("CoralsMech/State", "intaking");
     }
@@ -42,8 +49,20 @@ public class CoralMech extends SubsystemBase {
      * Stop the coral mech wheel motors
      */
     public void idle() {
+        state = State.IDLING;
         m_motors.getClosedLoopController().setReference(0, ControlType.kDutyCycle);
         SmartDashboard.putString("CoralMech/State", "idling");
+    }
+
+    /**
+     * If it is not feeding, start feeding. Otherise, stop the coral wheels.
+     */
+    public void toggleFeed() {
+        if (state == State.FEEDING) {
+            idle();
+        } else {
+            feedCoral();
+        }
     }
 
     @Override

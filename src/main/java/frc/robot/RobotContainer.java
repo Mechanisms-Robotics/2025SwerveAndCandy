@@ -185,7 +185,7 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
+      driverController.R1().onTrue(Commands.runOnce(m_coralMech::toggleFeed, m_coralMech));
       
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
