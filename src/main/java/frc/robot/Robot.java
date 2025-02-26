@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -38,6 +39,7 @@ public class Robot extends TimedRobot
   public Robot()
   {
     instance = this;
+    CameraServer.startAutomaticCapture();
   }
 
   public static Robot getInstance()
