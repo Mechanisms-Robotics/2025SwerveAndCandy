@@ -154,6 +154,9 @@ public class AlgaeMech extends SubsystemBase {
     // 3. So let's verify that on the robot
 
     m_wristMotor.set(m_controller.calculate(getWristAngle(), m_desiredAngle));
+    double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
+    m_wristMotor.set(output);
+    SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
 
     SmartDashboard.putString("AlgaeMech/State", state.toString());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
