@@ -89,9 +89,9 @@ public class Elevator extends SubsystemBase {
     public static final int PROCESSOR = 1000;
     public static final int LOADING = 1000;
     public static final int L1 = 5000;
-    public static final int L2 = 10000;
-    public static final int L3 = 20000;
-    public static final int L4 = 30000;
+    public static final int L2 = 12000; // algae 14600
+    public static final int L3 = 19700; // algae 22600
+    public static final int L4 = 31500; //offset to 34000
     public static final int BARGE = 39000;
 
     private static final int LEADER_CAN_ID = 11;
@@ -122,8 +122,8 @@ public class Elevator extends SubsystemBase {
     private static final double KV = 0.0; // Velocity constant in Volts per distance per second
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 3*8192.0; // Ticks per second?
-    private static final double MAX_ACCELERATION = 5*8192; // Ticks per second per second?
+    private static final double MAX_VELOCITY = 2*8192.0; // Ticks per second?
+    private static final double MAX_ACCELERATION = 4*8192; // Ticks per second per second?
     private static final double EPSILON = 100.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
@@ -203,6 +203,7 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Elevator/Position", getCurrentPosition());
+        SmartDashboard.putNumber("Elevator/Goal ", m_goal.position);
 
         final double DT = 0.02; // seconds (based on periodic time)
 

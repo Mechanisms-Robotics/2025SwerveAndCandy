@@ -206,13 +206,22 @@ public class RobotContainer {
       ));
     }
 
+    driverController.povDown().onTrue(Commands.runOnce(
+      () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
+    );
+
+    driverController.povUp().onTrue(Commands.runOnce(
+      () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
+    );
+
+
     new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L2), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L3), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L4), m_elevator));
-    new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
-    || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-      Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.RESTING), m_elevator));
+    // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
+    // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
+    //   Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.RESTING), m_elevator));
 
     /****************** */
   }
