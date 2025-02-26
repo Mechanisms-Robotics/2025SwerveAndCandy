@@ -177,9 +177,9 @@ public class RobotContainer {
     } else
     // ******** The following code is the acutal drive code used *******
     {
-      // driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
       // driverController.square().onTrue(Commands.runOnce(
-      //   () -> m_elevator.setTargetPosition(Elevator.BARGE)
+        //   () -> m_elevator.setTargetPosition(Elevator.BARGE)
       // ));
       // driverController.circle().whileTrue(Commands.runOnce(
       //   () -> m_elevator.setTargetPosition(Elevator.RESTING)
@@ -195,14 +195,19 @@ public class RobotContainer {
       driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
       driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
       driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
-      driverController.L2().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(0), algaeMech));
-      driverController.L1().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(45), algaeMech));  
+      driverController.L1().onTrue(Commands.none());  
+      driverController.L2().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
+      driverController.R1().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
+      driverController.R2().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
     }
+    new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L1), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L2), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L3), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L4), m_elevator));
+    new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
+    || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
+      Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.RESTING), m_elevator));
 
-    new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(()-> {}, null));
-    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(()-> {}, null));
-    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(()-> {}, null));
-    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(()-> {}, null));
     /****************** */
   }
 
