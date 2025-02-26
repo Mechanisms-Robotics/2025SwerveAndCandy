@@ -193,8 +193,8 @@ public class RobotContainer {
       driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
       driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
       driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
-      driverController.L2().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(0), algaeMech));
-      driverController.L1().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(45), algaeMech));  
+      driverController.L2().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(15), algaeMech));
+      driverController.L1().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(algaeMech.WRIST_STARTING_CONFIGURATION_ANGLE), algaeMech));  
     }
     /****************** */
   }

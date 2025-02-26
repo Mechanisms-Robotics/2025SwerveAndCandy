@@ -17,7 +17,7 @@ public class AlgaeMech extends SubsystemBase {
 
   private static final TalonFX m_wristMotor = new TalonFX(WRIST_MOTOR_CAN_ID);
 
-  private final static double P = 0.0001;
+  private final static double P = 0.01;
   private final static double I = 0.0;
   private final static double D = 0.0;
 
@@ -28,7 +28,7 @@ public class AlgaeMech extends SubsystemBase {
   
   Zero degrees is pointed straight out. */
 
-  private final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
+  public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
   private final double m_wristStartingAngle; // Degrees
 
   /* Angle the wrist id PIDing toward */
@@ -47,7 +47,7 @@ public class AlgaeMech extends SubsystemBase {
   private static final double INTAKE_DUTY_CYCLE = -0.7;
   private static final double PLACING_DUTY_CYCLE = 1.0;
 
-  private static final double WRIST_MOTOR_CURRENT_LIMIT = 10.0; // A
+  private static final double WRIST_MOTOR_CURRENT_LIMIT = 15.0; // A
 
   enum State {
     INTAKING,
@@ -147,13 +147,12 @@ public class AlgaeMech extends SubsystemBase {
     // output = P*(wrist angle - desired angle)
     // So if maximum error is 100 degrees, a P = 0.01 would yield an output of 1.0
     //
-    // Tuning Plan:
-    //
-    // 1. Micah is outputing m_controller.calculate() output to the SmardDashboard
-    // 2. We can set a P to about 0.01 and get an output of [ -1.0, 1.0 ], roughly
-    // 3. So let's verify that on the robot
 
     double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
+    if (output < 0) {
+      // poor man's feedfowrard
+      output /= 10.0;
+    }
     m_wristMotor.set(output);
     SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
 
