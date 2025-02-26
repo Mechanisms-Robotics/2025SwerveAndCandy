@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -39,7 +40,18 @@ public class Robot extends TimedRobot
   public Robot()
   {
     instance = this;
-    CameraServer.startAutomaticCapture();
+    
+    // Camera setup
+    // Access the camera's web server at http://10.87.36.2:1181/
+    // From there you can see the allowed resolutions and frame rates, etc.
+
+    final int CAMERA_RESOLUTION_W = 640;
+    final int CAMERA_RESOLUTION_H = 480;
+    final int CAMERA_FRAME_RATE = 30;
+
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(CAMERA_RESOLUTION_W, CAMERA_RESOLUTION_H);
+    camera.setFPS(CAMERA_FRAME_RATE);
   }
 
   public static Robot getInstance()
