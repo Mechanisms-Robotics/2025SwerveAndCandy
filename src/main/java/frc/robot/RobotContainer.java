@@ -189,6 +189,12 @@ public class RobotContainer {
       // TODO: get the right buttons from Leif and Ada
       // driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
       // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
+
+      driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
+      driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
+      driverController.L2().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(0), algaeMech));
+      driverController.L1().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(45), algaeMech));  
     }
     /****************** */
   }
