@@ -86,12 +86,12 @@ public class Elevator extends SubsystemBase {
     // TODO: We may need separate levels (or an offset) for algae vs. coral
 
     public static final int RESTING = (int)REVERSE_SOFT_LIMIT + 10;
-    public static final int PROCESSOR = 0;
-    public static final int LOADING = 0;
-    public static final int L1 = 0;
-    public static final int L2 = 0;
-    public static final int L3 = 0;
-    public static final int L4 = 0;
+    public static final int PROCESSOR = 1000;
+    public static final int LOADING = 1000;
+    public static final int L1 = 5000;
+    public static final int L2 = 10000;
+    public static final int L3 = 20000;
+    public static final int L4 = 30000;
     public static final int BARGE = 39000;
 
     private static final int LEADER_CAN_ID = 11;

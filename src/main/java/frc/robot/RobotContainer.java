@@ -190,14 +190,23 @@ public class RobotContainer {
       // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
 
       driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
-      driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      //driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
       driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
       driverController.L1().onTrue(Commands.none());  
       driverController.L2().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
       driverController.R1().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
       driverController.R2().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      
+      driverController.triangle().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.BARGE)
+      ));
+      
+      driverController.cross().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.RESTING)
+      ));
     }
-    new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L1), m_elevator));
+
+    new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L2), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L3), m_elevator));
     new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L4), m_elevator));
