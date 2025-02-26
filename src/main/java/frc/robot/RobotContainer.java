@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,6 +36,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+  private final Joystick shifter = new Joystick(1);
 
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -188,6 +190,11 @@ public class RobotContainer {
       // driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
       // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
     }
+
+    new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(()-> {}, null));
+    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(()-> {}, null));
+    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(()-> {}, null));
+    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(()-> {}, null));
     /****************** */
   }
 
