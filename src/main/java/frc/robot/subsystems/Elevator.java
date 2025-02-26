@@ -125,8 +125,8 @@ public class Elevator extends SubsystemBase {
     private static final double KV = 0.0; // Velocity constant in Volts per distance per second
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 2*8192.0; // Ticks per second?
-    private static final double MAX_ACCELERATION = 4*8192; // Ticks per second per second?
+    private static final double MAX_VELOCITY = 3*8192.0; // Ticks per second?
+    private static final double MAX_ACCELERATION = 5*8192; // Ticks per second per second?
     private static final double EPSILON = 100.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
