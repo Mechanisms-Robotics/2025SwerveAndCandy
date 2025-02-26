@@ -1,16 +1,11 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,10 +23,11 @@ public class AlgaeMech extends SubsystemBase {
 
   private final PIDController m_controller = new PIDController(P, I, D);
   
-  /* Angle of the arm on boot, rather what it should be on boot. When turning on the robot hold the arm up as far as it can go
-  which should be an 86 degree angle.
+  /* Angle of the arm on boot, rather what it should be on boot. When turning on the
+  robot hold the arm up as far as it can go which should be an 86 degree angle.
   
   Zero degrees is pointed straight out. */
+
   private final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
   private final double m_wristStartingAngle; // Degrees
 
@@ -51,7 +47,7 @@ public class AlgaeMech extends SubsystemBase {
   private static final double INTAKE_DUTY_CYCLE = -0.7;
   private static final double PLACING_DUTY_CYCLE = 1.0;
 
-  private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
+  private static final double WRIST_MOTOR_CURRENT_LIMIT = 10.0; // A
 
   enum State {
     INTAKING,
@@ -146,13 +142,19 @@ public class AlgaeMech extends SubsystemBase {
     this.m_desiredAngle = angle;
   }
 
-  
-
   @Override
   public void periodic() {
+    // output = P*(wrist angle - desired angle)
+    // So if maximum error is 100 degrees, a P = 0.01 would yield an output of 1.0
+    //
+    // Tuning Plan:
+    //
+    // 1. Micah is outputing m_controller.calculate() output to the SmardDashboard
+    // 2. We can set a P to about 0.01 and get an output of [ -1.0, 1.0 ], roughly
+    // 3. So let's verify that on the robot
+
     m_wristMotor.set(m_controller.calculate(getWristAngle(), m_desiredAngle));
 
-    // ranges from -.5-.5
     SmartDashboard.putString("AlgaeMech/State", state.toString());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Velocity (degrees per seconds)", getWristVelocity());
