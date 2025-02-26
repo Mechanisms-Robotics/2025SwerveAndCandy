@@ -150,7 +150,9 @@ public class AlgaeMech extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_wristMotor.set(m_controller.calculate(getWristAngle(), m_desiredAngle));
+    double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
+    m_wristMotor.set(output);
+    SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
 
     // ranges from -.5-.5
     SmartDashboard.putString("AlgaeMech/State", state.toString());
