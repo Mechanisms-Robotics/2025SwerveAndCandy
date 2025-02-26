@@ -27,6 +27,14 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
+  public void resetMotorPositionsOnInit() {
+    m_robotContainer.algaeMech.setWristAngle(
+      m_robotContainer.algaeMech.getWristAngle()
+    );
+
+    m_robotContainer.setElevatorToWhereItsAt();
+  }
+
   public Robot()
   {
     instance = this;
@@ -55,6 +63,8 @@ public class Robot extends TimedRobot
     {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
+
+    resetMotorPositionsOnInit();
   }
 
   /**
@@ -81,7 +91,6 @@ public class Robot extends TimedRobot
   @Override
   public void disabledInit()
   {
-    m_robotContainer.setElevatorToWhereItsAt();
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
@@ -104,7 +113,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit()
   {
-    m_robotContainer.setElevatorToWhereItsAt();
+    resetMotorPositionsOnInit();
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -126,7 +135,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
-    m_robotContainer.setElevatorToWhereItsAt();
+    resetMotorPositionsOnInit();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -155,7 +164,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit()
   {
-    m_robotContainer.setElevatorToWhereItsAt();
+    resetMotorPositionsOnInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -174,7 +183,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
-    m_robotContainer.setElevatorToWhereItsAt();
+    resetMotorPositionsOnInit();
   }
 
   /**

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.coralmech.CoralMech;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
@@ -43,6 +44,7 @@ public class RobotContainer {
     "swerve"));
   public final Elevator m_elevator = new Elevator();
   public final CoralMech coralMech = new CoralMech();
+  public final AlgaeMech algaeMech = new AlgaeMech();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -189,6 +191,12 @@ public class RobotContainer {
       // TODO: get the right buttons from Leif and Ada
       // driverController.triangle().onTrue(Commands.runOnce(coralMech::feedCoral, coralMech));
       // driverController.cross().onTrue(Commands.runOnce(coralMech::idle, coralMech));
+
+      driverController.square().onTrue(Commands.runOnce(algaeMech::intake, algaeMech));
+      driverController.triangle().onTrue(Commands.runOnce(algaeMech::place, algaeMech));
+      driverController.circle().onTrue(Commands.runOnce(algaeMech::stop, algaeMech));
+      driverController.L2().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(0), algaeMech));
+      driverController.L1().onTrue(Commands.runOnce(() -> algaeMech.setWristAngle(45), algaeMech));  
     }
 
     new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(()-> {}, null));
