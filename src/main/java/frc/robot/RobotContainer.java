@@ -37,6 +37,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
   private final Joystick shifter = new Joystick(1);
+  private final Joystick petal = new Joystick(2);
 
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -216,12 +217,12 @@ public class RobotContainer {
 
 
     new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L2), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L3), m_elevator));
-    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.L4), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(2)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(3)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    new Trigger(() -> shifter.getRawButtonPressed(4)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
     // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
     // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-    //   Commands.runOnce(() -> m_elevator.setTargetPosition(m_elevator.RESTING), m_elevator));
+    //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
 
     /****************** */
   }
