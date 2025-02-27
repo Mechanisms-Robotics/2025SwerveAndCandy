@@ -135,7 +135,7 @@ public class Elevator extends SubsystemBase {
         = new TrapezoidProfile.State(0.0, 0.0); // Starting lowered
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
-    private static final int CURRENT_LIMIT = 30; // Amps
+    private static final int CURRENT_LIMIT = 40; // Amps per motor
 
     public Elevator() {
         // Zero the encoder

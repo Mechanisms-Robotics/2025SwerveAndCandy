@@ -176,11 +176,15 @@ public class RobotContainer {
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::toggleIntake, m_algaeMech));
       driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace, m_algaeMech));
 
-      final double WRIST_ANGLE_DOWN = 20.0;
+      final double WRIST_ANGLE_DOWN = 0.0;
       driverController.square().onTrue(Commands.runOnce(
         () -> m_algaeMech.setWristAngle(WRIST_ANGLE_DOWN)));
 
-      final double WRIST_ANGLE_UP = m_algaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
+        final double WRIST_ANGLE_LEVEL = 20.0;
+        driverController.triangle().onTrue(Commands.runOnce(
+          () -> m_algaeMech.setWristAngle(WRIST_ANGLE_LEVEL)));
+  
+      final double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
       driverController.circle().onTrue(Commands.runOnce(
         () -> m_algaeMech.setWristAngle(WRIST_ANGLE_UP)));
 
@@ -233,8 +237,8 @@ public class RobotContainer {
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L3_ALGAE_OFFSET : Elevator.L3), m_elevator));
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
-        new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
-        new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+        new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+        new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
         new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
         // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
       // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
