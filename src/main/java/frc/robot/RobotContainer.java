@@ -119,7 +119,7 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    createAutos();
+    // TODO: add back when we're confident of safety     createAutos();
   }
 
   /**
@@ -290,7 +290,7 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return m_autoChooser.getSelected();
+    return m_autoChooser.getSelected(); // TODO: what if nothing is selected? default?
   }
   
   public void setMotorBrake(boolean brake)
