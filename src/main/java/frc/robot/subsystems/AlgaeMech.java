@@ -68,11 +68,6 @@ public class AlgaeMech extends SubsystemBase {
       wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
       wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-      // wristConfig.Slot0.kG = 0;
-      // wristConfig.Slot0.kV = 0;
-      // wristConfig.Slot0.kP = 0;
-      // wristConfig.Slot0.kI = 0;
-      // wristConfig.Slot0.kD = 0;
       m_wristMotor.getConfigurator().apply(wristConfig);
       setWristBrake(true);
 
@@ -180,6 +175,7 @@ public class AlgaeMech extends SubsystemBase {
 
     SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
+    SmartDashboard.putNumber("AlgaeMech/Wrist/Desired Angle", m_desiredAngle);
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Velocity (degrees per seconds)", getWristVelocity());
     SmartDashboard.putNumber("AlgaeMech/wrist motor/velocity", m_wristMotor.getVelocity().getValueAsDouble());

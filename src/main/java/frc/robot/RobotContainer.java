@@ -158,6 +158,10 @@ public class RobotContainer {
       driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
                                                      () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
+      Joystick buttons = new Joystick(0);
+      Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
+      new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
@@ -182,9 +186,9 @@ public class RobotContainer {
       driverController.square().onTrue(Commands.runOnce(
         () -> m_algaeMech.setWristAngle(WRIST_ANGLE_DOWN)));
 
-        final double WRIST_ANGLE_LEVEL = 20.0;
-        driverController.triangle().onTrue(Commands.runOnce(
-          () -> m_algaeMech.setWristAngle(WRIST_ANGLE_LEVEL)));
+      final double WRIST_ANGLE_LEVEL = 20.0;
+      driverController.triangle().onTrue(Commands.runOnce(
+        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_LEVEL)));
   
       final double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
       driverController.circle().onTrue(Commands.runOnce(
@@ -243,9 +247,9 @@ public class RobotContainer {
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L3_ALGAE_OFFSET : Elevator.L3), m_elevator));
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
-        new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-        new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
-        new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
         // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
       // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
         //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));

@@ -16,6 +16,7 @@ public class L2 extends Command {
         m_elevator = elevator;
         m_algaeMech = algaeMech;
         this.clutch = clutch;
+        addRequirements(elevator, algaeMech);
     }
 
     @Override
