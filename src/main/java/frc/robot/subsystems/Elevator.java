@@ -135,7 +135,7 @@ public class Elevator extends SubsystemBase {
         = new TrapezoidProfile.State(0.0, 0.0); // Starting lowered
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
-    private static final int CURRENT_LIMIT = 20; // Amps
+    private static final int CURRENT_LIMIT = 30; // Amps
 
     public Elevator() {
         // Zero the encoder
@@ -207,6 +207,7 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Elevator/Position", getCurrentPosition());
         SmartDashboard.putNumber("Elevator/Goal ", m_goal.position);
+        SmartDashboard.putNumber("Elevator/Current", m_leader.getOutputCurrent());
 
         final double DT = 0.02; // seconds (based on periodic time)
 

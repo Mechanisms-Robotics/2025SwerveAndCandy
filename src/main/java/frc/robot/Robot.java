@@ -29,7 +29,8 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
-  public void resetMotorPositionsOnInit() {
+  public void resetMotorsOnInit() {
+    m_robotContainer.m_algaeMech.setWristBrake(true);
     m_robotContainer.m_algaeMech.setWristAngle(
       m_robotContainer.m_algaeMech.getWristAngle()
     );
@@ -78,7 +79,7 @@ public class Robot extends TimedRobot
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    resetMotorPositionsOnInit();
+    resetMotorsOnInit();
   }
 
   /**
@@ -113,9 +114,10 @@ public class Robot extends TimedRobot
   @Override
   public void disabledPeriodic()
   {
-    if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME))
+    if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_AND_ALGAE_LOCK_TIME))
     {
       m_robotContainer.setMotorBrake(false);
+      m_robotContainer.m_algaeMech.setWristBrake(false);
       disabledTimer.stop();
       disabledTimer.reset();
     }
@@ -127,7 +129,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit()
   {
-    resetMotorPositionsOnInit();
+    resetMotorsOnInit();
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -149,7 +151,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
-    resetMotorPositionsOnInit();
+    resetMotorsOnInit();
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
@@ -178,7 +180,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit()
   {
-    resetMotorPositionsOnInit();
+    resetMotorsOnInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -197,7 +199,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
-    resetMotorPositionsOnInit();
+    resetMotorsOnInit();
   }
 
   /**

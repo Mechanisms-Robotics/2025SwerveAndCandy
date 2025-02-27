@@ -73,13 +73,17 @@ public class AlgaeMech extends SubsystemBase {
       // wristConfig.Slot0.kI = 0;
       // wristConfig.Slot0.kD = 0;
       m_wristMotor.getConfigurator().apply(wristConfig);
-      m_wristMotor.setNeutralMode(NeutralModeValue.Brake);
+      setWristBrake(true);
 
       //SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
       //m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
  
       m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
       m_desiredAngle = m_wristStartingAngle;
+    }
+
+    public void setWristBrake(boolean brake) {
+      m_wristMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
     }
 
   /**
