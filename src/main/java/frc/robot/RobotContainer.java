@@ -201,11 +201,11 @@ public class RobotContainer {
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
       // May be removed if at all needed. - Micah
-      driverController.povDown().onTrue(Commands.runOnce(
+      driverController.povDown().whileTrue(Commands.run(
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
       );
         
-      driverController.povUp().onTrue(Commands.runOnce(
+      driverController.povUp().whileTrue(Commands.run(
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
       );
 
