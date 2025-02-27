@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -50,6 +53,7 @@ public class RobotContainer {
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -115,6 +119,7 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    createAutos();
   }
 
   /**
@@ -256,6 +261,15 @@ public class RobotContainer {
     }  
       /****************** */
   }
+
+  public void createAutos() {
+    /**
+     * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
+     */
+    m_autoChooser.setDefaultOption("Leave", new PathPlannerAuto("Leave"));
+    m_autoChooser.addOption("BlueTHexTR1", new PathPlannerAuto("BlueTHexTR1"));
+    SmartDashboard.putData("Auto Choose", m_autoChooser);
+  }
   
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -265,7 +279,7 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return m_drivebase.getAutonomousCommand("New Auto");
+    return m_autoChooser.getSelected();
   }
   
   public void setMotorBrake(boolean brake)
