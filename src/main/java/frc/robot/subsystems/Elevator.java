@@ -73,18 +73,14 @@ https://github.com/FRC3546/2025-Reefscape-Competition/blob/main/src/main/java/fr
 */
 
 public class Elevator extends SubsystemBase {
-    // TODO: Hard limit switches (see getForwardLimitSwitch)
-
     // Soft limits determined experimentally. We set the lower limit at 100, at
     // which time gravity will let it fall a little lower.
     private static final double FORWARD_SOFT_LIMIT = 40000.0; // Ticks
     private static final double REVERSE_SOFT_LIMIT = 500.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
-    // TODO: Determine experimentally and then write an equation for offline
-    //   estimation of changes and put that here for posterity
-    // TODO: We may need separate levels (or an offset) for algae vs. coral
     // about 700 ticks per inch
+
     public static final int RESTING = (int)REVERSE_SOFT_LIMIT + 10;
     public static final int PROCESSOR = 1000;
     public static final int LOADING = 1000;
@@ -226,7 +222,7 @@ public class Elevator extends SubsystemBase {
             ElevatorFeedforward feedforward
                 = new ElevatorFeedforward(KS, KG, KV, KA);
             double ff = feedforward.calculate(m_setpoint.velocity);
-            ff = 0; // TODO, if necessary
+            ff = 0; // TODO we may need to add this back in in the future
             
             m_sparkClosedLoopController.setReference(
                 m_setpoint.position,

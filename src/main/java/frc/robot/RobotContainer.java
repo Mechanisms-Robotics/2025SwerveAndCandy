@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,6 +16,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -50,6 +53,7 @@ public class RobotContainer {
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -115,6 +119,7 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    // TODO: add back when we're confident of safety     createAutos();
   }
 
   /**
@@ -256,6 +261,26 @@ public class RobotContainer {
     }  
       /****************** */
   }
+
+  public void createAutos() {
+    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
+    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::idle, m_coralMech));
+    NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
+    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::place, m_algaeMech));
+    NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
+    NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+    NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+    NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_OFFSET), m_elevator));
+
+    /**
+     * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
+     */
+    m_autoChooser.setDefaultOption("Leave", new PathPlannerAuto("Leave"));
+    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4"));
+    SmartDashboard.putData("Auto Choose", m_autoChooser);
+  }
   
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -265,7 +290,7 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return m_drivebase.getAutonomousCommand("New Auto");
+    return m_autoChooser.getSelected(); // TODO: what if nothing is selected? default?
   }
   
   public void setMotorBrake(boolean brake)
