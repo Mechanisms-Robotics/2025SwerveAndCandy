@@ -30,6 +30,7 @@ public class AlgaeMech extends SubsystemBase {
   Zero degrees is pointed straight out. */
 
   public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
+  public final static double WRIST_ALGAE_PICKUP_ANGLE = -20.0; // UNUSED RIGHT NOW (26 FEB)
   private final double m_wristStartingAngle; // Degrees
 
   /* Angle the wrist id PIDing toward */

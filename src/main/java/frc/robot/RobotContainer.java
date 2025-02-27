@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.L2;
+import frc.robot.commands.L3;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.coralmech.CoralMech;
@@ -230,6 +232,10 @@ public class RobotContainer {
       );  
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
+      // and comment the lines that would cause problems (.getRawButton(2, 3))
+      // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
+      // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
       // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
       new Trigger(() -> shifter.getRawButton(2)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L2_ALGAE_OFFSET : Elevator.L2), m_elevator));
