@@ -76,12 +76,12 @@ public class Elevator extends SubsystemBase {
     // Soft limits determined experimentally. We set the lower limit at 100, at
     // which time gravity will let it fall a little lower.
     private static final double FORWARD_SOFT_LIMIT = 40000.0; // Ticks
-    private static final double REVERSE_SOFT_LIMIT = 500.0; // Ticks
+    private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
     // about 700 ticks per inch
 
-    public static final int RESTING = (int)REVERSE_SOFT_LIMIT + 10;
+    public static final int RESTING = (int)REVERSE_SOFT_LIMIT;
     public static final int PROCESSOR = 1000;
     public static final int LOADING = 1000;
     public static final int L1 = 5000;
@@ -123,7 +123,7 @@ public class Elevator extends SubsystemBase {
     // Tunables for the elevator's trapezoidal motion profile
     private static final double MAX_VELOCITY = 3*8192.0; // Ticks per second?
     private static final double MAX_ACCELERATION = 5*8192; // Ticks per second per second?
-    private static final double EPSILON = 100.0; // Allowed error, presumably in ticks
+    private static final double EPSILON = 10.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
