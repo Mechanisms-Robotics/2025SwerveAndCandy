@@ -263,11 +263,22 @@ public class RobotContainer {
   }
 
   public void createAutos() {
+    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
+    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::idle, m_coralMech));
+    NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
+    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::place, m_algaeMech));
+    NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
+    NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+    NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+    NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_OFFSET), m_elevator));
+
     /**
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
      */
     m_autoChooser.setDefaultOption("Leave", new PathPlannerAuto("Leave"));
-    m_autoChooser.addOption("BlueTHexTR1", new PathPlannerAuto("BlueTHexTR1"));
+    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4"));
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
   
