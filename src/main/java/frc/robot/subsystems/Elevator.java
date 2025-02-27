@@ -207,7 +207,11 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Elevator/Position", getCurrentPosition());
         SmartDashboard.putNumber("Elevator/Goal ", m_goal.position);
-        SmartDashboard.putNumber("Elevator/Current", m_leader.getOutputCurrent());
+        SmartDashboard.putNumber("Elevator/Motor leader/Current", m_leader.getOutputCurrent());
+        SmartDashboard.putNumber("Elevator/Motor leader/Temperature", m_leader.getMotorTemperature());
+        SmartDashboard.putNumber("Elevator/Motor follower/Current", m_follower.getOutputCurrent());
+        SmartDashboard.putNumber("Elevator/Motor follower/Temperature", m_follower.getMotorTemperature());
+        SmartDashboard.putNumber("Elevator/Bus Voltage", m_leader.getBusVoltage());
 
         final double DT = 0.02; // seconds (based on periodic time)
 
