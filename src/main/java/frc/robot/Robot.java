@@ -114,6 +114,7 @@ public class Robot extends TimedRobot
   @Override
   public void disabledPeriodic()
   {
+    m_robotContainer.setElevatorToWhereItsAt(); // prevent elevator from moving
     if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_AND_ALGAE_LOCK_TIME))
     {
       m_robotContainer.setMotorBrake(false);
