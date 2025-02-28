@@ -18,7 +18,7 @@ public class CoralMech extends SubsystemBase {
     // Will be used to detect when a coral is in the mechanism, needed for knowing when to brake the motors
     private static final double feedDutyCycle = .6;
     /* DutyCycle equation: D = PW/T 
-    Duty cycle is the ratio of the pulse width (active pulse time) over total time
+    Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
     Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
 
     enum State {
