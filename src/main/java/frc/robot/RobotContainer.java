@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.L2;
@@ -120,7 +121,8 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    // TODO: add back when we're confident of safety     createAutos();
+    // TODO: add back when we're confident of safety     
+    createAutos();
   }
 
   /**
@@ -266,9 +268,12 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
     NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
     NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
+
     NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
     NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    NamedCommands.registerCommand("L2 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    NamedCommands.registerCommand("L3 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
     NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_OFFSET), m_elevator));
 
@@ -277,7 +282,8 @@ public class RobotContainer {
      */
     m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
     m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
-    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4"));
+    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
+    m_autoChooser.addOption("BlueTHexTRAlgaeL3CoralL4", new PathPlannerAuto("BlueTHexTRAlgaeL3CoralL4")); 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
   

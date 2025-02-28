@@ -47,9 +47,19 @@ public class TimedLeave extends Command {
     @Override
     public void initialize() {
         m_timer.start();
-        m_swerve.drive(new ChassisSpeeds(0, speed, 0));
+        m_swerve.drive(new ChassisSpeeds(speed, 0, 0));
+    }
+    @Override
+    public void execute() {
     }
 
+    @Override
+    public void end(boolean interrupted) {
+        m_timer.stop();
+        m_timer.reset();
+        m_swerve.drive(new ChassisSpeeds(0, 0, 0));
+    }
+    
     @Override
     public boolean isFinished() {
         return m_timer.hasElapsed(m_time);
