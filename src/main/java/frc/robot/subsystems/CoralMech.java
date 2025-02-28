@@ -22,13 +22,9 @@ public class CoralMech extends SubsystemBase {
     Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
 
     enum State {
-        /**
-         * Spinning the motors outward
-         */
+        /** Spinning the motors outward */
         FEEDING,
-        /**
-         * Motors are not moving
-         */
+        /** Motors are not moving */
         STOPPED
     }
     State state = State.STOPPED;
