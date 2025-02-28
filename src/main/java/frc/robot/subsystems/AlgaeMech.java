@@ -49,7 +49,7 @@ public class AlgaeMech extends SubsystemBase {
   private static final double INTAKE_DUTY_CYCLE = -0.7;
   private static final double PLACING_DUTY_CYCLE = 1.0;
 
-  private static final double WRIST_MOTOR_CURRENT_LIMIT = 15.0; // A
+  private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
 
   enum State {
     INTAKING,

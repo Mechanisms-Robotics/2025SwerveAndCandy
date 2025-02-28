@@ -184,8 +184,10 @@ public class RobotContainer {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
       // Algae Mech
-      driverController.L2().onTrue(Commands.runOnce(m_algaeMech::toggleIntake));
+      driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
+      driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
       driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace));
+      driverController.R2().onFalse(Commands.runOnce(m_algaeMech::stop));
 
       final double WRIST_ANGLE_DOWN = 0.0;
       driverController.square().onTrue(Commands.runOnce(

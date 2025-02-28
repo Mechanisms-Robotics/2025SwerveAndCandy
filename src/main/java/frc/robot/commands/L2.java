@@ -35,12 +35,6 @@ public class L2 extends Command {
             m_algaeMech.setWristAngle(AlgaeMech.WRIST_ALGAE_PICKUP_ANGLE);
         } else {
             m_elevator.setTargetPosition(Elevator.L2);
-            m_algaeMech.setWristAngle(AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE);
         }
-    }
-
-    @Override 
-    public void end(boolean initialization) {
-        m_algaeMech.setWristAngle(AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE);
     }
 }
