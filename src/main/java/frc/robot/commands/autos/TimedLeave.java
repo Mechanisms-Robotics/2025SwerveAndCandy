@@ -1,0 +1,46 @@
+package frc.robot.commands.autos;
+
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+
+public class TimedLeave extends Command {
+    private final SwerveSubsystem m_swerve;
+    private final Timer m_timer = new Timer();
+    private final double m_time;
+    private final double speed;
+
+    /**
+     * Leave the starting zone, go forward for time seconds at speed meters per second
+     * 
+     * @param swerve my dog named jeff
+     * @param time time in seconds to go forward
+     * @param speed speed in meters per second to go forward
+     */
+    public TimedLeave(SwerveSubsystem swerve, double time, double speed) {
+        m_swerve = swerve;
+        m_time = time;
+        this.speed = speed;
+        addRequirements(m_swerve);
+    }
+
+    public TimedLeave(SwerveSubsystem swerve, double time) {
+        this(swerve, time, 0.5);
+    }
+
+    public TimedLeave(SwerveSubsystem swerve) {
+        this(swerve, 5);
+    }
+
+    @Override
+    public void initialize() {
+        m_timer.start();
+        m_swerve.drive(new ChassisSpeeds(0, speed, 0));
+    }
+
+    @Override
+    public boolean isFinished() {
+        return m_timer.hasElapsed(m_time);
+    }
+}

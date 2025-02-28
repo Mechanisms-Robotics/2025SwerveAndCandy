@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
+import frc.robot.commands.autos.TimedLeave;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
@@ -274,7 +275,8 @@ public class RobotContainer {
     /**
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
      */
-    m_autoChooser.setDefaultOption("Leave", new PathPlannerAuto("Leave"));
+    m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
+    m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
     m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4"));
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
