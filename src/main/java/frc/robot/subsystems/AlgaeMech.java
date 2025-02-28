@@ -30,7 +30,7 @@ public class AlgaeMech extends SubsystemBase {
   Zero degrees is pointed straight out. */
 
   public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
-  public final static double WRIST_ALGAE_PICKUP_ANGLE = -20.0; // UNUSED RIGHT NOW (26 FEB)
+  public final static double WRIST_ALGAE_PICKUP_ANGLE = -5.0; // UNUSED RIGHT NOW (26 FEB)
   private final double m_wristStartingAngle; // Degrees
 
   /* Angle the wrist id PIDing toward */
@@ -168,8 +168,8 @@ public class AlgaeMech extends SubsystemBase {
 
     double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
     if (output < 0) {
-      // poor man's feedfowrard
-      output /= 10.0;
+      final double POOR_MANS_FEEDFORWARD = 5.0;
+      output /= POOR_MANS_FEEDFORWARD;
     }
     m_wristMotor.set(output);
 

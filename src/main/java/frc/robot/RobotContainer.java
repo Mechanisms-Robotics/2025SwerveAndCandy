@@ -184,8 +184,8 @@ public class RobotContainer {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
       // Algae Mech
-      driverController.L2().onTrue(Commands.runOnce(m_algaeMech::toggleIntake, m_algaeMech));
-      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace, m_algaeMech));
+      driverController.L2().onTrue(Commands.runOnce(m_algaeMech::toggleIntake));
+      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace));
 
       final double WRIST_ANGLE_DOWN = 0.0;
       driverController.square().onTrue(Commands.runOnce(
@@ -207,7 +207,7 @@ public class RobotContainer {
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
       // May be removed if at all needed. - Micah
       driverController.povDown().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 1000), m_elevator)
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
       );
         
       driverController.povUp().onTrue(Commands.runOnce(
@@ -219,11 +219,8 @@ public class RobotContainer {
       secondaryController.cross().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
 
-      secondaryController.square().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
-
-      secondaryController.circle().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch));
+      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch));
 
       secondaryController.triangle().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
@@ -246,10 +243,8 @@ public class RobotContainer {
       // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
       // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
       // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-      new Trigger(() -> shifter.getRawButton(2)).whileTrue(
-        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L2_ALGAE_OFFSET : Elevator.L2), m_elevator));
-      new Trigger(() -> shifter.getRawButton(3)).whileTrue(
-        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L3_ALGAE_OFFSET : Elevator.L3), m_elevator));
+      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));

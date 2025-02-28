@@ -75,7 +75,7 @@ https://github.com/FRC3546/2025-Reefscape-Competition/blob/main/src/main/java/fr
 public class Elevator extends SubsystemBase {
     // Soft limits determined experimentally. We set the lower limit at 100, at
     // which time gravity will let it fall a little lower.
-    private static final double FORWARD_SOFT_LIMIT = 40000.0; // Ticks
+    private static final double FORWARD_SOFT_LIMIT = 40500.0; // Ticks
     private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
@@ -91,7 +91,7 @@ public class Elevator extends SubsystemBase {
     public static final int L3_ALGAE_OFFSET = 22600;
     public static final int L4 = 32700;
     public static final int L4_OFFSET = 34000;
-    public static final int BARGE = 39000;
+    public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
 
     private static final int LEADER_CAN_ID = 11;
     private static final int FOLLOWER_CAN_ID = 10;
