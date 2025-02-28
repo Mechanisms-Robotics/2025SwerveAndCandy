@@ -10,10 +10,11 @@ public class L4 extends Command {
     private final Supplier<Boolean> clutch;
 
     /**
-     * Raise the elevator to L4 and if the clutch is engaged, it raises a little heigher
+     * Raise the elevator to L4 and if the clutch is engaged, it raises a little heigher.
+     * The purpose of this is to allow the coral to come all the way out of the mechanism as it gets stuck.
      * 
-     * @param elevator used for raising the elevator
-     * @param clutch button boolean supplier for determining if the elevator is to offset a little higher
+     * @param elevator used for raising the elevator.
+     * @param clutch button boolean supplier for determining if the elevator is to offset a little higher.
      */
     public L4(Elevator elevator, Supplier<Boolean> clutch) {
         m_elevator = elevator;
