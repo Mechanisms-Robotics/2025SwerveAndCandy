@@ -22,10 +22,16 @@ public class CoralMech extends SubsystemBase {
     Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
 
     enum State {
+        /**
+         * Spinning the motors outward
+         */
         FEEDING,
-        IDLING
+        /**
+         * Motors are not moving
+         */
+        STOPPED
     }
-    State state = State.IDLING;
+    State state = State.STOPPED;
 
     public CoralMech() {
         // Create motor configuration to apply to the wheel motors
@@ -39,34 +45,33 @@ public class CoralMech extends SubsystemBase {
     /**
      * Spin the coral mech wheels so the coral moves out of the mechanism at intakeVoltage
      */
-    public void feedCoral() {
+    public void feed() {
         state = State.FEEDING;
         m_motors.getClosedLoopController().setReference(feedDutyCycle, ControlType.kDutyCycle);
-        SmartDashboard.putString("CoralsMech/State", "intaking");
     }
 
     /**
      * Stop the coral mech wheel motors
      */
-    public void idle() {
-        state = State.IDLING;
+    public void stop() {
+        state = State.STOPPED;
         m_motors.getClosedLoopController().setReference(0, ControlType.kDutyCycle);
-        SmartDashboard.putString("CoralMech/State", "idling");
     }
-
+    
     /**
      * If it is not feeding, start feeding. Otherise, stop the coral wheels.
      */
     public void toggleFeed() {
         if (state == State.FEEDING) {
-            idle();
+            stop();
         } else {
-            feedCoral();
+            feed();
         }
     }
-
+    
     @Override
     public void periodic() {
         SmartDashboard.putNumber("CoralMech/output current", m_motors.getOutputCurrent());
+        SmartDashboard.putString("CoralMech/State", state.toString());
     }
 }

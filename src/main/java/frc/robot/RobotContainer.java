@@ -187,7 +187,7 @@ public class RobotContainer {
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
       driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
-      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace));
+      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::toggleOuttake));
       driverController.R2().onFalse(Commands.runOnce(m_algaeMech::stop));
 
       final double WRIST_ANGLE_DOWN = 0.0;
@@ -203,8 +203,8 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::idle, m_coralMech));
+      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
+      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
       
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
@@ -261,10 +261,10 @@ public class RobotContainer {
   }
 
   public void createAutos() {
-    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
-    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::idle, m_coralMech));
+    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feed, m_coralMech));
+    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::stop, m_coralMech));
     NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
-    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::place, m_algaeMech));
+    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
     NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
     NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
     NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));

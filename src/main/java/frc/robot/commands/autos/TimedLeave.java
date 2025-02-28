@@ -25,10 +25,21 @@ public class TimedLeave extends Command {
         addRequirements(m_swerve);
     }
 
+    /**
+     * Leave the starting zone for time number of seconds
+     * 
+     * @param swerve ghengo khango
+     * @param time time in seconds to go forward
+     */
     public TimedLeave(SwerveSubsystem swerve, double time) {
         this(swerve, time, 0.5);
     }
 
+    /**
+     * Leave the field by goring forward for a set number of seconds at a set speed
+     * 
+     * @param swerve kyle the koala
+     */
     public TimedLeave(SwerveSubsystem swerve) {
         this(swerve, 5);
     }

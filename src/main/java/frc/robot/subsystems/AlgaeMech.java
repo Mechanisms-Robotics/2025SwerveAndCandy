@@ -47,17 +47,20 @@ public class AlgaeMech extends SubsystemBase {
     ALGAE_INTAKE_MOTORS_CAN_ID, MotorType.kBrushed);
 
   private static final double INTAKE_DUTY_CYCLE = -0.7;
-  private static final double PLACING_DUTY_CYCLE = 1.0;
+  private static final double OUTTAKING_DUTY_CYCLE = 1.0;
 
   private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
 
   enum State {
+    /** Motors are spinning inward, so it can intake algae */
     INTAKING,
-    PLACING,
-    IDLE
+    /** Motors are spinning outward, so it can outtake algae into the processor or toss it onto the barge */
+    OUTTAKING,
+    /** Motors are not moving */
+    STOPPED
   }
 
-  private State state = State.IDLE;
+  private State state = State.STOPPED;
 
   public AlgaeMech() {
       SmartDashboard.putData("AlgaeMech/controler", m_controller);
@@ -94,10 +97,10 @@ public class AlgaeMech extends SubsystemBase {
   /**
    * Spin the wheels away from the robot to place algae
    */
-  public void place() {
+  public void outtake() {
     m_wheelMotors.getClosedLoopController().setReference(
-      PLACING_DUTY_CYCLE, ControlType.kDutyCycle);
-    state = State.PLACING;
+      OUTTAKING_DUTY_CYCLE, ControlType.kDutyCycle);
+    state = State.OUTTAKING;
   }
 
   /**
@@ -106,7 +109,7 @@ public class AlgaeMech extends SubsystemBase {
   public void stop() {
     m_wheelMotors.getClosedLoopController().setReference(
       0, ControlType.kDutyCycle);
-    state = State.IDLE;
+    state = State.STOPPED;
   }
 
   /**
@@ -125,11 +128,11 @@ public class AlgaeMech extends SubsystemBase {
    * If it is not (i.e. in any other state other than), placing, start placing.
    * Otherwise, if it is in placing, stop the wheels from spinning
    */
-  public void togglePlace() {
-    if (state == State.PLACING) {
+  public void toggleOuttake() {
+    if (state == State.OUTTAKING) {
       stop();
     } else {
-      place();
+      outtake();
     }
   }
 
@@ -164,7 +167,6 @@ public class AlgaeMech extends SubsystemBase {
   public void periodic() {
     // output = P*(wrist angle - desired angle)
     // So if maximum error is 100 degrees, a P = 0.01 would yield an output of 1.0
-    //
 
     double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
     if (output < 0) {
