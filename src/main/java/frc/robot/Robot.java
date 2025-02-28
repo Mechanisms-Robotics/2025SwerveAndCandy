@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -27,9 +29,30 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
+  public void resetMotorsOnInit() {
+    m_robotContainer.m_algaeMech.setWristBrake(true);
+    m_robotContainer.m_algaeMech.setWristAngle(
+      m_robotContainer.m_algaeMech.getWristAngle()
+    );
+
+    m_robotContainer.setElevatorToWhereItsAt();
+  }
+
   public Robot()
   {
     instance = this;
+    
+    // Camera setup
+    // Access the camera's web server at http://10.87.36.2:1181/
+    // From there you can see the allowed resolutions and frame rates, etc.
+
+    final int CAMERA_RESOLUTION_W = 640;
+    final int CAMERA_RESOLUTION_H = 480;
+    final int CAMERA_FRAME_RATE = 30;
+
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(CAMERA_RESOLUTION_W, CAMERA_RESOLUTION_H);
+    camera.setFPS(CAMERA_FRAME_RATE);
   }
 
   public static Robot getInstance()
@@ -55,6 +78,8 @@ public class Robot extends TimedRobot
     {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
+
+    resetMotorsOnInit();
   }
 
   /**
@@ -89,9 +114,11 @@ public class Robot extends TimedRobot
   @Override
   public void disabledPeriodic()
   {
-    if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME))
+    m_robotContainer.setElevatorToWhereItsAt(); // prevent elevator from moving
+    if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_AND_ALGAE_LOCK_TIME))
     {
       m_robotContainer.setMotorBrake(false);
+      m_robotContainer.m_algaeMech.setWristBrake(false);
       disabledTimer.stop();
       disabledTimer.reset();
     }
@@ -103,6 +130,7 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit()
   {
+    resetMotorsOnInit();
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
@@ -124,6 +152,8 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    resetMotorsOnInit();
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -151,6 +181,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit()
   {
+    resetMotorsOnInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -169,6 +200,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
+    resetMotorsOnInit();
   }
 
   /**
@@ -182,7 +214,7 @@ public class Robot extends TimedRobot
 
   public void outputRobotPose()
   {
-    Pose2d robotPose = m_robotContainer.drivebase.getPose();
+    Pose2d robotPose = m_robotContainer.m_drivebase.getPose();
     SmartDashboard.putNumber("Pose X: ", robotPose.getTranslation().getX());
     SmartDashboard.putNumber("Pose Y: ", robotPose.getTranslation().getY()); 
     SmartDashboard.putNumber("Pose Theta: ", robotPose.getRotation().getDegrees());

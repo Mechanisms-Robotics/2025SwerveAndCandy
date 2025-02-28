@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,14 +14,24 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.L2;
+import frc.robot.commands.L3;
+import frc.robot.subsystems.AlgaeMech;
+import frc.robot.subsystems.CoralMech;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.function.Supplier;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -27,19 +39,31 @@ import swervelib.SwerveInputStream;
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
  * Instead, the structure of the robot (including subsystems, commands, and trigger mappings) should be declared here.
  */
-public class RobotContainer
-{
+public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+  private final CommandPS4Controller secondaryController = new CommandPS4Controller(3);
+  private final Joystick shifter = new Joystick(1);
+  private final Joystick gamePad = new Joystick(2);
+
   // The robot's subsystems and commands are defined here...
-  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                                "swerve"));
+  public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+    "swerve"));
+  public final Elevator m_elevator = new Elevator();
+  public final CoralMech m_coralMech = new CoralMech();
+  public final AlgaeMech m_algaeMech = new AlgaeMech();
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser();
+
+  public void setElevatorToWhereItsAt() {
+    // Prevents the elevator from moving on enable
+    m_elevator.setTargetPosition(m_elevator.getCurrentPosition());
+  }
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
         () -> Math.pow(driverController.getLeftY(), 3),
         () -> Math.pow(driverController.getLeftX(), 3))
     .withControllerRotationAxis(() -> -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2))
@@ -60,7 +84,7 @@ public class RobotContainer
   SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                              .allianceRelativeControl(false);
 
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
+  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
                                                                         () -> -driverController.getLeftY(),
                                                                         () -> -driverController.getLeftX())
                                                                     .withControllerRotationAxis(() -> driverController.getRawAxis(
@@ -95,6 +119,7 @@ public class RobotContainer
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    // TODO: add back when we're confident of safety     createAutos();
   }
 
   /**
@@ -106,22 +131,14 @@ public class RobotContainer
    */
   private void configureBindings()
   {
-    Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-    Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
-    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
+    Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity);
 
     if (RobotBase.isSimulation())
     {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     } else
     {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
     if (Robot.isSimulation())
@@ -141,36 +158,127 @@ public class RobotContainer
                                                                              360),
                                                                          Math.toRadians(
                                                                              90))));
-      driverController.options().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverController.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+      driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+      driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
       driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
                                                      () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
+      Joystick buttons = new Joystick(0);
+      Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
+      new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
-      driverController.square().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverController.triangle().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
-      driverController.options().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverController.share().whileTrue(drivebase.centerModulesCommand());
+      driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
+      driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
+      driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+      driverController.share().whileTrue(m_drivebase.centerModulesCommand());
       driverController.L2().onTrue(Commands.none());
       driverController.R2().onTrue(Commands.none());
     } else
-    //The following code is the acutal drive code used
+    // ******** The following code is the acutal drive code used *******
     {
-      driverController.cross().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      //driverController.square().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
-      driverController.circle().whileTrue(Commands.none());
-      driverController.options().whileTrue(Commands.none());
-      driverController.share().whileTrue(Commands.none());
-      driverController.L2().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverController.R2().onTrue(Commands.none());
-    }
+      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
+      // Algae Mech
+      driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
+      driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
+      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace));
+      driverController.R2().onFalse(Commands.runOnce(m_algaeMech::stop));
+
+      final double WRIST_ANGLE_DOWN = 0.0;
+      driverController.square().onTrue(Commands.runOnce(
+        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_DOWN)));
+
+      final double WRIST_ANGLE_LEVEL = 20.0;
+      driverController.triangle().onTrue(Commands.runOnce(
+        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_LEVEL)));
+  
+      final double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
+      driverController.circle().onTrue(Commands.runOnce(
+        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_UP)));
+
+      // Coral Mech
+      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
+      driverController.R1().onFalse(Commands.runOnce(m_coralMech::idle, m_coralMech));
+      
+      // Elevator
+      // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
+      // May be removed if at all needed. - Micah
+      driverController.povDown().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() - 500), m_elevator)
+      );
+        
+      driverController.povUp().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
+      );
+
+      
+      Supplier<Boolean> clutch = () -> secondaryController.touchpad().getAsBoolean() || gamePad.getRawButton(1);
+      secondaryController.cross().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+
+      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch));
+      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch));
+
+      secondaryController.triangle().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+  
+      secondaryController.povUp().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
+      );
+
+      secondaryController.povRight().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator)
+      );
+
+      secondaryController.povDown().onTrue(Commands.runOnce(
+        () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
+      );  
+  
+      new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
+      // and comment the lines that would cause problems (.getRawButton(2, 3))
+      // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
+      // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
+      // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
+      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> shifter.getRawButton(4)).whileTrue(
+        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+        // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
+      // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
+        //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+    }  
+      /****************** */
   }
 
+  public void createAutos() {
+    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
+    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::idle, m_coralMech));
+    NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
+    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::place, m_algaeMech));
+    NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
+    NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+    NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+    NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_OFFSET), m_elevator));
+
+    /**
+     * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
+     */
+    m_autoChooser.setDefaultOption("Leave", new PathPlannerAuto("Leave"));
+    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4"));
+    SmartDashboard.putData("Auto Choose", m_autoChooser);
+  }
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -179,11 +287,11 @@ public class RobotContainer
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Auto");
+    return m_autoChooser.getSelected(); // TODO: what if nothing is selected? default?
   }
-
+  
   public void setMotorBrake(boolean brake)
   {
-    drivebase.setMotorBrake(brake);
+    m_drivebase.setMotorBrake(brake);
   }
 }
