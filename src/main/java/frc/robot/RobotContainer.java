@@ -121,7 +121,7 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    // TODO: add back when we're confident of safety     
+
     createAutos();
   }
 
