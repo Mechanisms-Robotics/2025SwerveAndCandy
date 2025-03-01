@@ -50,10 +50,10 @@ public class TimedLeave extends Command {
     @Override
     public void initialize() {
         m_timer.start();
-        m_swerve.drive(new ChassisSpeeds(speed, 0, 0));
     }
     @Override
     public void execute() {
+        m_swerve.drive(new ChassisSpeeds(speed, 0, 0));
     }
 
     @Override
