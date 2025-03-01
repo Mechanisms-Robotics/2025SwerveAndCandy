@@ -32,7 +32,7 @@ public class L3 extends Command {
     public void execute() {
         if (clutch.get()) {
             m_elevator.setTargetPosition(Elevator.L3_ALGAE_OFFSET);
-            m_algaeMech.setWristAngle(AlgaeMech.WRIST_ALGAE_PICKUP_ANGLE);
+            m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_DOWN);
         } else {
             m_elevator.setTargetPosition(Elevator.L3);
         }
