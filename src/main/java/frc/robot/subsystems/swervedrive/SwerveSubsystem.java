@@ -576,7 +576,7 @@ public class SwerveSubsystem extends SubsystemBase
    * <p>
    * If red alliance rotate the robot 180 after the drviebase zero command
    */
-  public void zeroGyroWithAlliance()
+  public void zeroGyroWithAlliance_NOTUSED()
   {
     if (isRedAlliance())
     {
