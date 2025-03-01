@@ -31,7 +31,7 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
   public final static double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
   public final static double WRIST_ANGLE_LEVEL = 20.0;
-  public final static double WRIST_ANGLE_DOWN = 0.0;
+  public final static double WRIST_ANGLE_DOWN = 5.0;
 
   private final double m_wristStartingAngle; // Degrees
 
@@ -48,7 +48,7 @@ public class AlgaeMech extends SubsystemBase {
   private static final SparkMax m_wheelMotors = new SparkMax(
     ALGAE_INTAKE_MOTORS_CAN_ID, MotorType.kBrushed);
 
-  private static final double INTAKE_DUTY_CYCLE = -0.7;
+  private static final double INTAKE_DUTY_CYCLE = -1.0;
   private static final double OUTTAKING_DUTY_CYCLE = 1.0;
   /* DutyCycle equation: D = PW/T
   Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.

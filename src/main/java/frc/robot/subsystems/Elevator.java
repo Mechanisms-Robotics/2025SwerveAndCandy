@@ -86,9 +86,9 @@ public class Elevator extends SubsystemBase {
     public static final int LOADING = 1000;
     public static final int L1 = 5000;
     public static final int L2 = 12500;
-    public static final int L2_ALGAE_OFFSET = 16000;
+    public static final int L2_ALGAE_OFFSET = 17500;
     public static final int L3 = 19700;
-    public static final int L3_ALGAE_OFFSET = 23000;
+    public static final int L3_ALGAE_OFFSET = 24500;
     public static final int L4 = 32700;
     public static final int L4_OFFSET = 34000;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
