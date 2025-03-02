@@ -218,13 +218,15 @@ public class RobotContainer {
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
       );
 
-      
+      // Modifier controlls for elevator positions
       Supplier<Boolean> clutch = () -> secondaryController.touchpad().getAsBoolean() || gamePad.getRawButton(1);
+      Supplier<Boolean> up = () -> secondaryController.povUp().getAsBoolean();
+      Supplier<Boolean> down = () -> secondaryController.povDown().getAsBoolean();
       secondaryController.cross().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
 
-      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
-      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch, secondaryController));
+      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
+      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
 
       secondaryController.triangle().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
@@ -247,8 +249,8 @@ public class RobotContainer {
       // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
       // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
       // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
-      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch, secondaryController));
+      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
+      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
