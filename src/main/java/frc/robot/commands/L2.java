@@ -41,13 +41,13 @@ public class L2 extends Command {
         if (clutch.get()) {
             m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET);
             m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_DOWN);
+            if (up.get()) {
+                m_elevator.increaseL2Offset(200);
+            } else if (down.get()) {
+                m_elevator.increaseL2Offset(-200);
+            }
         } else {
             m_elevator.setTargetPosition(Elevator.L2);
-        }
-        if (up.get()) {
-            m_elevator.increaseL2Offset(500);
-        } else if (down.get()) {
-            m_elevator.increaseL2Offset(-500);
         }
     }
 }
