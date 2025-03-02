@@ -34,6 +34,8 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_ANGLE_DOWN = 5.0;
 
   private final double m_wristStartingAngle; // Degrees
+  private double m_wristOffset = 0.0; // Degrees
+  public static final double m_defaultWristBump = 5;
 
   /* Angle the wrist id PIDing toward */
   private double m_desiredAngle;
@@ -170,12 +172,18 @@ public class AlgaeMech extends SubsystemBase {
     this.m_desiredAngle = angle;
   }
 
+  public void bumpWristUp(double bumpDegrees) {
+    m_wristOffset += bumpDegrees;
+  }
+
   @Override
   public void periodic() {
     // output = P*(wrist angle - desired angle)
     // So if maximum error is 100 degrees, a P = 0.01 would yield an output of 1.0
 
-    double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
+    double angle = m_desiredAngle + m_wristOffset;
+
+    double output = m_controller.calculate(getWristAngle(), angle);
     if (output < 0) {
       final double POOR_MANS_FEEDFORWARD = 5.0;
       output /= POOR_MANS_FEEDFORWARD;
