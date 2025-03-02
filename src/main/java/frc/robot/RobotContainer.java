@@ -168,10 +168,10 @@ public class RobotContainer {
       driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
                                                      () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
-      Joystick buttons = new Joystick(0);
-      Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
-      new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch));
-      new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
+      // Joystick buttons = new Joystick(0);
+      // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
+      // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
+      // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
@@ -223,13 +223,13 @@ public class RobotContainer {
       secondaryController.cross().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
 
-      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch));
-      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch));
+      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
+      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch, secondaryController));
 
       secondaryController.triangle().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
   
-      secondaryController.povUp().onTrue(Commands.runOnce(
+      secondaryController.R1().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
       );
 
@@ -237,9 +237,9 @@ public class RobotContainer {
         () -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator)
       );
 
-      secondaryController.povDown().onTrue(Commands.runOnce(
+      secondaryController.L1().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
-      );  
+      );
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
       // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
@@ -247,8 +247,8 @@ public class RobotContainer {
       // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
       // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
       // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
-      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
+      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch, secondaryController));
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));

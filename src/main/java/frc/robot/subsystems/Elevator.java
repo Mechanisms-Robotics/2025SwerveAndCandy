@@ -86,9 +86,9 @@ public class Elevator extends SubsystemBase {
     public static final int LOADING = 1000;
     public static final int L1 = 5000;
     public static final int L2 = 12500;
-    public static final int L2_ALGAE_OFFSET = 16500;
+    public static int L2_ALGAE_OFFSET = 16500;
     public static final int L3 = 19700;
-    public static final int L3_ALGAE_OFFSET = 23500;
+    public static int L3_ALGAE_OFFSET = 23500;
     public static final int L4 = 32700;
     public static final int L4_OFFSET = 34000;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
@@ -197,6 +197,15 @@ public class Elevator extends SubsystemBase {
      */
     public double getCurrentPosition() {
         return m_outputEncoder.getPosition();
+    }
+
+    public void increaseL2Offset(double ticks) {
+        L2_ALGAE_OFFSET += ticks;
+    }
+
+    
+    public void increaseL3Offset(double ticks) {
+        L3_ALGAE_OFFSET += ticks;
     }
 
     @Override
