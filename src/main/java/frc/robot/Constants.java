@@ -43,7 +43,7 @@ public final class Constants
   {
 
     // Joystick Deadband
-    public static final double DEADBAND        = 0.01;
+    public static final double DEADBAND        = 0.0025;
     public static final double TURN_CONSTANT    = 6;
   }
 }

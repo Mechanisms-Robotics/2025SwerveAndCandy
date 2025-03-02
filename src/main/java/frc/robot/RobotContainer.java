@@ -64,6 +64,8 @@ public class RobotContainer {
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
+   * 
+   * I THINK THIS IS WHERE WE CAN CHANGE THE DRIVER CONTROL FEEL -- JVO 2 MARCH
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
         () -> Math.pow(driverController.getLeftY(), 3),
