@@ -12,7 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
+//import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -86,9 +86,9 @@ public class Elevator extends SubsystemBase {
     public static final int LOADING = 1000;
     public static final int L1 = 5000;
     public static final int L2 = 12500;
-    public static final int L2_ALGAE_OFFSET = 16000;
+    public static int L2_ALGAE_OFFSET = 16500;
     public static final int L3 = 19700;
-    public static final int L3_ALGAE_OFFSET = 23000;
+    public static int L3_ALGAE_OFFSET = 23500;
     public static final int L4 = 32700;
     public static final int L4_OFFSET = 34000;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
@@ -115,14 +115,14 @@ public class Elevator extends SubsystemBase {
     private static final double MAX_OUTPUT = 10.0; // Volts
     
     // Tunables for the elevator feedforward
-    private static final double KA = 0.0; // Acceleration feedforward Volts per something
-    private static final double KS = 0.0; // Constant of static friction or whatever
-    private static final double KG = 0.0; // Volts required to overcome gravity
-    private static final double KV = 0.0; // Velocity constant in Volts per distance per second
+    // private static final double KA = 0.0; // Acceleration feedforward Volts per something
+    // private static final double KS = 0.0; // Constant of static friction or whatever
+    // private static final double KG = 0.0; // Volts required to overcome gravity
+    // private static final double KV = 0.0; // Velocity constant in Volts per distance per second
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 3*8192.0; // Ticks per second?
-    private static final double MAX_ACCELERATION = 5*8192; // Ticks per second per second?
+    private static final double MAX_VELOCITY = 5*8192.0; // Ticks per second?
+    private static final double MAX_ACCELERATION = 6*8192; // Ticks per second per second?
     private static final double EPSILON = 10.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
@@ -199,6 +199,15 @@ public class Elevator extends SubsystemBase {
         return m_outputEncoder.getPosition();
     }
 
+    public void increaseL2Offset(double ticks) {
+        L2_ALGAE_OFFSET += ticks;
+    }
+
+    
+    public void increaseL3Offset(double ticks) {
+        L3_ALGAE_OFFSET += ticks;
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Elevator/Position", getCurrentPosition());
@@ -219,10 +228,17 @@ public class Elevator extends SubsystemBase {
         if (Math.abs(m_setpoint.position - m_goal.position) > EPSILON) {
             // keep moving to the goal
 
-            ElevatorFeedforward feedforward
-                = new ElevatorFeedforward(KS, KG, KV, KA);
-            double ff = feedforward.calculate(m_setpoint.velocity);
-            ff = 0; // TODO we may need to add this back in in the future
+            // ElevatorFeedforward feedforward
+            //     = new ElevatorFeedforward(KS, KG, KV, KA);
+            // double ff = feedforward.calculate(m_setpoint.velocity);
+
+
+            // move down faster  TODO: we can do better than this
+            final double DOWNWARD_FF_HACK = 0.0; // Volts
+            final double DOWNWARD_FF_HACK_EPSILON = 5000; // ticks
+            
+            double ff = (m_setpoint.position - m_goal.position) > DOWNWARD_FF_HACK_EPSILON
+                ? DOWNWARD_FF_HACK : 0.0;
             
             m_sparkClosedLoopController.setReference(
                 m_setpoint.position,

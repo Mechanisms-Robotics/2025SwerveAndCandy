@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;  
 
 public class AlgaeMech extends SubsystemBase {
-
   public final static int WRIST_MOTOR_CAN_ID = 22;
 
   private static final TalonFX m_wristMotor = new TalonFX(WRIST_MOTOR_CAN_ID);
@@ -30,7 +29,10 @@ public class AlgaeMech extends SubsystemBase {
   Zero degrees is pointed straight out. */
 
   public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
-  public final static double WRIST_ALGAE_PICKUP_ANGLE = -5.0; // UNUSED RIGHT NOW (26 FEB)
+  public final static double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
+  public final static double WRIST_ANGLE_LEVEL = 20.0;
+  public final static double WRIST_ANGLE_DOWN = 5.0;
+
   private final double m_wristStartingAngle; // Degrees
 
   /* Angle the wrist id PIDing toward */
@@ -46,41 +48,48 @@ public class AlgaeMech extends SubsystemBase {
   private static final SparkMax m_wheelMotors = new SparkMax(
     ALGAE_INTAKE_MOTORS_CAN_ID, MotorType.kBrushed);
 
-  private static final double INTAKE_DUTY_CYCLE = -0.7;
-  private static final double PLACING_DUTY_CYCLE = 1.0;
+  private static final double INTAKE_DUTY_CYCLE = -1.0;
+  private static final double OUTTAKING_DUTY_CYCLE = 1.0;
+  /* DutyCycle equation: D = PW/T
+  Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
+  Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
+
 
   private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
 
   enum State {
+    /** Motors are spinning inward, so it can intake algae */
     INTAKING,
-    PLACING,
-    IDLE
+    /** Motors are spinning outward, so it can outtake algae into the processor or toss it onto the barge */
+    OUTTAKING,
+    /** Motors are not moving */
+    STOPPED
   }
 
-  private State state = State.IDLE;
+  private State state = State.STOPPED;
 
   public AlgaeMech() {
-      SmartDashboard.putData("AlgaeMech/controler", m_controller);
-      SmartDashboard.putNumber("AlgaeMech/Wrist/gear ratio", GEAR_RATIO);
-
-      TalonFXConfiguration wristConfig = new TalonFXConfiguration();
-      wristConfig.CurrentLimits.StatorCurrentLimit = WRIST_MOTOR_CURRENT_LIMIT;
-      wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-      wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-
-      m_wristMotor.getConfigurator().apply(wristConfig);
-      setWristBrake(true);
-
-      //SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
-      //m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
- 
-      m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
-      m_desiredAngle = m_wristStartingAngle;
-    }
-
-    public void setWristBrake(boolean brake) {
-      m_wristMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
-    }
+    SmartDashboard.putData("AlgaeMech/controler", m_controller);
+    SmartDashboard.putNumber("AlgaeMech/Wrist/gear ratio", GEAR_RATIO);
+    
+    TalonFXConfiguration wristConfig = new TalonFXConfiguration();
+    wristConfig.CurrentLimits.StatorCurrentLimit = WRIST_MOTOR_CURRENT_LIMIT;
+    wristConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+    
+    m_wristMotor.getConfigurator().apply(wristConfig);
+    setWristBrake(true);
+    
+    //SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
+    //m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+    m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
+    m_desiredAngle = m_wristStartingAngle;
+  }
+  
+  public void setWristBrake(boolean brake) {
+    m_wristMotor.setNeutralMode(brake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+  }
 
   /**
    * Spin the wheels toward the robot using DutyCycle to intake the Algae
@@ -94,10 +103,10 @@ public class AlgaeMech extends SubsystemBase {
   /**
    * Spin the wheels away from the robot to place algae
    */
-  public void place() {
+  public void outtake() {
     m_wheelMotors.getClosedLoopController().setReference(
-      PLACING_DUTY_CYCLE, ControlType.kDutyCycle);
-    state = State.PLACING;
+      OUTTAKING_DUTY_CYCLE, ControlType.kDutyCycle);
+    state = State.OUTTAKING;
   }
 
   /**
@@ -106,7 +115,7 @@ public class AlgaeMech extends SubsystemBase {
   public void stop() {
     m_wheelMotors.getClosedLoopController().setReference(
       0, ControlType.kDutyCycle);
-    state = State.IDLE;
+    state = State.STOPPED;
   }
 
   /**
@@ -125,17 +134,18 @@ public class AlgaeMech extends SubsystemBase {
    * If it is not (i.e. in any other state other than), placing, start placing.
    * Otherwise, if it is in placing, stop the wheels from spinning
    */
-  public void togglePlace() {
-    if (state == State.PLACING) {
+  public void toggleOuttake() {
+    if (state == State.OUTTAKING) {
       stop();
     } else {
-      place();
+      outtake();
     }
   }
 
   /**
    * Outputs the angle of the arm based on the internal encoder of the wrist motor
-   * @return
+   * 
+   * @return angle of the wrist as determined by the falcon internal encoder
    */
   public double getWristAngle() {
     return m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO
@@ -164,7 +174,6 @@ public class AlgaeMech extends SubsystemBase {
   public void periodic() {
     // output = P*(wrist angle - desired angle)
     // So if maximum error is 100 degrees, a P = 0.01 would yield an output of 1.0
-    //
 
     double output = m_controller.calculate(getWristAngle(), m_desiredAngle);
     if (output < 0) {
@@ -175,11 +184,13 @@ public class AlgaeMech extends SubsystemBase {
 
     SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
+
     SmartDashboard.putNumber("AlgaeMech/Wrist/Desired Angle", m_desiredAngle);
     SmartDashboard.putNumber("AlgaeMech/Wrist/Angle", getWristAngle());
     SmartDashboard.putNumber("AlgaeMech/Wrist/Velocity (degrees per seconds)", getWristVelocity());
+    SmartDashboard.putNumber("AlgaeMech/Wrist/Current", m_wristMotor.getStatorCurrent().getValueAsDouble());
+
     SmartDashboard.putNumber("AlgaeMech/wrist motor/velocity", m_wristMotor.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("AlgaeMech/wrist motor/position", m_wristMotor.getPosition().getValueAsDouble());
-    SmartDashboard.putNumber("AlgaeMech/Wrist/OutputCurrent", m_wristMotor.getStatorCurrent().getValueAsDouble());
   }
 }

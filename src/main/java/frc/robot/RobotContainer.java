@@ -21,10 +21,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
+import frc.robot.commands.autos.TimedLeave;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
@@ -62,6 +64,8 @@ public class RobotContainer {
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
+   * 
+   * I THINK THIS IS WHERE WE CAN CHANGE THE DRIVER CONTROL FEEL -- JVO 2 MARCH
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
         () -> Math.pow(driverController.getLeftY(), 3),
@@ -119,7 +123,8 @@ public class RobotContainer {
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
-    // TODO: add back when we're confident of safety     createAutos();
+
+    createAutos();
   }
 
   /**
@@ -163,10 +168,10 @@ public class RobotContainer {
       driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
                                                      () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
-      Joystick buttons = new Joystick(0);
-      Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
-      new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch));
-      new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
+      // Joystick buttons = new Joystick(0);
+      // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
+      // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
+      // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
@@ -186,24 +191,21 @@ public class RobotContainer {
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
       driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
-      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::togglePlace));
+      driverController.R2().onTrue(Commands.runOnce(m_algaeMech::toggleOuttake));
       driverController.R2().onFalse(Commands.runOnce(m_algaeMech::stop));
 
-      final double WRIST_ANGLE_DOWN = 0.0;
       driverController.square().onTrue(Commands.runOnce(
-        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_DOWN)));
+        () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_DOWN)));
 
-      final double WRIST_ANGLE_LEVEL = 20.0;
       driverController.triangle().onTrue(Commands.runOnce(
-        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_LEVEL)));
+        () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_LEVEL)));
   
-      final double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
       driverController.circle().onTrue(Commands.runOnce(
-        () -> m_algaeMech.setWristAngle(WRIST_ANGLE_UP)));
+        () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::idle, m_coralMech));
+      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
+      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
       
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
@@ -216,18 +218,20 @@ public class RobotContainer {
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
       );
 
-      
+      // Modifier controlls for elevator positions
       Supplier<Boolean> clutch = () -> secondaryController.touchpad().getAsBoolean() || gamePad.getRawButton(1);
+      Supplier<Boolean> up = () -> secondaryController.povUp().getAsBoolean();
+      Supplier<Boolean> down = () -> secondaryController.povDown().getAsBoolean();
       secondaryController.cross().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
 
-      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch));
-      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch));
+      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
+      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
 
       secondaryController.triangle().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
   
-      secondaryController.povUp().onTrue(Commands.runOnce(
+      secondaryController.R1().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
       );
 
@@ -235,9 +239,9 @@ public class RobotContainer {
         () -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator)
       );
 
-      secondaryController.povDown().onTrue(Commands.runOnce(
+      secondaryController.L1().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
-      );  
+      );
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
       // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
@@ -245,8 +249,8 @@ public class RobotContainer {
       // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
       // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
       // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
-      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
+      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
+      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
@@ -260,22 +264,27 @@ public class RobotContainer {
   }
 
   public void createAutos() {
-    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feedCoral, m_coralMech));
-    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::idle, m_coralMech));
+    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feed, m_coralMech));
+    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::stop, m_coralMech));
     NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
-    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::place, m_algaeMech));
+    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
     NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
+
     NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
     NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    NamedCommands.registerCommand("L2 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    NamedCommands.registerCommand("L3 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
     NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_OFFSET), m_elevator));
 
     /**
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
      */
-    m_autoChooser.setDefaultOption("Leave", new PathPlannerAuto("Leave"));
-    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4"));
+    m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
+    m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
+    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
+    m_autoChooser.addOption("BlueTHexTRAlgaeL3CoralL4", new PathPlannerAuto("BlueTHexTRAlgaeL3CoralL4")); 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
   
