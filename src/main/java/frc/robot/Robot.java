@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import java.util.TreeMap;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -28,6 +31,9 @@ public class Robot extends TimedRobot
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
+  private final InterpolatingDoubleTreeMap swerveVelocityMap = new InterpolatingDoubleTreeMap(); // meters per second
+  private final InterpolatingDoubleTreeMap swerveRotationSpeedMap = new InterpolatingDoubleTreeMap(); // radians per second
+
 
   public void resetMotorsOnInit() {
     m_robotContainer.m_algaeMech.setWristBrake(true);
@@ -79,6 +85,11 @@ public class Robot extends TimedRobot
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
+    swerveVelocityMap.put(0.0, Constants.MAX_SPEED);
+    swerveVelocityMap.put(40000.0, Constants.MAX_SPEED * 0.05);
+    swerveRotationSpeedMap.put(0.0, m_robotContainer.m_drivebase.defaultAngularVelocity);
+    swerveRotationSpeedMap.put(40000.0, m_robotContainer.m_drivebase.defaultAngularVelocity * 0.05);
+
     resetMotorsOnInit();
   }
 
@@ -96,6 +107,10 @@ public class Robot extends TimedRobot
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
+    m_robotContainer.m_drivebase.setMaxSpeed(
+      swerveVelocityMap.get(m_robotContainer.m_elevator.getCurrentPosition()), 
+      swerveRotationSpeedMap.get(m_robotContainer.m_elevator.getCurrentPosition())
+    );
     CommandScheduler.getInstance().run();
     outputRobotPose();
   }
