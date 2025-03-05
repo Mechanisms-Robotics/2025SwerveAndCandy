@@ -727,10 +727,6 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.setMaximumAllowableSpeeds(velocityMetersPerSecond, velocityRadiansPerSecond);
   }
 
-  public void resetMaxSpeed() {
-    swerveDrive.setMaximumAllowableSpeeds(Constants.MAX_SPEED, 0);
-  }
-
   /**
    * Gets the swerve drive object.
    *
