@@ -235,8 +235,11 @@ public class RobotContainer {
         () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
       );
 
-      secondaryController.povRight().onTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.m_defaultWristBump)));
-      secondaryController.povLeft().onTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.m_defaultWristBump)));
+      secondaryController.povRight().whileTrue(
+        Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+
+      secondaryController.povLeft().whileTrue(
+        Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
 
       secondaryController.L1().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)

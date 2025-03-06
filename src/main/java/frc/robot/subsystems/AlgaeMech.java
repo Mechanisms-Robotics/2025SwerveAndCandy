@@ -38,7 +38,7 @@ public class AlgaeMech extends SubsystemBase {
 
   private final double m_wristStartingAngle; // Degrees
   private double m_wristOffset = 0.0; // Degrees
-  public static final double m_defaultWristBump = 5;
+  public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
 
   /* Angle the wrist id PIDing toward */
   private double m_desiredAngle;
