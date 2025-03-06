@@ -6,7 +6,10 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -80,8 +83,10 @@ public class AlgaeMech extends SubsystemBase {
     m_wristMotor.getConfigurator().apply(wristConfig);
     setWristBrake(true);
     
-    //SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
-    //m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
+    // are inverting the wheel motors now because they got wired differently
+    wheelMotorConfig.inverted(true);
+    m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
     m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
     m_desiredAngle = m_wristStartingAngle;
