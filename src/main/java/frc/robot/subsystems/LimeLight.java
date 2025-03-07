@@ -1,11 +1,17 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -13,17 +19,27 @@ import frc.robot.Constants;
 public class LimeLight extends SubsystemBase {
     private final PhotonCamera camera;
     private final String cameraName;
+    private final Transform3d cameraToRobot;
+
     private final AprilTagFieldLayout aprilTagFieldLayout;
-    // private final PhotonPoseEstimator poseEstimator;
+    private final PhotonPoseEstimator poseEstimator;
+    private Pose3d visionPose;
     private final ArrayList<ApriltagData> aprilTagDatas = new ArrayList<>();
 
 
-    public LimeLight(String cameraName) {
+    public LimeLight(String cameraName, Transform3d cameraToRobot) {
         camera = new PhotonCamera(cameraName);
         this.cameraName = cameraName;
+        this.cameraToRobot = cameraToRobot;
 
         aprilTagFieldLayout = AprilTagFieldLayout.loadField(Constants.Vision.FIELD);
         aprilTagFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+
+        poseEstimator = new PhotonPoseEstimator(
+            aprilTagFieldLayout,
+            PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            this.cameraToRobot
+        );
 
         for (int i = 0; i < 22; i++) {
             aprilTagDatas.add(new ApriltagData(i+1));
@@ -35,12 +51,24 @@ public class LimeLight extends SubsystemBase {
         private double yaw = 0.0;
         private double pitch = 0.0;
         private double area = 0.0;
-
+        
         private boolean detected = false;
-        public boolean updatedOnCycle = false;
+        private boolean updatedOnCycle = false;
+        
+        // true if the april tag is being used for robot position measurements
+        private static boolean goodForPositionMeasurements;
+        private static boolean hasPose = false;
 
         public ApriltagData(int id) {
             this.id = id;
+            
+            goodForPositionMeasurements = false;
+            for (int tag : Constants.Vision.GOOD_APRIL_TAGS) {
+                if (id == tag) {
+                    goodForPositionMeasurements = true;
+                    break;
+                }
+            }
         }
 
         /**
@@ -56,22 +84,31 @@ public class LimeLight extends SubsystemBase {
             this.area = area;
             this.detected = detected;
             updatedOnCycle = true;
+
+            if (detected && goodForPositionMeasurements) {
+                hasPose = true;
+            }
+
+
             String tableName = cameraName + "/AprilTags/" + id + "/";
             
             SmartDashboard.putNumber(tableName + "Yaw", yaw);
             SmartDashboard.putNumber(tableName + "Pitch", pitch);
             SmartDashboard.putNumber(tableName + "Area", area);
             SmartDashboard.putBoolean(tableName + "Detected", detected);
-
         }
 
         /**
          * Clears the data when not updated on the cycle, if it was updated it does litteraly nothing
          */
-        public void clearWhenOutdated() {
+        public void resetData() {
+            if (hasPose) {
+                hasPose = false;
+            }
             if (!updatedOnCycle) {
                 update(0.0, 0.0, 0.0, false);
             }
+            updatedOnCycle = false;
         }
 
         public boolean getDetected() {
@@ -90,6 +127,13 @@ public class LimeLight extends SubsystemBase {
 
         public double getArea() {
             return area;
+        }
+
+        /**
+         * @return true if an apriltag has taken a valid position measurement
+         */
+        public static boolean validPositionMeasurement() {
+            return hasPose;
         }
     }
 
@@ -110,27 +154,33 @@ public class LimeLight extends SubsystemBase {
         SmartDashboard.putBoolean(cameraName + "/connected", camera.isConnected());
         SmartDashboard.putNumber(cameraName + "/Target Number", results.size());
 
-        // assume the april tag was not updated on this cycle until detected
-        for (int i = 0; i < aprilTagDatas.size(); i++) {
-            // this is not refering to the april tag with the i id, because the 0th element has an id of 1
-            aprilTagDatas.get(i).updatedOnCycle = false;
-        }
-
         for (PhotonPipelineResult result : results) {
             SmartDashboard.putBoolean(cameraName + "/Apriltag detected", result.hasTargets());
 
             if (result.hasTargets()) {
                 SmartDashboard.putBoolean(cameraName + "/Result Empty", result.getMultiTagResult().isEmpty());
+                // Loop through all of the apriltag data
                 for (PhotonTrackedTarget target : result.targets) {
                     ApriltagData tagData = getApriltag(target.getFiducialId());
                     // now we know the april tag was detected, updated all of the values of that tag id
                     tagData.update(target.getYaw(), target.getPitch(), target.getArea(), true);
                 }
             }
+            if (ApriltagData.validPositionMeasurement()) {
+                Optional<EstimatedRobotPose> estimatedPose = poseEstimator.update(result);
+                if (estimatedPose.isPresent()) {
+                    visionPose = estimatedPose.get().estimatedPose;
+                    SmartDashboard.putString(cameraName + "/Estimated Robot Pose", visionPose.toString());
+                }
+            }
         }
+
+
         // if the apriltag was not updated, clear its data because otherwise the data from the last time it was detected stays
+        // also updated has pose to make if false, i.e. assume false until proven, for the next cycle
+        // * note please keep this as the final line if possible, moving it up it a breading ground for bugs
         for (int i = 0; i < aprilTagDatas.size(); i++) {
-            aprilTagDatas.get(i).clearWhenOutdated();
+            aprilTagDatas.get(i).resetData();
         }
     }
 }
