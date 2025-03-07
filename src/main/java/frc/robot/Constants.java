@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -47,12 +50,22 @@ public final class Constants
     public static final double TURN_CONSTANT    = 6;
   }
 
-  public static final class LimeLight1Constants
+  public static final class Vision
   {
     // The name of the limelight
     // See http://photonvision.local:5800/ while connected to the robot, it should be in the top right corner as camera
     // This is not the host name. The docs say to change the host name to differentiate between limelights, host name may be changed.
     // Nickname is enough to differentiate so I have not changed it. I am not sure what hostname does to differentitate between cameras.
-    public static final String NICKNAME = "LimeLight1";
+    public static final class LimeLight1
+    {
+      public static final String NICKNAME = "LimeLight1";
+      public static final Transform3d FIELD_TO_CAMERA = new Transform3d();
+    }
+    public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
+    // Stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
+    // These are the apriltags that are used for pose estimation
+    public static final int[] GOOD_APRIL_TAGS = {
+      6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22
+    };
   }
 }
