@@ -46,4 +46,13 @@ public final class Constants
     public static final double DEADBAND        = 0.0025;
     public static final double TURN_CONSTANT    = 6;
   }
+
+  public static final class LimeLight1Constants
+  {
+    // The name of the limelight
+    // See http://photonvision.local:5800/ while connected to the robot, it should be in the top right corner as camera
+    // This is not the host name. The docs say to change the host name to differentiate between limelights, host name may be changed.
+    // Nickname is enough to differentiate so I have not changed it. I am not sure what hostname does to differentitate between cameras.
+    public static final String NICKNAME = "LimeLight1";
+  }
 }

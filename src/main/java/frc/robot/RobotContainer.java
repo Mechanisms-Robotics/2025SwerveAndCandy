@@ -30,6 +30,7 @@ import frc.robot.commands.autos.TimedLeave;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.function.Supplier;
@@ -55,6 +56,7 @@ public class RobotContainer {
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
+  public final LimeLight m_limeLight = new LimeLight(Constants.LimeLight1Constants.NICKNAME);
   private final SendableChooser<Command> m_autoChooser = new SendableChooser();
 
   public void setElevatorToWhereItsAt() {
