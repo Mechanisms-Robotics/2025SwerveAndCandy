@@ -284,8 +284,8 @@ public class RobotContainer {
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
      */
     m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
-    m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
-    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
+    //m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
+    //m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
     m_autoChooser.addOption("BlueTHexTRAlgaeL3CoralL4", new PathPlannerAuto("BlueTHexTRAlgaeL3CoralL4")); 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
@@ -298,7 +298,7 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return m_autoChooser.getSelected(); // TODO: what if nothing is selected? default?
+    return m_autoChooser.getSelected(); // nothing selected should default to timed leave
   }
   
   public void setMotorBrake(boolean brake)
