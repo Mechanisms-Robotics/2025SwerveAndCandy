@@ -8,13 +8,9 @@ import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class AutoReefLineup extends SequentialCommandGroup {
-    SwerveSubsystem swerve;
 
     public AutoReefLineup(SwerveSubsystem swerve) {
-        this.swerve = swerve;
-
         addRequirements(swerve);
-
         addCommands(swerve.driveToPose(findClosestTarget(swerve.getPose(), (
             DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue))
             ? Constants.FieldConstants.BLUE_REEF_POSES : Constants.FieldConstants.RED_REEF_POSES)));

@@ -69,6 +69,8 @@ public class PointAtApriltag extends Command {
             output = 0.0;
         }
 
+        // sets the driving to be still and applies rotational force using robot relative because th
+        // pointing is only referencing the robot and the apriltag making the field irrelevant
         swerve.drive(new Translation2d(), output, false);
     }
 
