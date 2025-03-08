@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,6 +98,14 @@ public final class Constants
       // Blue Reef
       17, 18, 19, 20, 21, 22,
     };
+
+    public static final int[] REEF_APRIL_TAGS = {
+            // Red Reef
+            6, 7, 8, 9, 10, 11,
+            // Blue Reef
+            17, 18, 19, 20, 21, 22
+    };
+
     // RED_REEF_POSES array for ID 6 through 11
     public static final Pose2d[] RED_REEF_POSES = new Pose2d[] {
         new Pose2d(13.917, 2.859, new Rotation2d(2.0943951023931957)), // ID 6

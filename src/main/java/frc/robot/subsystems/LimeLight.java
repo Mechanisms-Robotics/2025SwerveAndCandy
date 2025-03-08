@@ -158,8 +158,31 @@ public class LimeLight extends SubsystemBase {
      * @param id of the apriltag
      * @return april tag data object
      */
-    public final ApriltagData getApriltag(int id) {
+    public ApriltagData getApriltag(int id) {
         return aprilTagDatas.get(id-1);
+    }
+
+    /**
+     * Get the closest apriltag data (calculated by largest area taken up on the camera)
+     * 
+     * @param ids int list of the ids to look for
+     * @return apriltag data if it finds one, otherwise Optional.empty()
+     */
+    public Optional<ApriltagData> getClosestAprilTag(int[] ids) {
+        double largestArea = 0.0;
+        int largestAreaID = 0;
+        for (int i = 0; i < ids.length; i++) {
+            ApriltagData tag = getApriltag(ids[i]);
+            if (tag.getArea() > largestArea) {
+                largestArea = tag.area;
+                largestAreaID = tag.id;
+            }
+        }
+        if (largestAreaID != 0) {
+            return Optional.of(getApriltag(largestAreaID));
+        }
+            
+        return Optional.empty();
     }
 
     @Override

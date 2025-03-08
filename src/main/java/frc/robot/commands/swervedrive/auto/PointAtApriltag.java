@@ -32,6 +32,7 @@ public class PointAtApriltag extends Command {
         this.pidController = pidController;
         pidController.setTolerance(Units.degreesToRadians(errorTollerance));
         pidController.setSetpoint(targetAngle);
+        pidController.enableContinuousInput(-180, 180);
 
         addRequirements(this.swerve, this.limeLight);
     }
