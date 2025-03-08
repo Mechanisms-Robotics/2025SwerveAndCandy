@@ -31,7 +31,7 @@ public class Robot extends TimedRobot
   private        Command m_autonomousCommand;
 
   // private RobotContainer m_robotContainer;
-  public final LimeLight m_limeLight = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
+  public final LimeLight m_limeLight = new LimeLight(Constants.Vision.LimeLight1.NICKNAME, Constants.Vision.LimeLight1.FIELD_TO_CAMERA);
 
   private Timer disabledTimer;
 
