@@ -71,7 +71,7 @@ public final class Constants
         Units.inchesToMeters(0.0),
         // Distance from the floor to the camera
         Units.inchesToMeters(3.5),
-        // Rotation 3d containing the role, pitch, and yaw. This Camera only uses yaw because it simply points up.
+        // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
         new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
     }
     public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
@@ -80,15 +80,24 @@ public final class Constants
   public static final class FieldConstants {
     // Mostly stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
     // These are the apriltags that are used for pose estimation
+    // Currently it is everything due to limited testing - Micah Maphet 3/8/2025
     public static final int[] GOOD_APRIL_TAGS = {
-      // Red reef apriltags
-      6, 7, 8, 9, 10, 11,
-      // Blue reef apriltags
-      17, 18, 19, 20, 21, 22,
       // Red Coral station
-      1,
+      1, 2,
+      // Red Processor
+      3,
+      // Red Barch
+      4, 5,
+      // Red reef
+      6, 7, 8, 9, 10, 11,
       // Blue Coral station
-      13
+      12, 13,
+      // Blue barch
+      14, 15,
+      // Blue Processor
+      16,
+      // Blue reef
+      17, 18, 19, 20, 21, 22,
     };
     // RED_REEF_POSES array for ID 6 through 11
     public static final Pose2d[] RED_REEF_POSES = new Pose2d[] {
