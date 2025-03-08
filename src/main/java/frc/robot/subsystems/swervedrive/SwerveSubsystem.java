@@ -21,12 +21,15 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -72,6 +75,10 @@ public class SwerveSubsystem extends SubsystemBase
   private Vision vision;
 
   public final double defaultAngularVelocity;
+  private final StructPublisher<Pose2d> positionPublisher = 
+  NetworkTableInstance.getDefault().getTable("SmartDashboard")
+  .getStructTopic("Swerve/Pose3d", Pose2d.struct).publish();
+
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -129,6 +136,10 @@ public class SwerveSubsystem extends SubsystemBase
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
   }
 
+  public void startPoseLog() {
+
+  }
+
   /**
    * Setup the photon vision class.
    */
@@ -140,6 +151,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    positionPublisher.set(getPose());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
