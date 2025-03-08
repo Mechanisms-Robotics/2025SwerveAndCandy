@@ -86,17 +86,17 @@ public final class Constants
       1, 2,
       // Red Processor
       3,
-      // Red Barch
+      // Red Barge
       4, 5,
-      // Red reef
+      // Red Reef
       6, 7, 8, 9, 10, 11,
       // Blue Coral station
       12, 13,
-      // Blue barch
+      // Blue Barge
       14, 15,
       // Blue Processor
       16,
-      // Blue reef
+      // Blue Reef
       17, 18, 19, 20, 21, 22,
     };
     // RED_REEF_POSES array for ID 6 through 11
