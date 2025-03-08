@@ -11,7 +11,7 @@ public class TimedLeave extends Command {
     private final double m_time;
     private final double speed;
 
-    private static final double MPS = -0.5;
+    private static final double MPS = 0.5;
     private static final double SECONDS = 5.0;
 
     /**
