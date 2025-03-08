@@ -56,18 +56,25 @@ public class LimeLight extends SubsystemBase {
         private boolean updatedOnCycle = false;
         
         // true if the april tag is being used for robot position measurements
-        private static boolean goodForPositionMeasurements;
+        private boolean goodForPositionMeasurements = false;
         private static boolean hasPose = false;
+        private String tableName;
 
         public ApriltagData(int id) {
             this.id = id;
-            
-            goodForPositionMeasurements = false;
             for (int tag : Constants.FieldConstants.GOOD_APRIL_TAGS) {
                 if (id == tag) {
                     goodForPositionMeasurements = true;
                     break;
                 }
+            }
+
+            tableName = cameraName + "/AprilTags/" + id + "/";
+
+            if (goodForPositionMeasurements) {
+                SmartDashboard.putString(tableName + "info", "this apriltag is used for robot position field localisation");
+            } else {
+                SmartDashboard.putString(tableName + "info", "this apriltag is note used for position localisation");
             }
         }
 
@@ -88,9 +95,6 @@ public class LimeLight extends SubsystemBase {
             if (detected && goodForPositionMeasurements) {
                 hasPose = true;
             }
-
-
-            String tableName = cameraName + "/AprilTags/" + id + "/";
             
             SmartDashboard.putNumber(tableName + "Yaw", yaw);
             SmartDashboard.putNumber(tableName + "Pitch", pitch);
@@ -166,6 +170,7 @@ public class LimeLight extends SubsystemBase {
                     tagData.update(target.getYaw(), target.getPitch(), target.getArea(), true);
                 }
             }
+            // only updates the position if one of april tags was detected that is supposed to be used for vision
             if (ApriltagData.validPositionMeasurement()) {
                 Optional<EstimatedRobotPose> estimatedPose = poseEstimator.update(result);
                 if (estimatedPose.isPresent()) {

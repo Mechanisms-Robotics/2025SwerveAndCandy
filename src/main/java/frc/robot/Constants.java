@@ -64,14 +64,20 @@ public final class Constants
       public static final Transform3d FIELD_TO_CAMERA = new Transform3d();
     }
     public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
-    // Stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
-    // These are the apriltags that are used for pose estimation
   }
   
   public static final class FieldConstants {
-    
+    // Mostly stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
+    // These are the apriltags that are used for pose estimation
     public static final int[] GOOD_APRIL_TAGS = {
-      6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22
+      // Red reef apriltags
+      6, 7, 8, 9, 10, 11,
+      // Blue reef apriltags
+      17, 18, 19, 20, 21, 22,
+      // Red Coral station
+      1,
+      // Blue Coral station
+      13
     };
     // RED_REEF_POSES array for ID 6 through 11
     public static final Pose2d[] RED_REEF_POSES = new Pose2d[] {
