@@ -60,7 +60,8 @@ public class DriveWhileApriltagPoint extends Command {
             ApriltagData tag = apriltag.get();
 
             // apply the sigmoid curve, or s shape curve to smooth the pid values to be between 1 and -1
-            double rotationalOutput = 1 / (1 + Math.exp(-pidController.calculate(tag.getYaw())));
+            // the normal s curve goes from 0, 0.5, 1, this one goes from -1, 0.0, 1
+            double rotationalOutput = 2 / (1 + Math.exp(-pidController.calculate(tag.getYaw()))) - 1;
             driveAngularVelocity = SwerveInputStream.of(swerve.getSwerveDrive(),
                 () -> Math.pow(yVal.get(), 3),
                 () -> Math.pow(xVal.get(), 3))
