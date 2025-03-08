@@ -12,6 +12,8 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -25,6 +27,9 @@ public class LimeLight extends SubsystemBase {
     private final PhotonPoseEstimator poseEstimator;
     private Pose3d visionPose;
     private final ArrayList<ApriltagData> aprilTagDatas = new ArrayList<>();
+
+    private final StructPublisher<Pose3d> visionLocalisationPublisher;
+
 
 
     public LimeLight(String cameraName, Transform3d cameraToRobot) {
@@ -44,6 +49,11 @@ public class LimeLight extends SubsystemBase {
         for (int i = 0; i < 22; i++) {
             aprilTagDatas.add(new ApriltagData(i+1));
         }
+
+        // I am not using SmartDashboard.putData and am using NetworkTableInstance because I can give advantage scope a pose3d
+        // if you want to see this pose3d, open up the 3D Field and drag this value into Poses
+        visionLocalisationPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+            .getStructTopic(cameraName + "/Vision Localisation Pose3d", Pose3d.struct).publish();
     }
 
     public class ApriltagData {
@@ -175,7 +185,7 @@ public class LimeLight extends SubsystemBase {
                 Optional<EstimatedRobotPose> estimatedPose = poseEstimator.update(result);
                 if (estimatedPose.isPresent()) {
                     visionPose = estimatedPose.get().estimatedPose;
-                    SmartDashboard.putString(cameraName + "/Estimated Robot Pose", visionPose.toString());
+                    visionLocalisationPublisher.set(visionPose);
                 }
             }
         }
