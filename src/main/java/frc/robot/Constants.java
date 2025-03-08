@@ -8,6 +8,7 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -61,7 +62,17 @@ public final class Constants
     public static final class LimeLight1
     {
       public static final String NICKNAME = "LimeLight1";
-      public static final Transform3d FIELD_TO_CAMERA = new Transform3d();
+      // This uses the https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system courdinate system
+      public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
+        // Forward distance from the center of the robot to the camera
+        Units.inchesToMeters(16.0),
+        // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
+        // the distance from the right of the center from YOUR perspective.
+        Units.inchesToMeters(0.0),
+        // Distance from the floor to the camera
+        Units.inchesToMeters(3.5),
+        // Rotation 3d containing the role, pitch, and yaw. This Camera only uses yaw because it simply points up.
+        new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
     }
     public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
   }
