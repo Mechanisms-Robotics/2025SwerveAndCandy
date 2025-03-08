@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;  
 
@@ -20,7 +21,7 @@ public class AlgaeMech extends SubsystemBase {
 
   private static final TalonFX m_wristMotor = new TalonFX(WRIST_MOTOR_CAN_ID);
 
-  private final static double P = 0.01;
+  private final static double P = 0.005;
   private final static double I = 0.0;
   private final static double D = 0.0;
 
@@ -33,8 +34,8 @@ public class AlgaeMech extends SubsystemBase {
 
   public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
   public final static double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
-  public final static double WRIST_ANGLE_LEVEL = 20.0;
-  public final static double WRIST_ANGLE_DOWN = 5.0;
+  public final static double WRIST_ANGLE_LEVEL = 5.0;
+  public final static double WRIST_ANGLE_DOWN = -10.0;
 
   private final double m_wristStartingAngle; // Degrees
   private double m_wristOffset = 0.0; // Degrees
@@ -46,7 +47,7 @@ public class AlgaeMech extends SubsystemBase {
   /* number of rotations of the motor per rotation of the hex shaft (note the hex shaft should never 
   make a full rotation because the arms of the algae mechanism cannot move like that)
   The falcon motor is attached to 2 5 to 1 gear boxes, a 18t pulley and a 27t pulley on a */
-  private final double GEAR_RATIO = (27.0/18.0) * 25.0;
+  private final double GEAR_RATIO = (32.0/16.0) * 25.0;
 
   // the left and right wheel motors are controlled by one spark
   private static final int ALGAE_INTAKE_MOTORS_CAN_ID = 21;
@@ -187,15 +188,18 @@ public class AlgaeMech extends SubsystemBase {
     // So if maximum error is 100 degrees, a P = 0.01 would yield an output of 1.0
 
     double angle = m_desiredAngle + m_wristOffset;
+    double kG = 0.02;
 
-    double output = m_controller.calculate(getWristAngle(), angle);
+    double feedforwardOutput = Math.cos(Units.degreesToRadians(getWristAngle() + m_wristOffset)) * kG;
+    SmartDashboard.putNumber("AlgaeMech/Wrist/Feedforward Output", feedforwardOutput);
+    double output = m_controller.calculate(getWristAngle(), angle) + feedforwardOutput;
     if (output < 0) {
-      final double POOR_MANS_FEEDFORWARD = 5.0;
+      final double POOR_MANS_FEEDFORWARD = 3.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
     m_wristMotor.set(output);
 
-    SmartDashboard.putNumber("AlgaeMech/Wrist/PID Output", output);
+    SmartDashboard.putNumber("AlgaeMech/Wrist/Controlv Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
 
     SmartDashboard.putNumber("AlgaeMech/Wrist/Desired Angle", m_desiredAngle);
