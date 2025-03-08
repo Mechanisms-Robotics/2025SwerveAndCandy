@@ -30,23 +30,23 @@ public class Robot extends TimedRobot
   private static Robot   instance;
   private        Command m_autonomousCommand;
 
-  // private RobotContainer m_robotContainer;
-  public final LimeLight m_limeLight = new LimeLight(Constants.Vision.LimeLight1.NICKNAME, Constants.Vision.LimeLight1.FIELD_TO_CAMERA);
+  private RobotContainer m_robotContainer;
+  public final LimeLight m_limeLight = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
 
   private Timer disabledTimer;
 
   // These maps map elevator positions in ticks to swerve maximum velocities
-  // private final InterpolatingDoubleTreeMap swerveVelocityMap = new InterpolatingDoubleTreeMap(); // meters per second
-  // private final InterpolatingDoubleTreeMap swerveRotationSpeedMap = new InterpolatingDoubleTreeMap(); // radians per second
+  private final InterpolatingDoubleTreeMap swerveVelocityMap = new InterpolatingDoubleTreeMap(); // meters per second
+  private final InterpolatingDoubleTreeMap swerveRotationSpeedMap = new InterpolatingDoubleTreeMap(); // radians per second
 
 
   public void resetMotorsOnInit() {
-    // m_robotContainer.m_algaeMech.setWristBrake(true);
-    // m_robotContainer.m_algaeMech.setWristAngle(
-    //   m_robotContainer.m_algaeMech.getWristAngle()
-    // );
+    m_robotContainer.m_algaeMech.setWristBrake(true);
+    m_robotContainer.m_algaeMech.setWristAngle(
+      m_robotContainer.m_algaeMech.getWristAngle()
+    );
 
-    // m_robotContainer.setElevatorToWhereItsAt();
+    m_robotContainer.setElevatorToWhereItsAt();
   }
 
   public Robot()
@@ -61,9 +61,9 @@ public class Robot extends TimedRobot
     final int CAMERA_RESOLUTION_H = 480;
     final int CAMERA_FRAME_RATE = 30;
 
-    // UsbCamera camera = CameraServer.startAutomaticCapture();
-    // camera.setResolution(CAMERA_RESOLUTION_W, CAMERA_RESOLUTION_H);
-    // camera.setFPS(CAMERA_FRAME_RATE);
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(CAMERA_RESOLUTION_W, CAMERA_RESOLUTION_H);
+    camera.setFPS(CAMERA_FRAME_RATE);
   }
 
   public static Robot getInstance()
@@ -85,26 +85,26 @@ public class Robot extends TimedRobot
     // // immediately when disabled, but then also let it be pushed more 
     // disabledTimer = new Timer();
 
-    // if (isSimulation())
-    // {
-    //   DriverStation.silenceJoystickConnectionWarning(true);
-    // }
+    if (isSimulation())
+    {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
 
     // // Interpolations to throttle the swerve drive when the elevator is raised
 
-    // final double SPEED_REDUCTION_FACTOR = 0.05;
+    final double SPEED_REDUCTION_FACTOR = 0.05;
 
-    // swerveVelocityMap.put(
-    //   (double)Elevator.RESTING, Constants.MAX_SPEED);
-    // swerveVelocityMap.put(
-    //   (double)Elevator.BARGE, Constants.MAX_SPEED * SPEED_REDUCTION_FACTOR);
+    swerveVelocityMap.put(
+      (double)Elevator.RESTING, Constants.MAX_SPEED);
+    swerveVelocityMap.put(
+      (double)Elevator.BARGE, Constants.MAX_SPEED * SPEED_REDUCTION_FACTOR);
 
-    // swerveRotationSpeedMap.put(
-    //   (double)Elevator.RESTING, m_robotContainer.m_drivebase.defaultAngularVelocity);
-    // swerveRotationSpeedMap.put(
-    //   (double)Elevator.BARGE, m_robotContainer.m_drivebase.defaultAngularVelocity * SPEED_REDUCTION_FACTOR);
+    swerveRotationSpeedMap.put(
+      (double)Elevator.RESTING, m_robotContainer.m_drivebase.defaultAngularVelocity);
+    swerveRotationSpeedMap.put(
+      (double)Elevator.BARGE, m_robotContainer.m_drivebase.defaultAngularVelocity * SPEED_REDUCTION_FACTOR);
 
-    // resetMotorsOnInit();
+    resetMotorsOnInit();
   }
 
   /**
@@ -124,17 +124,17 @@ public class Robot extends TimedRobot
 
     // // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
 
-    // double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
-    // double swerveVelocityThrottle = swerveVelocityMap.get(currentPosition);
-    // double swerveRotationThrottle = swerveRotationSpeedMap.get(currentPosition);
+    double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
+    double swerveVelocityThrottle = swerveVelocityMap.get(currentPosition);
+    double swerveRotationThrottle = swerveRotationSpeedMap.get(currentPosition);
     
-    // SmartDashboard.putNumber("Swerve/Velocity Throttle", swerveVelocityThrottle);
-    // SmartDashboard.putNumber("Swerve/Rotation Throttle", swerveRotationThrottle);
+    SmartDashboard.putNumber("Swerve/Velocity Throttle", swerveVelocityThrottle);
+    SmartDashboard.putNumber("Swerve/Rotation Throttle", swerveRotationThrottle);
     
-    // m_robotContainer.m_drivebase.setMaxSpeed(swerveVelocityThrottle, swerveRotationThrottle);
+    m_robotContainer.m_drivebase.setMaxSpeed(swerveVelocityThrottle, swerveRotationThrottle);
 
     CommandScheduler.getInstance().run();
-    // outputRobotPose();
+    outputRobotPose();
   }
 
   /**
@@ -143,22 +143,22 @@ public class Robot extends TimedRobot
   @Override
   public void disabledInit()
   {
-    // m_robotContainer.setMotorBrake(true);
-    // disabledTimer.reset();
-    // disabledTimer.start();
+    m_robotContainer.setMotorBrake(true);
+    disabledTimer.reset();
+    disabledTimer.start();
   }
 
   @Override
   public void disabledPeriodic()
   {
-    // m_robotContainer.setElevatorToWhereItsAt(); // prevent elevator from moving
-    // if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_AND_ALGAE_LOCK_TIME))
-    // {
-    //   m_robotContainer.setMotorBrake(false);
-    //   m_robotContainer.m_algaeMech.setWristBrake(false);
-    //   disabledTimer.stop();
-    //   disabledTimer.reset();
-    // }
+    m_robotContainer.setElevatorToWhereItsAt(); // prevent elevator from moving
+    if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_AND_ALGAE_LOCK_TIME))
+    {
+      m_robotContainer.setMotorBrake(false);
+      m_robotContainer.m_algaeMech.setWristBrake(false);
+      disabledTimer.stop();
+      disabledTimer.reset();
+    }
   }
 
   /**
@@ -167,15 +167,15 @@ public class Robot extends TimedRobot
   @Override
   public void autonomousInit()
   {
-    // resetMotorsOnInit();
-    // m_robotContainer.setMotorBrake(true);
-    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    resetMotorsOnInit();
+    m_robotContainer.setMotorBrake(true);
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // // schedule the autonomous command (example)
-    // if (m_autonomousCommand != null)
-    // {
-    //   m_autonomousCommand.schedule();
-    // }
+    // schedule the autonomous command (example)
+    if (m_autonomousCommand != null)
+    {
+      m_autonomousCommand.schedule();
+    }
   }
 
   /**
@@ -189,13 +189,13 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
-    // resetMotorsOnInit();
+    resetMotorsOnInit();
 
     // // This makes sure that the autonomous stops running when
     // // teleop starts running. If you want the autonomous to
     // // continue until interrupted by another command, remove
     // // this line or comment it out.
-    // m_robotContainer.setMotorBrake(true);
+    m_robotContainer.setMotorBrake(true);
     
     if (m_autonomousCommand != null)
     {
@@ -218,7 +218,7 @@ public class Robot extends TimedRobot
   @Override
   public void testInit()
   {
-    // resetMotorsOnInit();
+    resetMotorsOnInit();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }
@@ -237,7 +237,7 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
-    // resetMotorsOnInit();
+    resetMotorsOnInit();
   }
 
   /**
@@ -251,9 +251,9 @@ public class Robot extends TimedRobot
 
   public void outputRobotPose()
   {
-    // Pose2d robotPose = m_robotContainer.m_drivebase.getPose();
-    // SmartDashboard.putNumber("Pose X: ", robotPose.getTranslation().getX());
-    // SmartDashboard.putNumber("Pose Y: ", robotPose.getTranslation().getY()); 
-    // SmartDashboard.putNumber("Pose Theta: ", robotPose.getRotation().getDegrees());
+    Pose2d robotPose = m_robotContainer.m_drivebase.getPose();
+    SmartDashboard.putNumber("Pose X: ", robotPose.getTranslation().getX());
+    SmartDashboard.putNumber("Pose Y: ", robotPose.getTranslation().getY()); 
+    SmartDashboard.putNumber("Pose Theta: ", robotPose.getRotation().getDegrees());
   }
 }

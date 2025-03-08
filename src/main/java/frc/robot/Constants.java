@@ -59,22 +59,22 @@ public final class Constants
     // See http://photonvision.local:5800/ while connected to the robot, it should be in the top right corner as camera
     // This is not the host name. The docs say to change the host name to differentiate between limelights, host name may be changed.
     // Nickname is enough to differentiate so I have not changed it. I am not sure what hostname does to differentitate between cameras.
-    public static final class LimeLight1
-    {
-      public static final String NICKNAME = "LimeLight1";
-      // This uses the https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system courdinate system
-      public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
-        // Forward distance from the center of the robot to the camera
-        Units.inchesToMeters(16.0),
-        // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
-        // the distance from the right of the center from YOUR perspective.
-        Units.inchesToMeters(0.0),
-        // Distance from the floor to the camera
-        Units.inchesToMeters(3.5),
-        // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
-        new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
-    }
     public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
+  }
+  public static final class LimeLight1
+  {
+    public static final String NICKNAME = "LimeLight1";
+    // This uses the https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system courdinate system
+    public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
+      // Forward distance from the center of the robot to the camera
+      Units.inchesToMeters(16.0),
+      // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
+      // the distance from the right of the center from YOUR perspective.
+      Units.inchesToMeters(0.0),
+      // Distance from the floor to the camera
+      Units.inchesToMeters(3.5),
+      // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
+      new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
   }
   
   public static final class FieldConstants {
