@@ -27,6 +27,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
+import frc.robot.commands.swervedrive.auto.PointAtApriltag;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
@@ -204,6 +205,8 @@ public class RobotContainer {
   
       driverController.circle().onTrue(Commands.runOnce(
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
+
+      driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 1));
 
       // Coral Mech
       driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));

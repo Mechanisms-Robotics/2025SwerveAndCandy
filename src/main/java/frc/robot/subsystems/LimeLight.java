@@ -63,7 +63,7 @@ public class LimeLight extends SubsystemBase {
             this.id = id;
             
             goodForPositionMeasurements = false;
-            for (int tag : Constants.Vision.GOOD_APRIL_TAGS) {
+            for (int tag : Constants.FieldConstants.GOOD_APRIL_TAGS) {
                 if (id == tag) {
                     goodForPositionMeasurements = true;
                     break;

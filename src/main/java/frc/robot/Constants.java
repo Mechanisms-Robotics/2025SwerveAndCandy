@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -64,8 +66,31 @@ public final class Constants
     public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
     // Stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
     // These are the apriltags that are used for pose estimation
+  }
+  
+  public static final class FieldConstants {
+    
     public static final int[] GOOD_APRIL_TAGS = {
       6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22
+    };
+    // RED_REEF_POSES array for ID 6 through 11
+    public static final Pose2d[] RED_REEF_POSES = new Pose2d[] {
+        new Pose2d(13.917, 2.859, new Rotation2d(2.0943951023931957)), // ID 6
+        new Pose2d(14.49476434251882, 4.182964006546419, new Rotation2d(3.141592653589793)), // ID 7
+        new Pose2d(13.636158342518822, 5.344784006546417, new Rotation2d(-2.0943951023931957)), // ID 8
+        new Pose2d(12.200804, 5.182639999999999, new Rotation2d(-1.0471975511965979)), // ID 9
+        new Pose2d(11.623039657481177, 3.8586759934535824, new Rotation2d(0.0)), // ID 10
+        new Pose2d(12.481645657481177, 2.696855993453582, new Rotation2d(1.0471975511965974)) // ID 11
+    };
+    
+    // BLUE_REEF_POSES array for ID 17 through 22
+    public static final Pose2d[] BLUE_REEF_POSES = new Pose2d[] {
+        new Pose2d(3.9121936574811764, 2.696855993453582, new Rotation2d(1.0471975511965974)), // ID 17
+        new Pose2d(3.0533336574811782, 3.8586759934535824, new Rotation2d(0.0)), // ID 18
+        new Pose2d(3.6313519999999997, 5.182639999999999, new Rotation2d(-1.0471975511965979)), // ID 19
+        new Pose2d(5.066452342518822, 5.344784006546417, new Rotation2d(-2.0943951023931957)), // ID 20
+        new Pose2d(5.925312342518822, 4.182964006546419, new Rotation2d(3.141592653589793)), // ID 21
+        new Pose2d(5.347293999999999, 2.859, new Rotation2d(2.0943951023931957)) // ID 22
     };
   }
 }
