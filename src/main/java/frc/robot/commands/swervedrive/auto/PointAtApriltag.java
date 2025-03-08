@@ -14,8 +14,6 @@ public class PointAtApriltag extends Command {
     private final LimeLight limeLight;
     private final ApriltagData apriltag;
     private final PIDController pidController;
-    private final double targetAngle;
-    private final double errorTollerance;
 
     /**
      * Point at an apriltag
@@ -32,8 +30,8 @@ public class PointAtApriltag extends Command {
         this.limeLight = limeLight;
         apriltag = limeLight.getApriltag(id);
         this.pidController = pidController;
-        this.targetAngle = Units.degreesToRadians(targetAngle);
-        this.errorTollerance = Units.degreesToRadians(errorTollerance);
+        pidController.setTolerance(Units.degreesToRadians(errorTollerance));
+        pidController.setSetpoint(targetAngle);
 
         addRequirements(this.swerve, this.limeLight);
     }
@@ -58,7 +56,7 @@ public class PointAtApriltag extends Command {
      * @param targetAngle the desired yaw angle between the center of the camera and the center of the apriltag
      */
     public PointAtApriltag(SwerveSubsystem swerve, LimeLight limeLight, int id, double targetAngle) {
-        this(swerve, limeLight, id, targetAngle, 0.1, new PIDController(0.01, 0.0, 0.0));
+        this(swerve, limeLight, id, targetAngle, 1, new PIDController(0.01, 0.0, 0.0));
     }
 
     @Override
@@ -66,7 +64,7 @@ public class PointAtApriltag extends Command {
         double output;
         // only drive if the apriltag is detected
         if (apriltag.getDetected()) {
-            output = pidController.calculate(apriltag.getYaw(), targetAngle);
+            output = pidController.calculate(apriltag.getYaw());
         } else {
             output = 0.0;
         }
@@ -81,7 +79,6 @@ public class PointAtApriltag extends Command {
 
     @Override
     public boolean isFinished() {
-        return Math.abs(targetAngle - apriltag.getYaw()) < errorTollerance;
+        return pidController.atSetpoint();
     }
-    
 }
