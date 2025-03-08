@@ -723,6 +723,16 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
   }
 
+  /**
+   * Update localisation base on pose
+   * 
+   * @param pose the new position to update with
+   * @param timeStamp
+   */
+  public void addVisionMeasurement(Pose2d pose, double timeStamp) {
+    swerveDrive.addVisionMeasurement(pose, timeStamp);
+  }
+
   public void setMaxSpeed(double velocityMetersPerSecond, double velocityRadiansPerSecond) {
     swerveDrive.setMaximumAllowableSpeeds(velocityMetersPerSecond, velocityRadiansPerSecond);
   }
