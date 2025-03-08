@@ -69,12 +69,12 @@ public class LimeLight extends SubsystemBase {
                 }
             }
 
-            tableName = cameraName + "/AprilTags/" + id + "/";
+            tableName = cameraName + "/Apriltags/" + id + "/";
 
             if (goodForPositionMeasurements) {
                 SmartDashboard.putString(tableName + "info", "this apriltag is used for robot position field localisation");
             } else {
-                SmartDashboard.putString(tableName + "info", "this apriltag is note used for position localisation");
+                SmartDashboard.putString(tableName + "info", "this apriltag is not used for position localisation");
             }
         }
 
