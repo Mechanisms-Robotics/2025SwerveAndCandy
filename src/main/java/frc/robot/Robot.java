@@ -131,6 +131,7 @@ public class Robot extends TimedRobot
     
     m_robotContainer.m_drivebase.setMaxSpeed(swerveVelocityThrottle, swerveRotationThrottle);
 
+    SmartDashboard.putData("Command Scheduler Visualisation", CommandScheduler.getInstance());
     CommandScheduler.getInstance().run();
     outputRobotPose();
   }
