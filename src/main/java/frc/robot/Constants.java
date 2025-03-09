@@ -66,12 +66,12 @@ public final class Constants
     // This uses the https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system courdinate system
     public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
       // Forward distance from the center of the robot to the camera
-      Units.inchesToMeters(16.0),
+      Units.inchesToMeters(16.0 - 6.125),
       // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
       // the distance from the right of the center from YOUR perspective.
-      Units.inchesToMeters(0.0),
+      Units.inchesToMeters(-1.25),
       // Distance from the floor to the camera
-      Units.inchesToMeters(3.5),
+      Units.inchesToMeters(4.5),
       // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
       new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
   }

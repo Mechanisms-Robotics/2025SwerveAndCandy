@@ -192,6 +192,8 @@ public class RobotContainer {
     {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
+      driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 14));
+
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
       driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
