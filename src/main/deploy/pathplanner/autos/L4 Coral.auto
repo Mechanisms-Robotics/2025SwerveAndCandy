@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 10000.0
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "L4"
@@ -32,6 +26,12 @@
           "type": "named",
           "data": {
             "name": "Feed Coral"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 10000.0
           }
         },
         {

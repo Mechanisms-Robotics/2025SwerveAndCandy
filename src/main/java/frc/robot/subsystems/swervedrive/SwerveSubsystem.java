@@ -571,29 +571,29 @@ public class SwerveSubsystem extends SubsystemBase
    *
    * @return true if the red alliance, false if blue. Defaults to false if none is available.
    */
-  private boolean isRedAlliance()
-  {
-    var alliance = DriverStation.getAlliance();
-    return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-  }
+  // private boolean isRedAlliance()
+  // {
+  //   var alliance = DriverStation.getAlliance();
+  //   return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+  // }
 
   /**
    * This will zero (calibrate) the robot to assume the current position is facing forward
    * <p>
    * If red alliance rotate the robot 180 after the drviebase zero command
    */
-  public void zeroGyroWithAlliance_NOTUSED()
-  {
-    if (isRedAlliance())
-    {
-      zeroGyro();
-      //Set the pose 180 degrees
-      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
-    } else
-    {
-      zeroGyro();
-    }
-  }
+  // public void zeroGyroWithAlliance()
+  // {
+  //   if (isRedAlliance())
+  //   {
+  //     zeroGyro();
+  //     //Set the pose 180 degrees
+  //     resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
+  //   } else
+  //   {
+  //     zeroGyro();
+  //   }
+  // }
 
   /**
    * Sets the drive motors to brake/coast mode.

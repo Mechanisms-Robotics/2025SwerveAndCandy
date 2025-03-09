@@ -148,43 +148,48 @@ public class RobotContainer {
 
     if (Robot.isSimulation())
     {
-      driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
-                                                            Rotation2d.fromDegrees(90)),
-                                           new ProfiledPIDController(5,
-                                                                     0,
-                                                                     0,
-                                                                     new Constraints(5,
-                                                                                     3)),
-                                           new ProfiledPIDController(5,
-                                                                     0,
-                                                                     0,
-                                                                     new Constraints(
-                                                                         Math.toRadians(
-                                                                             360),
-                                                                         Math.toRadians(
-                                                                             90))));
-      driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
-      driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                                                     () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+      // driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
+      //                                                       Rotation2d.fromDegrees(90)),
+      //                                      new ProfiledPIDController(5,
+      //                                                                0,
+      //                                                                0,
+      //                                                                new Constraints(5,
+      //                                                                                3)),
+      //                                      new ProfiledPIDController(5,
+      //                                                                0,
+      //                                                                0,
+      //                                                                new Constraints(
+      //                                                                    Math.toRadians(
+      //                                                                        360),
+      //                                                                    Math.toRadians(
+      //                                                                        90))));
+      // driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+      // driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
+      // driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
+      //                                                () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
-      // Joystick buttons = new Joystick(0);
-      // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
-      // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
-      // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
+      // // Joystick buttons = new Joystick(0);
+      // // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
+      // // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
+      // // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
-      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
+      // m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
-      driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-      driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
-      driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
-      driverController.share().whileTrue(m_drivebase.centerModulesCommand());
-      driverController.L2().onTrue(Commands.none());
-      driverController.R2().onTrue(Commands.none());
+      // driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
+      // driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
+      // driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+      // driverController.share().whileTrue(m_drivebase.centerModulesCommand());
+      // driverController.L2().onTrue(Commands.none());
+      // driverController.R2().onTrue(Commands.none());
     } else
-    // ******** The following code is the acutal drive code used *******
+    /**
+     * 
+     ******** The following code is the acutal drive code used *******
+     * 
+     * 
+     */
     {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
@@ -262,7 +267,6 @@ public class RobotContainer {
       // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
         //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
     }  
-      /****************** */
   }
 
   public void createAutos() {
@@ -286,7 +290,7 @@ public class RobotContainer {
     m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
     //m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
     //m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
-    m_autoChooser.addOption("BlueTHexTRAlgaeL3CoralL4", new PathPlannerAuto("BlueTHexTRAlgaeL3CoralL4")); 
+    m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
   
