@@ -209,6 +209,7 @@ public class LimeLight extends SubsystemBase {
                 if (estimatedPose.isPresent()) {
                     visionPose = estimatedPose.get().estimatedPose;
                     visionLocalisationPublisher.set(visionPose);
+                    SmartDashboard.putString(cameraName + "/Estimated Robot Position Components", visionPose.toString());
                 }
             }
         }
