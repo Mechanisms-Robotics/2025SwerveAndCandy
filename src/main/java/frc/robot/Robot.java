@@ -31,7 +31,6 @@ public class Robot extends TimedRobot
   private        Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  public final LimeLight m_limeLight = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
 
   private Timer disabledTimer;
 
@@ -79,11 +78,11 @@ public class Robot extends TimedRobot
   {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    // m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer();
 
     // // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
     // // immediately when disabled, but then also let it be pushed more 
-    // disabledTimer = new Timer();
+    disabledTimer = new Timer();
 
     if (isSimulation())
     {

@@ -58,7 +58,8 @@ public class RobotContainer {
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
   public final LimeLight m_limeLight = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
-  private final SendableChooser<Command> m_autoChooser = new SendableChooser();
+  
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
