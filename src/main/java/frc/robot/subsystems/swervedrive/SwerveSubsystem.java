@@ -17,8 +17,6 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,9 +25,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -72,6 +71,10 @@ public class SwerveSubsystem extends SubsystemBase
   private Vision vision;
 
   public final double defaultAngularVelocity;
+  private final StructPublisher<Pose2d> positionPublisher = 
+  NetworkTableInstance.getDefault().getTable("SmartDashboard")
+  .getStructTopic("Swerve/Pose3d", Pose2d.struct).publish();
+
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -129,6 +132,10 @@ public class SwerveSubsystem extends SubsystemBase
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
   }
 
+  public void startPoseLog() {
+
+  }
+
   /**
    * Setup the photon vision class.
    */
@@ -140,6 +147,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    positionPublisher.set(getPose());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
@@ -721,6 +729,16 @@ public class SwerveSubsystem extends SubsystemBase
   public void addFakeVisionReading()
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  /**
+   * Update localisation base on pose
+   * 
+   * @param pose the new position to update with
+   * @param timeStamp
+   */
+  public void addVisionMeasurement(Pose2d pose, double timeStamp) {
+    swerveDrive.addVisionMeasurement(pose, timeStamp);
   }
 
   public void setMaxSpeed(double velocityMetersPerSecond, double velocityRadiansPerSecond) {

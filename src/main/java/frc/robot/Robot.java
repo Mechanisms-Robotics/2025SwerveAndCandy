@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.TreeMap;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -132,6 +130,7 @@ public class Robot extends TimedRobot
     
     m_robotContainer.m_drivebase.setMaxSpeed(swerveVelocityThrottle, swerveRotationThrottle);
 
+    SmartDashboard.putData("Command Scheduler Visualisation", CommandScheduler.getInstance());
     CommandScheduler.getInstance().run();
     outputRobotPose();
   }
