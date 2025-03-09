@@ -35,7 +35,11 @@ public class Robot extends TimedRobot
   private final InterpolatingDoubleTreeMap swerveVelocityMap = new InterpolatingDoubleTreeMap(); // meters per second
   private final InterpolatingDoubleTreeMap swerveRotationSpeedMap = new InterpolatingDoubleTreeMap(); // radians per second
 
-
+  /**
+   * This should be called in every init to make sure that if the robot is disabled or re-enabled or
+   * transitions from auto to teleop, nothing should move. The odometery and zero positions should NOT
+   * be reset execpt when the robot code starts.
+   */
   public void resetMotorsOnInit() {
     m_robotContainer.m_algaeMech.setWristBrake(true);
     m_robotContainer.m_algaeMech.setWristAngle(
