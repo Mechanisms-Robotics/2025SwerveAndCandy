@@ -22,7 +22,7 @@ public class DriveWhileApriltagPoint extends Command {
     private final Supplier<Double> xVal;
     private final Supplier<Double> yVal;
     private final Supplier<Double> rVal;
-    private final PIDController pidController = new PIDController(0.05, 0.0, 0.0);
+    private final PIDController pidController = new PIDController(0.03, 0.0, 0.0);
     private final int[] apriltags;
 
     /**
