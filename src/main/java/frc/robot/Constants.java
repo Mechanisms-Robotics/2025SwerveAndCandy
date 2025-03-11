@@ -75,6 +75,22 @@ public final class Constants
       // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
       new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
   }
+
+  public static final class LimeLight2
+  {
+    public static final String NICKNAME = "LimeLight2";
+    public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
+      // Forward distance from the center of the robot to the camera
+      Units.inchesToMeters(-(32.0 + 1.0/8.0)/2.0 + 1.0),
+      // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
+      // the distance from the right of the center from YOUR perspective.
+      Units.inchesToMeters(-(27.0 + 3.0/4.0)/2.0 + 7.5),
+      // Distance from the floor to the camera
+      Units.inchesToMeters(27.0 + 3.0/4.0),
+      // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
+      new Rotation3d(0.0, 0.0, 0.0)
+    );
+  }
   
   public static final class FieldConstants {
     // Mostly stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
