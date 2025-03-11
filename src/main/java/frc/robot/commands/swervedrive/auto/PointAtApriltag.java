@@ -30,15 +30,13 @@ public class PointAtApriltag extends Command {
     public PointAtApriltag(SwerveSubsystem swerve, LimeLight limeLight, int id, double targetAngle, double errorTollerance, PIDController pidController) {
         this.swerve = swerve;
         this.limeLight = limeLight;
-        //TODO this thinks id is 1 for some reason, doing this for now
-        apriltag = limeLight.getApriltag(5);
+        apriltag = limeLight.getApriltag(id);
         this.pidController = pidController;
         pidController.setTolerance(errorTollerance);
         pidController.setSetpoint(targetAngle);
         pidController.enableContinuousInput(-180, 180);
 
-        SmartDashboard.putData("PID controller", pidController);
-        SmartDashboard.putNumber("Apriltag id", id);
+        SmartDashboard.putData("Point at apriltag/PID controller", pidController);
 
         addRequirements(this.swerve, this.limeLight);
     }
@@ -52,7 +50,6 @@ public class PointAtApriltag extends Command {
      */
     public PointAtApriltag(SwerveSubsystem swerve, LimeLight limeLight, int id) {
         this(swerve, limeLight, id, 0.0, 0.1, new PIDController(0.05, 0.0, 0.0));
-        SmartDashboard.putNumber("AAPRILTAG id", id);
     }
 
     /**
@@ -89,6 +86,6 @@ public class PointAtApriltag extends Command {
 
     @Override
     public boolean isFinished() {
-        return pidController.atSetpoint();
+        return false;
     }
 }
