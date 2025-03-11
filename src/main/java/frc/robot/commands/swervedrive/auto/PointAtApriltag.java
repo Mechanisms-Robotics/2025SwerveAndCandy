@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.LimeLight.ApriltagData;
@@ -14,6 +15,7 @@ public class PointAtApriltag extends Command {
     private final LimeLight limeLight;
     private final ApriltagData apriltag;
     private final PIDController pidController;
+    private final double defaultP = 0.05;
 
     /**
      * Point at an apriltag
@@ -28,11 +30,15 @@ public class PointAtApriltag extends Command {
     public PointAtApriltag(SwerveSubsystem swerve, LimeLight limeLight, int id, double targetAngle, double errorTollerance, PIDController pidController) {
         this.swerve = swerve;
         this.limeLight = limeLight;
-        apriltag = limeLight.getApriltag(id);
+        //TODO this thinks id is 1 for some reason, doing this for now
+        apriltag = limeLight.getApriltag(5);
         this.pidController = pidController;
-        pidController.setTolerance(Units.degreesToRadians(errorTollerance));
+        pidController.setTolerance(errorTollerance);
         pidController.setSetpoint(targetAngle);
         pidController.enableContinuousInput(-180, 180);
+
+        SmartDashboard.putData("PID controller", pidController);
+        SmartDashboard.putNumber("Apriltag id", id);
 
         addRequirements(this.swerve, this.limeLight);
     }
@@ -45,7 +51,8 @@ public class PointAtApriltag extends Command {
      * @param id id of the april tag being referenced
      */
     public PointAtApriltag(SwerveSubsystem swerve, LimeLight limeLight, int id) {
-        this(swerve, limeLight, id, 0.0, 0.1, new PIDController(0.01, 0.0, 0.0));
+        this(swerve, limeLight, id, 0.0, 0.1, new PIDController(0.05, 0.0, 0.0));
+        SmartDashboard.putNumber("AAPRILTAG id", id);
     }
 
     /**
@@ -57,7 +64,7 @@ public class PointAtApriltag extends Command {
      * @param targetAngle the desired yaw angle between the center of the camera and the center of the apriltag
      */
     public PointAtApriltag(SwerveSubsystem swerve, LimeLight limeLight, int id, double targetAngle) {
-        this(swerve, limeLight, id, targetAngle, 1, new PIDController(0.01, 0.0, 0.0));
+        this(swerve, limeLight, id, targetAngle, 1.0, new PIDController(0.05, 0.0, 0.0));
     }
 
     @Override
