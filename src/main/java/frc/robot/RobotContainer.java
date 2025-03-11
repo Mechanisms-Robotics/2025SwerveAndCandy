@@ -58,7 +58,8 @@ public class RobotContainer {
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
-  public final LimeLight m_limeLight = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
+  public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
+  // public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA);
   
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
@@ -205,11 +206,10 @@ public class RobotContainer {
 
       // driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 5));
 
-      int[] ids = {21};
-      driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight,
+      driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight1,
         () -> driverController.getLeftX(),
-        () -> driverController.getRightY(),
-        () -> driverController.getLeftX(), Constants.FieldConstants.REEF_APRIL_TAGS));
+        () -> driverController.getLeftY(),
+        () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
         
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
