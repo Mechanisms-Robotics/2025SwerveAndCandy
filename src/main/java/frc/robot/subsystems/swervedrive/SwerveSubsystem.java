@@ -19,6 +19,7 @@ import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -71,10 +72,8 @@ public class SwerveSubsystem extends SubsystemBase
   private Vision vision;
 
   public final double defaultAngularVelocity;
-  private final StructPublisher<Pose2d> positionPublisher = 
-  NetworkTableInstance.getDefault().getTable("SmartDashboard")
-  .getStructTopic("Swerve/Pose3d", Pose2d.struct).publish();
 
+  private final StructPublisher<Pose2d> position2DPublisher;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -113,6 +112,9 @@ public class SwerveSubsystem extends SubsystemBase
     }
     setupPathPlanner();
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
+
+    position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
   }
 
   /**
@@ -130,10 +132,9 @@ public class SwerveSubsystem extends SubsystemBase
                                              Rotation2d.fromDegrees(0)));
 
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
-  }
 
-  public void startPoseLog() {
-
+    position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
   }
 
   /**
@@ -147,7 +148,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-    positionPublisher.set(getPose());
+    position2DPublisher.set(getPose());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
