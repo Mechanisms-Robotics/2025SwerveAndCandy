@@ -140,7 +140,17 @@ public class RobotContainer {
 
     if (RobotBase.isSimulation())
     {
-      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      CommandPS4Controller rotationJoystick = new CommandPS4Controller(1);
+      SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
+        () -> Math.pow(driverController.getLeftY(), 3),
+        () -> Math.pow(driverController.getLeftX(), 3))
+          .withControllerRotationAxis(() -> -Math.signum(rotationJoystick.getRawAxis(0))*Math.pow(rotationJoystick.getRawAxis(0), 2))
+          .deadband(OperatorConstants.DEADBAND)
+          .scaleTranslation(0.8)
+          .allianceRelativeControl(true);
+      Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboard);
     } else
     {
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
