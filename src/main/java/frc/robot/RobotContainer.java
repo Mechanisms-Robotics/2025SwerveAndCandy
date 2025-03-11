@@ -150,7 +150,7 @@ public class RobotContainer {
           .allianceRelativeControl(true);
       Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
 
-      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboard);
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     } else
     {
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
