@@ -135,7 +135,7 @@ public final class Constants
       RED_REEF_POSES.put(7, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
       RED_REEF_POSES.put(8, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
       RED_REEF_POSES.put(9, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      RED_REEF_POSES.put(10, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
+      RED_REEF_POSES.put(10, new Pose2d(11.64, 4.48, Rotation2d.fromDegrees(0.0)));
       RED_REEF_POSES.put(11, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
 
       BLUE_REEF_POSES.put(17, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));

@@ -60,7 +60,6 @@ public class AutoReefLineup extends SequentialCommandGroup {
                 closest = target;
             }
         }
-        closest = Constants.FieldConstants.BLUE_REEF_POSES.get(21);
 
         targetPositionPublisher.set(closest);
 
