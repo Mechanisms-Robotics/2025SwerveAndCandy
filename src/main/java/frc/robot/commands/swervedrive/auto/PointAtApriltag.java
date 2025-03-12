@@ -3,7 +3,6 @@ package frc.robot.commands.swervedrive.auto;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LimeLight;
@@ -15,7 +14,6 @@ public class PointAtApriltag extends Command {
     private final LimeLight limeLight;
     private final ApriltagData apriltag;
     private final PIDController pidController;
-    private final double defaultP = 0.05;
 
     /**
      * Point at an apriltag

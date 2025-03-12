@@ -17,9 +17,13 @@ public class AutoReefLineup extends SequentialCommandGroup {
 
     public AutoReefLineup(SwerveSubsystem swerve, BooleanSupplier right) {
         addRequirements(swerve);
-        addCommands(new DeferredCommand(() -> swerve.driveToPose(findClosestTarget(swerve.getPose(), right.getAsBoolean())), getRequirements()));
+        addCommands(
+            new DeferredCommand(() -> swerve.driveToPose(findClosestTarget(swerve.getPose(), right.getAsBoolean())), getRequirements()),
+            new DeferredCommand(() -> new PIDtoPosition(swerve, findClosestTarget(swerve.getPose(), right.getAsBoolean())), getRequirements())
+        );
         targetPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
             .getStructTopic("Target Position Pose2d", Pose2d.struct).publish();
+
 
     }
     
