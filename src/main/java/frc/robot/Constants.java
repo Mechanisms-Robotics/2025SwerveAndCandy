@@ -126,8 +126,8 @@ public final class Constants
       17, 18, 19, 20, 21, 22
     };
 
-    public static final double RED_BARG_POSE = 7.0;
-    public static final double BLUE_BARG_POSE = 9.7;
+    public static final double RED_BARG_POSE = 7.1;
+    public static final double BLUE_BARG_POSE = 10.4;
 
     
     // Reef positions pairs, first for left, second for right, mapped to the apriltag ids
