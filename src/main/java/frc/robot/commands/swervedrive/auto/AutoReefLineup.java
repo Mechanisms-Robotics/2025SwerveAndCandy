@@ -18,7 +18,12 @@ public class AutoReefLineup extends SequentialCommandGroup {
     public AutoReefLineup(SwerveSubsystem swerve, BooleanSupplier right) {
         addRequirements(swerve);
         addCommands(
+            // Drives to the position using pathplanner, it is used first because it has path optimisation. Often, if it gets close the position
+            // it "gives up". Since it is pathplanner, its functionality is obscured and it is hard to debug
             new DeferredCommand(() -> swerve.driveToPose(findClosestTarget(swerve.getPose(), right.getAsBoolean())), getRequirements()),
+            // After pathplanner "does its best" or "gives up" a simple pid controller to the position is used, note this rechecks if the right
+            // boolean supplier is pressed. If leif holds right bumper when the pathplanner drive position is initalized, but not when the
+            // pid controller drive position is initalized, it will start going to the left side of the reef when it finished path planner
             new DeferredCommand(() -> new PIDtoPosition(swerve, findClosestTarget(swerve.getPose(), right.getAsBoolean())), getRequirements())
         );
         targetPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
