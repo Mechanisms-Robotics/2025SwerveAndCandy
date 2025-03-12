@@ -287,6 +287,10 @@ public class SwerveSubsystem extends SubsystemBase
                                      );
   }
 
+  public double getMaximumChassisVelocity() {
+    return swerveDrive.getMaximumChassisVelocity();
+  }
+
   /**
    * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
    *

@@ -126,6 +126,9 @@ public final class Constants
       17, 18, 19, 20, 21, 22
     };
 
+    public static final double RED_BARG_POSE = 7.0;
+    public static final double BLUE_BARG_POSE = 9.7;
+
     
     // Reef positions pairs, first for left, second for right, mapped to the apriltag ids
     public static final HashMap<Integer, Pair<Pose2d, Pose2d>> BLUE_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();

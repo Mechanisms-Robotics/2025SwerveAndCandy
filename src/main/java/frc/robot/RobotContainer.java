@@ -7,11 +7,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -29,8 +24,7 @@ import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.commands.swervedrive.auto.AutoReefLineup;
-import frc.robot.commands.swervedrive.auto.DriveWhileApriltagPoint;
-import frc.robot.commands.swervedrive.auto.PointAtApriltag;
+import frc.robot.commands.swervedrive.auto.BargeAlign;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
@@ -169,6 +163,7 @@ public class RobotContainer {
       Command driveFieldOrientedAnglularVelocityXbox = m_drivebase.driveFieldOriented(driveAngularVelocityXbox);
 
       xboxController.a().whileTrue(new AutoReefLineup(m_drivebase, xboxController.rightBumper()));
+      xboxController.b().whileTrue(new BargeAlign(m_drivebase, () -> -xboxController.getLeftX()));
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityXbox);
     } else
     {
