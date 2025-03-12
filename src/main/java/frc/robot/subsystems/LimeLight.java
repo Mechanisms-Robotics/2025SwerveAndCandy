@@ -17,6 +17,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class LimeLight extends SubsystemBase {
     private final PhotonCamera camera;
@@ -30,12 +31,14 @@ public class LimeLight extends SubsystemBase {
 
     private final StructPublisher<Pose3d> visionLocalisationPublisher;
 
+    private final SwerveSubsystem swerve;
 
 
-    public LimeLight(String cameraName, Transform3d cameraToRobot) {
+    public LimeLight(String cameraName, Transform3d cameraToRobot, SwerveSubsystem swerve) {
         camera = new PhotonCamera(cameraName);
         this.cameraName = cameraName;
         this.cameraToRobot = cameraToRobot;
+        this.swerve = swerve;
 
         aprilTagFieldLayout = AprilTagFieldLayout.loadField(Constants.Vision.FIELD);
         aprilTagFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
@@ -209,6 +212,7 @@ public class LimeLight extends SubsystemBase {
                 if (estimatedPose.isPresent()) {
                     visionPose = estimatedPose.get().estimatedPose;
                     visionLocalisationPublisher.set(visionPose);
+                    swerve.addVisionMeasurement(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
                     SmartDashboard.putString(cameraName + "/Estimated Robot Position Components", visionPose.toString());
                 }
             }

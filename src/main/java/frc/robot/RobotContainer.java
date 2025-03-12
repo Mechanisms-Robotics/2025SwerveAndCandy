@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -27,6 +28,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
+import frc.robot.commands.swervedrive.auto.AutoReefLineup;
 import frc.robot.commands.swervedrive.auto.DriveWhileApriltagPoint;
 import frc.robot.commands.swervedrive.auto.PointAtApriltag;
 import frc.robot.subsystems.AlgaeMech;
@@ -58,8 +60,8 @@ public class RobotContainer {
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
-  public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA);
-  // public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA);
+  public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
+  public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
   
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
@@ -202,14 +204,16 @@ public class RobotContainer {
     } else
     // ******** The following code is the acutal drive code used *******
     {
-      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      driverController.share().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
       // driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 5));
 
-      driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight1,
-        () -> driverController.getLeftX(),
-        () -> driverController.getLeftY(),
-        () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
+      // driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight1,
+      //   () -> driverController.getLeftX(),
+      //   () -> driverController.getLeftY(),
+      //   () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
+
+      driverController.touchpad().whileTrue(new AutoReefLineup(m_drivebase));
         
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
@@ -227,8 +231,8 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.cross().onTrue(new InstantCommand(m_coralMech::feed, m_coralMech));
+      driverController.cross().onFalse(new InstantCommand(m_coralMech::stop, m_coralMech));
       
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
