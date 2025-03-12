@@ -158,7 +158,18 @@ public class RobotContainer {
           .allianceRelativeControl(true);
       Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
 
-      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      CommandXboxController xboxController = new CommandXboxController(0);
+      SwerveInputStream driveAngularVelocityXbox = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
+        () -> Math.pow(xboxController.getLeftY(), 3),
+        () -> Math.pow(xboxController.getLeftX(), 3))
+          .withControllerRotationAxis(() -> -Math.signum(xboxController.getRightX())*Math.pow(xboxController.getRightX(), 2))
+          .deadband(OperatorConstants.DEADBAND)
+          .scaleTranslation(0.8)
+          .allianceRelativeControl(true);
+      Command driveFieldOrientedAnglularVelocityXbox = m_drivebase.driveFieldOriented(driveAngularVelocityXbox);
+
+      xboxController.a().whileTrue(new AutoReefLineup(m_drivebase, xboxController.rightBumper()));
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityXbox);
     } else
     {
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
@@ -218,7 +229,7 @@ public class RobotContainer {
       //   () -> driverController.getLeftY(),
       //   () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
 
-      driverController.touchpad().whileTrue(new AutoReefLineup(m_drivebase));
+      driverController.touchpad().whileTrue(new AutoReefLineup(m_drivebase, driverController.R1()));
         
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));

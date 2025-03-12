@@ -4,10 +4,10 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-import java.util.Map;
 
+import java.util.HashMap;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -127,23 +127,59 @@ public final class Constants
     };
 
     
-    // RED_REEF_POSES array for ID 6 through 11
-    public static final HashMap<Integer, Pose2d> RED_REEF_POSES = new HashMap<Integer, Pose2d>();
-    public static final HashMap<Integer, Pose2d> BLUE_REEF_POSES = new HashMap<Integer, Pose2d>();
+    // Reef positions pairs, first for left, second for right, mapped to the apriltag ids
+    public static final HashMap<Integer, Pair<Pose2d, Pose2d>> BLUE_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
+    public static final HashMap<Integer, Pair<Pose2d, Pose2d>> RED_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
     static {
-      RED_REEF_POSES.put(6, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      RED_REEF_POSES.put(7, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      RED_REEF_POSES.put(8, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      RED_REEF_POSES.put(9, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      RED_REEF_POSES.put(10, new Pose2d(11.64, 4.48, Rotation2d.fromDegrees(0.0)));
-      RED_REEF_POSES.put(11, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
+      RED_REEF_POSES.put(6, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
+        new Pose2d())
+      );
+      RED_REEF_POSES.put(7, new Pair<>(
+        new Pose2d(14.43, 3.65, Rotation2d.fromDegrees(180)),
+        new Pose2d(14.43, 3.65 + 0.4, Rotation2d.fromDegrees(180))
+      ));
+      RED_REEF_POSES.put(8, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(-120)),
+        new Pose2d()
+      ));
+      RED_REEF_POSES.put(9, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
+        new Pose2d()
+      ));
+      RED_REEF_POSES.put(10, new Pair<>(
+        new Pose2d(11.64, 4.48, Rotation2d.fromDegrees(0.0)), 
+        new Pose2d(11.64, 4.48 - 0.4, Rotation2d.fromDegrees(0.0))
+      ));
+      RED_REEF_POSES.put(11, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
+        new Pose2d()
+      ));
 
-      BLUE_REEF_POSES.put(17, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      BLUE_REEF_POSES.put(18, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      BLUE_REEF_POSES.put(19, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      BLUE_REEF_POSES.put(20, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
-      BLUE_REEF_POSES.put(21, new Pose2d(5.83, 3.6, Rotation2d.fromDegrees(-180)));
-      BLUE_REEF_POSES.put(22, new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)));
+      BLUE_REEF_POSES.put(17, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
+        new Pose2d()
+      ));
+      BLUE_REEF_POSES.put(18, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
+        new Pose2d()
+      ));
+      BLUE_REEF_POSES.put(19, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
+        new Pose2d()
+      ));
+      BLUE_REEF_POSES.put(20, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
+        new Pose2d()
+      ));
+      BLUE_REEF_POSES.put(21, new Pair<>(
+        new Pose2d(5.83, 3.6, Rotation2d.fromDegrees(180)),
+        new Pose2d(5.83, 3.6 + 0.4, Rotation2d.fromDegrees(180))
+      ));
+      BLUE_REEF_POSES.put(22, new Pair<>(
+        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
+        new Pose2d()
+      ));
 
     }
     //  {
