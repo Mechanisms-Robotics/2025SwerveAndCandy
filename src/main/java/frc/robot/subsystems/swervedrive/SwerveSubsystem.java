@@ -17,19 +17,19 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -73,6 +73,8 @@ public class SwerveSubsystem extends SubsystemBase
 
   public final double defaultAngularVelocity;
 
+  private final StructPublisher<Pose2d> position2DPublisher;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -110,6 +112,9 @@ public class SwerveSubsystem extends SubsystemBase
     }
     setupPathPlanner();
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
+
+    position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
   }
 
   /**
@@ -127,6 +132,9 @@ public class SwerveSubsystem extends SubsystemBase
                                              Rotation2d.fromDegrees(0)));
 
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
+
+    position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
   }
 
   /**
@@ -140,6 +148,7 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    position2DPublisher.set(getPose());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
@@ -267,8 +276,8 @@ public class SwerveSubsystem extends SubsystemBase
   {
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumChassisVelocity(), 4.0,
-        swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+        swerveDrive.getMaximumChassisVelocity()/10, 1.0,
+        swerveDrive.getMaximumChassisAngularVelocity()/3, Units.degreesToRadians(720)/3);
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
@@ -718,6 +727,16 @@ public class SwerveSubsystem extends SubsystemBase
   public void addFakeVisionReading()
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  /**
+   * Update localisation base on pose
+   * 
+   * @param pose the new position to update with
+   * @param timeStamp
+   */
+  public void addVisionMeasurement(Pose2d pose, double timeStamp) {
+    swerveDrive.addVisionMeasurement(pose, timeStamp);
   }
 
   public void setMaxSpeed(double velocityMetersPerSecond, double velocityRadiansPerSecond) {

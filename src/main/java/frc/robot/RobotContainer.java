@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -27,9 +28,13 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
+import frc.robot.commands.swervedrive.auto.AutoReefLineup;
+import frc.robot.commands.swervedrive.auto.DriveWhileApriltagPoint;
+import frc.robot.commands.swervedrive.auto.PointAtApriltag;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.function.Supplier;
@@ -55,7 +60,10 @@ public class RobotContainer {
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
-  private final SendableChooser<Command> m_autoChooser = new SendableChooser();
+  public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
+  public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
+  
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -140,6 +148,16 @@ public class RobotContainer {
 
     if (RobotBase.isSimulation())
     {
+      CommandPS4Controller rotationJoystick = new CommandPS4Controller(1);
+      SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
+        () -> Math.pow(driverController.getLeftY(), 3),
+        () -> Math.pow(driverController.getLeftX(), 3))
+          .withControllerRotationAxis(() -> -Math.signum(rotationJoystick.getRawAxis(0))*Math.pow(rotationJoystick.getRawAxis(0), 2))
+          .deadband(OperatorConstants.DEADBAND)
+          .scaleTranslation(0.8)
+          .allianceRelativeControl(true);
+      Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     } else
     {
@@ -191,8 +209,17 @@ public class RobotContainer {
      * 
      */
     {
-      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      driverController.share().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
+      // driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 5));
+
+      // driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight1,
+      //   () -> driverController.getLeftX(),
+      //   () -> driverController.getLeftY(),
+      //   () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
+
+      driverController.touchpad().whileTrue(new AutoReefLineup(m_drivebase));
+        
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
       driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
@@ -209,8 +236,8 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.cross().onTrue(new InstantCommand(m_coralMech::feed, m_coralMech));
+      driverController.cross().onFalse(new InstantCommand(m_coralMech::stop, m_coralMech));
       
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
