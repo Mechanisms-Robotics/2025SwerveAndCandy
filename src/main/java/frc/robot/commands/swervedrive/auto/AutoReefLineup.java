@@ -31,14 +31,20 @@ public class AutoReefLineup extends SequentialCommandGroup {
             return null;
         }
         HashMap<Integer, Pose2d> targets;
-        int[] ids;
-        if (DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)) {
-            targets = Constants.FieldConstants.BLUE_REEF_POSES;
-            ids = Constants.FieldConstants.BLUE_REEF_APRIL_TAGS;
-        } else {
-            targets = Constants.FieldConstants.RED_REEF_POSES;
-            ids = Constants.FieldConstants.RED_REEF_APRIL_TAGS;
-        }
+        int[] ids = new int[Constants.FieldConstants.BLUE_REEF_APRIL_TAGS.length + Constants.FieldConstants.RED_REEF_APRIL_TAGS.length];
+
+        System.arraycopy(Constants.FieldConstants.BLUE_REEF_APRIL_TAGS, 0, ids, 0, Constants.FieldConstants.BLUE_REEF_APRIL_TAGS.length);
+        System.arraycopy(Constants.FieldConstants.RED_REEF_APRIL_TAGS, 0, ids, Constants.FieldConstants.BLUE_REEF_APRIL_TAGS.length, Constants.FieldConstants.RED_REEF_APRIL_TAGS.length);
+                // if (DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)) {
+        //     targets = Constants.FieldConstants.BLUE_REEF_POSES;
+        //     ids = Constants.FieldConstants.BLUE_REEF_APRIL_TAGS;
+        // } else {
+        //     targets = Constants.FieldConstants.RED_REEF_POSES;
+        //     ids = Constants.FieldConstants.RED_REEF_APRIL_TAGS;
+        // }
+        targets = new HashMap<Integer, Pose2d>();
+        targets.putAll(Constants.FieldConstants.RED_REEF_POSES);
+        targets.putAll(Constants.FieldConstants.BLUE_REEF_POSES);
         if (targets == null) {
             throw new IllegalArgumentException("Target list cannot be null or empty.");
         }
