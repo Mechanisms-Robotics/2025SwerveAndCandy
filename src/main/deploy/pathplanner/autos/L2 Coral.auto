@@ -57,6 +57,18 @@
           "data": {
             "name": "RestElevator"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L2 Coral to Driver Station"
+          }
         }
       ]
     }

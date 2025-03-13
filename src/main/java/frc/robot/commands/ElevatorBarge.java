@@ -36,7 +36,8 @@ public class ElevatorBarge extends Command {
 
     @Override
     public void execute() {
-        m_algaeMech.setWristAngle(5);
+
+        m_algaeMech.setWristAngle(25);
         m_elevator.setTargetPosition(Elevator.BARGE);
     }
 }
