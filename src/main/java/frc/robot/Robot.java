@@ -11,7 +11,6 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -164,8 +163,6 @@ public class Robot extends TimedRobot
     }
   }
 
-  boolean comingOutOfAuto = false;
-
   /**
    * This autonomous runs the autonomous command selected by your {@link RobotContainer} class.
    */
@@ -175,8 +172,6 @@ public class Robot extends TimedRobot
     resetMotorsOnInit();
     m_robotContainer.setMotorBrake(true);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    comingOutOfAuto = true;
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null)
@@ -197,18 +192,6 @@ public class Robot extends TimedRobot
   public void teleopInit()
   {
     resetMotorsOnInit();
-
-    /**
-     * Joel's hack to reset the gyro
-     */
-
-    boolean isRedAlliance = DriverStation.getAlliance().get() == Alliance.Red;
-    if (comingOutOfAuto && isRedAlliance) {
-      comingOutOfAuto = false;
-      double heading = m_robotContainer.m_drivebase.getHeading().getRadians();
-      double adjustment = heading < 0 ? Math.PI : -Math.PI;
-      //m_robotContainer.m_drivebase.setGyro(adjustment);
-    }
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
