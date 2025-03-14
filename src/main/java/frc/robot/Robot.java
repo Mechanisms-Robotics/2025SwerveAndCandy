@@ -207,7 +207,7 @@ public class Robot extends TimedRobot
       comingOutOfAuto = false;
       double heading = m_robotContainer.m_drivebase.getHeading().getRadians();
       double adjustment = heading < 0 ? Math.PI : -Math.PI;
-      m_robotContainer.m_drivebase.setGyro(adjustment);
+      //m_robotContainer.m_drivebase.setGyro(adjustment);
     }
 
     // This makes sure that the autonomous stops running when
