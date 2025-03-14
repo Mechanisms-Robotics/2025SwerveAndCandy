@@ -7,6 +7,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -212,7 +213,9 @@ public class RobotContainer {
       // Coral Mech
       driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
       driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
-      
+      driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
+      driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
       // May be removed if at all needed. - Micah
