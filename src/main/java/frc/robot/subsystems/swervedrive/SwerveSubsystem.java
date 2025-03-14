@@ -29,6 +29,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -70,6 +71,8 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private Vision vision;
 
+  public final double defaultAngularVelocity;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -106,6 +109,7 @@ public class SwerveSubsystem extends SubsystemBase
       swerveDrive.stopOdometryThread();
     }
     setupPathPlanner();
+    defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
   }
 
   /**
@@ -121,6 +125,8 @@ public class SwerveSubsystem extends SubsystemBase
                                   Constants.MAX_SPEED,
                                   new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
                                              Rotation2d.fromDegrees(0)));
+
+    defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
   }
 
   /**
@@ -162,12 +168,9 @@ public class SwerveSubsystem extends SubsystemBase
       final boolean enableFeedforward = true;
       // Configure AutoBuilder last
       AutoBuilder.configure(
-          this::getPose,
-          // Robot pose supplier
-          this::resetOdometry,
-          // Method to reset odometry (will be called if your auto has a starting pose)
-          this::getRobotVelocity,
-          // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+          this::getPose,  // Robot pose supplier
+          this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+          this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
           (speedsRobotRelative, moduleFeedForwards) -> {
             if (enableFeedforward)
             {
@@ -519,6 +522,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public void resetOdometry(Pose2d initialHolonomicPose)
   {
+    //Pose2d noGyroResetPose = new Pose2d(initialHolonomicPose.getX(), initialHolonomicPose.getY(), getHeading());
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
@@ -565,29 +569,29 @@ public class SwerveSubsystem extends SubsystemBase
    *
    * @return true if the red alliance, false if blue. Defaults to false if none is available.
    */
-  private boolean isRedAlliance()
-  {
-    var alliance = DriverStation.getAlliance();
-    return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
-  }
+  // private boolean isRedAlliance()
+  // {
+  //   var alliance = DriverStation.getAlliance();
+  //   return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+  // }
 
   /**
    * This will zero (calibrate) the robot to assume the current position is facing forward
    * <p>
    * If red alliance rotate the robot 180 after the drviebase zero command
    */
-  public void zeroGyroWithAlliance_NOTUSED()
-  {
-    if (isRedAlliance())
-    {
-      zeroGyro();
-      //Set the pose 180 degrees
-      resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
-    } else
-    {
-      zeroGyro();
-    }
-  }
+  // public void zeroGyroWithAlliance()
+  // {
+  //   if (isRedAlliance())
+  //   {
+  //     zeroGyro();
+  //     //Set the pose 180 degrees
+  //     resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180)));
+  //   } else
+  //   {
+  //     zeroGyro();
+  //   }
+  // }
 
   /**
    * Sets the drive motors to brake/coast mode.
@@ -715,6 +719,10 @@ public class SwerveSubsystem extends SubsystemBase
   public void addFakeVisionReading()
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  public void setMaxSpeed(double velocityMetersPerSecond, double velocityRadiansPerSecond) {
+    swerveDrive.setMaximumAllowableSpeeds(velocityMetersPerSecond, velocityRadiansPerSecond);
   }
 
   /**

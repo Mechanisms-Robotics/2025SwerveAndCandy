@@ -7,12 +7,14 @@ package frc.robot;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.Elevator;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
@@ -29,6 +31,15 @@ public class Robot extends TimedRobot
 
   private Timer disabledTimer;
 
+  // These maps map elevator positions in ticks to swerve maximum velocities
+  private final InterpolatingDoubleTreeMap swerveVelocityMap = new InterpolatingDoubleTreeMap(); // meters per second
+  private final InterpolatingDoubleTreeMap swerveRotationSpeedMap = new InterpolatingDoubleTreeMap(); // radians per second
+
+  /**
+   * This should be called in every init to make sure that if the robot is disabled or re-enabled or
+   * transitions from auto to teleop, nothing should move. The odometery and zero positions should NOT
+   * be reset execpt when the robot code starts.
+   */
   public void resetMotorsOnInit() {
     m_robotContainer.m_algaeMech.setWristBrake(true);
     m_robotContainer.m_algaeMech.setWristAngle(
@@ -79,6 +90,20 @@ public class Robot extends TimedRobot
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
+    // Interpolations to throttle the swerve drive when the elevator is raised
+
+    final double SPEED_REDUCTION_FACTOR = 0.05;
+
+    swerveVelocityMap.put(
+      (double)Elevator.RESTING, Constants.MAX_SPEED);
+    swerveVelocityMap.put(
+      (double)Elevator.BARGE, Constants.MAX_SPEED * SPEED_REDUCTION_FACTOR);
+
+    swerveRotationSpeedMap.put(
+      (double)Elevator.RESTING, m_robotContainer.m_drivebase.defaultAngularVelocity);
+    swerveRotationSpeedMap.put(
+      (double)Elevator.BARGE, m_robotContainer.m_drivebase.defaultAngularVelocity * SPEED_REDUCTION_FACTOR);
+
     resetMotorsOnInit();
   }
 
@@ -96,6 +121,18 @@ public class Robot extends TimedRobot
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
+
+    // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
+
+    double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
+    double swerveVelocityThrottle = swerveVelocityMap.get(currentPosition);
+    double swerveRotationThrottle = swerveRotationSpeedMap.get(currentPosition);
+    
+    SmartDashboard.putNumber("Swerve/Velocity Throttle", swerveVelocityThrottle);
+    SmartDashboard.putNumber("Swerve/Rotation Throttle", swerveRotationThrottle);
+    
+    m_robotContainer.m_drivebase.setMaxSpeed(swerveVelocityThrottle, swerveRotationThrottle);
+
     CommandScheduler.getInstance().run();
     outputRobotPose();
   }

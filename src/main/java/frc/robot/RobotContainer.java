@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ElevatorBarge;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
@@ -148,43 +149,48 @@ public class RobotContainer {
 
     if (Robot.isSimulation())
     {
-      driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
-                                                            Rotation2d.fromDegrees(90)),
-                                           new ProfiledPIDController(5,
-                                                                     0,
-                                                                     0,
-                                                                     new Constraints(5,
-                                                                                     3)),
-                                           new ProfiledPIDController(5,
-                                                                     0,
-                                                                     0,
-                                                                     new Constraints(
-                                                                         Math.toRadians(
-                                                                             360),
-                                                                         Math.toRadians(
-                                                                             90))));
-      driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
-      driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                                                     () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+      // driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
+      //                                                       Rotation2d.fromDegrees(90)),
+      //                                      new ProfiledPIDController(5,
+      //                                                                0,
+      //                                                                0,
+      //                                                                new Constraints(5,
+      //                                                                                3)),
+      //                                      new ProfiledPIDController(5,
+      //                                                                0,
+      //                                                                0,
+      //                                                                new Constraints(
+      //                                                                    Math.toRadians(
+      //                                                                        360),
+      //                                                                    Math.toRadians(
+      //                                                                        90))));
+      // driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+      // driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
+      // driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
+      //                                                () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
 
-      // Joystick buttons = new Joystick(0);
-      // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
-      // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
-      // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
+      // // Joystick buttons = new Joystick(0);
+      // // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
+      // // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
+      // // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
-      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
+      // m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
 
-      driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-      driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
-      driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
-      driverController.share().whileTrue(m_drivebase.centerModulesCommand());
-      driverController.L2().onTrue(Commands.none());
-      driverController.R2().onTrue(Commands.none());
+      // driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
+      // driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
+      // driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
+      // driverController.share().whileTrue(m_drivebase.centerModulesCommand());
+      // driverController.L2().onTrue(Commands.none());
+      // driverController.R2().onTrue(Commands.none());
     } else
-    // ******** The following code is the acutal drive code used *******
+    /**
+     * 
+     ******** The following code is the acutal drive code used *******
+     * 
+     * 
+     */
     {
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
@@ -231,13 +237,13 @@ public class RobotContainer {
       secondaryController.triangle().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
   
-      secondaryController.R1().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
-      );
+      secondaryController.R1().onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
 
-      secondaryController.povRight().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator)
-      );
+      secondaryController.povRight().whileTrue(
+        Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+
+      secondaryController.povLeft().whileTrue(
+        Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
 
       secondaryController.L1().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
@@ -254,13 +260,12 @@ public class RobotContainer {
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
       new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
         // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
       // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
         //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
     }  
-      /****************** */
   }
 
   public void createAutos() {
@@ -270,7 +275,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
     NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
 
-    NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+    NamedCommands.registerCommand("RestElevator", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
     NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
     NamedCommands.registerCommand("L2 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
@@ -282,9 +287,10 @@ public class RobotContainer {
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
      */
     m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
-    m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
-    m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
-    m_autoChooser.addOption("BlueTHexTRAlgaeL3CoralL4", new PathPlannerAuto("BlueTHexTRAlgaeL3CoralL4")); 
+    //m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
+    //m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
+    m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
+    m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
   
@@ -296,7 +302,7 @@ public class RobotContainer {
   public Command getAutonomousCommand()
   {
     // An example command will be run in autonomous
-    return m_autoChooser.getSelected(); // TODO: what if nothing is selected? default?
+    return m_autoChooser.getSelected(); // nothing selected should default to timed leave
   }
   
   public void setMotorBrake(boolean brake)

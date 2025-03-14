@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BlueTHexTR"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "L4"
+            "pathName": "L2 Coral Path"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 5.0
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         },
         {
@@ -35,45 +41,33 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "L4 Offset"
+            "pathName": "L2 Coral Backup"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 1.0
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L3 Offset"
+            "name": "RestElevator"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 1.0
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Intake Algae"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop Algae Wheels"
+            "pathName": "L2 Coral to Driver Station"
           }
         }
       ]
