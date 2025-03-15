@@ -84,7 +84,7 @@ public class Elevator extends SubsystemBase {
     public static final int RESTING = (int)REVERSE_SOFT_LIMIT;
     public static final int PROCESSOR = 500;
     public static final int LOADING = 1000;
-    public static final int L1 = 5000;
+    public static final int L1 = 6000;
     public static final int L2 = 12500;
     public static int L2_ALGAE_OFFSET = 16500;
     public static final int L3 = 19700;

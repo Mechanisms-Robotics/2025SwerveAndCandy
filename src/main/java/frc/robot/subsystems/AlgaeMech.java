@@ -87,8 +87,8 @@ public class AlgaeMech extends SubsystemBase {
     setWristBrake(true);
     
     SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
-    // are inverting the wheel motors now because they got wired differently
-    wheelMotorConfig.inverted(true);
+    // not inverted (it got inverted twice)
+    wheelMotorConfig.inverted(false);
     m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
     m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
