@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ElevatorBarge;
+import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
@@ -248,9 +249,7 @@ public class RobotContainer {
       secondaryController.povLeft().whileTrue(
         Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
 
-      secondaryController.L1().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
-      );
+      secondaryController.L1().onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
       // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
@@ -264,7 +263,7 @@ public class RobotContainer {
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
         // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
       // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
         //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
