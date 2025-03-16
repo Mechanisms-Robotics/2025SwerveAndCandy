@@ -76,7 +76,7 @@ public class Elevator extends SubsystemBase {
     // Soft limits determined experimentally. We set the lower limit at 100, at
     // which time gravity will let it fall a little lower.
     private static final double FORWARD_SOFT_LIMIT = 40500.0; // Ticks
-    private static final double REVERSE_SOFT_LIMIT = 100.0; // Ticks
+    private static final double REVERSE_SOFT_LIMIT = 10.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
     // about 700 ticks per inch
@@ -108,7 +108,7 @@ public class Elevator extends SubsystemBase {
         = m_leader.getClosedLoopController();
 
     // Tunables for the SparkMax PID and output
-    private static final double KP = 0.0001;
+    private static final double KP = 0.000175;
     private static final double KI = 0.0;
     private static final double KD = 0.0;
     private static final double MIN_OUTPUT = -10.0; // Volts
@@ -122,8 +122,8 @@ public class Elevator extends SubsystemBase {
 
     // Tunables for the elevator's trapezoidal motion profile
     private static final double MAX_VELOCITY = 5*8192.0; // Ticks per second?
-    private static final double MAX_ACCELERATION = 6*8192; // Ticks per second per second?
-    private static final double EPSILON = 10.0; // Allowed error, presumably in ticks
+    private static final double MAX_ACCELERATION = 8*8192; // Ticks per second per second?
+    private static final double EPSILON = 5.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -235,7 +235,7 @@ public class Elevator extends SubsystemBase {
 
             // move down faster  TODO: we can do better than this
             final double DOWNWARD_FF_HACK = 0.0; // Volts
-            final double DOWNWARD_FF_HACK_EPSILON = 5000; // ticks
+            final double DOWNWARD_FF_HACK_EPSILON = L1/2; // ticks
             
             double ff = (m_setpoint.position - m_goal.position) > DOWNWARD_FF_HACK_EPSILON
                 ? DOWNWARD_FF_HACK : 0.0;
