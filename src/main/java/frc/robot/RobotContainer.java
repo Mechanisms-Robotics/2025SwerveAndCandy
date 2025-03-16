@@ -293,6 +293,7 @@ public class RobotContainer {
     //m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
     m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
     m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
+    m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
     m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto")); 
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
