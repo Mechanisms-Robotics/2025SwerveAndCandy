@@ -225,7 +225,7 @@ public class RobotContainer {
       );
         
       driverController.povUp().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 2000), m_elevator)
       );
 
       // Modifier controlls for elevator positions
