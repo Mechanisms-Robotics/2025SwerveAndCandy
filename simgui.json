@@ -3,52 +3,37 @@
     "Other Devices": {
       "SPARK MAX [2]": {
         "header": {
-          "open": true
+          "open": false
         }
       },
       "SPARK MAX [4]": {
         "header": {
-          "open": true
-        }
-      },
-      "SPARK MAX [5]": {
-        "header": {
-          "open": true
-        }
-      },
-      "SPARK MAX [7]": {
-        "header": {
-          "open": true
-        }
-      },
-      "Talon FX (v6)[2]/Rotor Sensor": {
-        "header": {
-          "open": true
+          "open": false
         }
       },
       "Talon FX (v6)[51]": {
         "header": {
-          "open": true
+          "open": false
         }
       },
       "Talon FX[50]": {
         "header": {
-          "open": true
+          "open": false
         }
       },
       "Talon FX[51]/Integrated Sensor": {
         "header": {
-          "open": true
+          "open": false
         }
       },
       "Talon FX[52]/Integrated Sensor": {
         "header": {
-          "open": true
+          "open": false
         }
       },
       "Talon FX[8]/Integrated Sensor": {
         "header": {
-          "open": true
+          "open": false
         }
       }
     }
@@ -56,56 +41,19 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/LiveWindow/SwerveSubsystem": "Subsystem",
-      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
-      "/LiveWindow/Ungrouped/Pigeon 2 [13]": "Gyro",
-      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/AlgaeMech/controler": "PIDController",
+      "/SmartDashboard/Auto Choose": "String Chooser",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
       "/SmartDashboard/JSON": "Alerts",
       "/SmartDashboard/Motors": "Alerts",
-      "/SmartDashboard/Pigeon 2 (v6) [13]": "Gyro",
-      "/SmartDashboard/Pigeon 2 [13]": "Gyro",
-      "/SmartDashboard/SendableChooser[0]": "String Chooser",
-      "/SmartDashboard/Swerve Drive": "Alerts",
-      "/SmartDashboard/VisionSystemSim-Vision/Sim Field": "Field2d",
-      "/SmartDashboard/navX-Sensor[1]": "Gyro",
-      "/SmartDashboard/navX-Sensor[4]": "Gyro"
+      "/SmartDashboard/Pigeon 2 (v6) [9]": "Gyro",
+      "/SmartDashboard/Swerve Drive": "Alerts"
     },
     "windows": {
-      "/FMSInfo": {
-        "window": {
-          "visible": true
-        }
-      },
       "/SmartDashboard/Field": {
-        "OdometryPose": {
-          "arrowColor": [
-            255.0,
-            255.0,
-            0.0,
-            255.0
-          ],
-          "color": [
-            224.99996948242188,
-            0.0,
-            255.0,
-            255.0
-          ]
-        },
-        "XModules": {
-          "arrowColor": [
-            0.09611687064170837,
-            0.17414122819900513,
-            0.9803921580314636,
-            255.0
-          ],
-          "arrowSize": 33,
-          "arrowWeight": 3.0,
-          "style": "Hidden"
-        },
         "bottom": 1476,
         "height": 8.210550308227539,
         "left": 150,
@@ -119,22 +67,43 @@
     }
   },
   "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
     "transitory": {
-      "FMSInfo": {
+      "PathPlanner": {
+        "open": true
+      },
+      "Shuffleboard": {
         "open": true
       },
       "SmartDashboard": {
+        "Auto Choose": {
+          "open": true,
+          "string[]##v_/SmartDashboard/Auto Choose/options": {
+            "open": true
+          }
+        },
         "Field": {
           "open": true
         },
-        "open": true,
-        "swerve": {
-          "open": true
-        }
+        "open": true
       }
     }
   },
   "NetworkTables Info": {
     "visible": true
+  },
+  "Plot": {
+    "Plot <0>": {
+      "window": {
+        "visible": false
+      }
+    },
+    "Plot <1>": {
+      "window": {
+        "visible": false
+      }
+    }
   }
 }
