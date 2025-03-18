@@ -7,6 +7,12 @@ package frc.robot;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,6 +26,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ElevatorBarge;
+import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
@@ -242,9 +250,11 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.cross().onTrue(new InstantCommand(m_coralMech::feed, m_coralMech));
-      driverController.cross().onFalse(new InstantCommand(m_coralMech::stop, m_coralMech));
-      
+      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
+      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
+      driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
       // May be removed if at all needed. - Micah
@@ -253,7 +263,7 @@ public class RobotContainer {
       );
         
       driverController.povUp().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 1000), m_elevator)
+        () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 2000), m_elevator)
       );
 
       // Modifier controlls for elevator positions
@@ -269,9 +279,7 @@ public class RobotContainer {
       secondaryController.triangle().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
   
-      secondaryController.R1().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator)
-      );
+      secondaryController.R1().onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
 
       secondaryController.povRight().whileTrue(
         Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
@@ -279,9 +287,7 @@ public class RobotContainer {
       secondaryController.povLeft().whileTrue(
         Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
 
-      secondaryController.L1().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator)
-      );
+      secondaryController.L1().onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
       // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
@@ -294,8 +300,8 @@ public class RobotContainer {
       new Trigger(() -> shifter.getRawButton(4)).whileTrue(
         Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
       new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.BARGE), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
         // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
       // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
         //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
@@ -309,7 +315,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
     NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
 
-    NamedCommands.registerCommand("L1", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+    NamedCommands.registerCommand("RestElevator", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
     NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
     NamedCommands.registerCommand("L2 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
@@ -325,6 +331,9 @@ public class RobotContainer {
     //m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
     m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
     m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
+    m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
+    m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto")); 
+
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
   

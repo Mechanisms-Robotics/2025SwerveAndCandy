@@ -16,7 +16,9 @@ public class CoralMech extends SubsystemBase {
     private static final SparkMax m_motors = new SparkMax(20, MotorType.kBrushed);
     // not currently in use
     // Will be used to detect when a coral is in the mechanism, needed for knowing when to brake the motors
-    private static final double feedDutyCycle = .6;
+    private static final double feedDutyCycle = 0.6;
+    // Will be used to detect when a coral is in the mechanism, needed for knowing when to brake the motors
+    private static final double retractDutyCycle = -0.3;
     /* DutyCycle equation: D = PW/T 
     Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
     Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
@@ -25,7 +27,9 @@ public class CoralMech extends SubsystemBase {
         /** Spinning the motors outward */
         FEEDING,
         /** Motors are not moving */
-        STOPPED
+        STOPPED,
+        /** Spinning the motors inward */
+        RETRACTING
     }
     State state = State.STOPPED;
 
@@ -46,6 +50,15 @@ public class CoralMech extends SubsystemBase {
         m_motors.getClosedLoopController().setReference(feedDutyCycle, ControlType.kDutyCycle);
     }
 
+     /**
+     * Spin the coral mech wheels so the coral moves into the mechanism slightly
+     */
+    
+    public void retract() {
+        state = State.RETRACTING;
+        //retractDutyCycle is set with a negative value in the definition above
+        m_motors.getClosedLoopController().setReference(retractDutyCycle, ControlType.kDutyCycle);
+    }
     /**
      * Stop the coral mech wheel motors
      */
@@ -65,6 +78,8 @@ public class CoralMech extends SubsystemBase {
         }
     }
     
+
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("CoralMech/output current", m_motors.getOutputCurrent());

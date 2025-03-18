@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "BlueTHexTR"
+            "pathName": "L2 Coral Path Reflected"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.5
+            "waitTime": 1.0
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "L4"
+            "name": "L2"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.5
+            "waitTime": 2.0
           }
         },
         {
@@ -37,13 +37,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.5
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "RestElevator"
+            "waitTime": 2.0
           }
         }
       ]

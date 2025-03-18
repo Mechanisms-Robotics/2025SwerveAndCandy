@@ -36,6 +36,7 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
   public final static double WRIST_ANGLE_LEVEL = 5.0;
   public final static double WRIST_ANGLE_DOWN = -10.0;
+  public final static double WRIST_INTAKE = WRIST_ANGLE_LEVEL;
 
   private final double m_wristStartingAngle; // Degrees
   private double m_wristOffset = 0.0; // Degrees
@@ -55,6 +56,7 @@ public class AlgaeMech extends SubsystemBase {
     ALGAE_INTAKE_MOTORS_CAN_ID, MotorType.kBrushed);
 
   private static final double INTAKE_DUTY_CYCLE = -1.0;
+  private static final double GROUND_INTAKE_DUTY_CYCLE = -0.6;
   private static final double OUTTAKING_DUTY_CYCLE = 1.0;
   /* DutyCycle equation: D = PW/T
   Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
@@ -66,6 +68,11 @@ public class AlgaeMech extends SubsystemBase {
   enum State {
     /** Motors are spinning inward, so it can intake algae */
     INTAKING,
+    /** 
+     * Motors spinnning inward, but slower. It is better to spin wheels slower for ground intaking
+     * because at full speed it shoots the algae out
+     */
+    GROUND_INTAKING,
     /** Motors are spinning outward, so it can outtake algae into the processor or toss it onto the barge */
     OUTTAKING,
     /** Motors are not moving */
@@ -87,8 +94,8 @@ public class AlgaeMech extends SubsystemBase {
     setWristBrake(true);
     
     SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
-    // are inverting the wheel motors now because they got wired differently
-    wheelMotorConfig.inverted(true);
+    // not inverted (it got inverted twice)
+    wheelMotorConfig.inverted(false);
     m_wheelMotors.configure(wheelMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
     m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
@@ -106,6 +113,15 @@ public class AlgaeMech extends SubsystemBase {
       m_wheelMotors.getClosedLoopController().setReference(
         INTAKE_DUTY_CYCLE, ControlType.kDutyCycle);
       state = State.INTAKING;
+  }
+
+  /**
+   * Spin the wheels slower for intaking from the ground so the algae does not fly out
+   */
+  public void groundIntake() {
+    m_wheelMotors.getClosedLoopController().setReference(
+      GROUND_INTAKE_DUTY_CYCLE, ControlType.kDutyCycle);
+    state = State.GROUND_INTAKING;
   }
 
   /**
