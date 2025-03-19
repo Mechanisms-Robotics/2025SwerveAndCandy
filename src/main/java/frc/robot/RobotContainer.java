@@ -48,7 +48,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
-  private final CommandPS4Controller secondaryController = new CommandPS4Controller(3);
+  private final Joystick secondaryController = new Joystick(3);
   private final Joystick shifter = new Joystick(1);
   private final Joystick gamePad = new Joystick(2);
 
@@ -229,27 +229,43 @@ public class RobotContainer {
       );
 
       // Modifier controlls for elevator positions
-      Supplier<Boolean> clutch = () -> secondaryController.touchpad().getAsBoolean() || gamePad.getRawButton(1);
-      Supplier<Boolean> up = () -> secondaryController.povUp().getAsBoolean();
-      Supplier<Boolean> down = () -> secondaryController.povDown().getAsBoolean();
-      secondaryController.cross().onTrue(Commands.runOnce(
+
+      /* using Brennan's Saber FGC controller
+      TO DO: validate buttons 1-12 are mapped correctly
+      ASSUMED that the buttons are mapped as follows: 1-3 are the left 3 buttons from left to right, 4 is the bottom outlier, 5-8 are the right top row from left to right, 9-12 are the right bottom row from left to right, 
+       */
+
+      // button 3 = clutch (boolean)
+      Supplier<Boolean> clutch = () -> secondaryController.getRawButtonPressed(3) || gamePad.getRawButton(1);
+
+      // button 6 = up (boolean), button 5 = down (boolean)
+      Supplier<Boolean> up = () -> secondaryController.getRawButtonPressed(6);
+      Supplier<Boolean> down = () -> secondaryController.getRawButtonPressed(5);
+
+      // when different buttons are pressed on Brennan's controller, the elevator moves to 
+      // the desired positions
+
+      // button 4 = rest
+      new Trigger(() -> secondaryController.getRawButtonPressed(4)).onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
+      // button 9 = L1 
+      new Trigger(() -> secondaryController.getRawButtonPressed(9)).onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-
-      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
-      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
-
-      secondaryController.triangle().onTrue(Commands.runOnce(
+      // button 10 = L2
+      new Trigger(() -> secondaryController.getRawButtonPressed(10)).onTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
+      // button 11 = L3
+      new Trigger(() -> secondaryController.getRawButtonPressed(11)).onTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
+      // button 12 = L4
+      new Trigger(() -> secondaryController.getRawButtonPressed(12)).onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
-  
-      secondaryController.R1().onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      // button 8 = barge
+      new Trigger(() -> secondaryController.getRawButtonPressed(8)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
 
-      secondaryController.povRight().whileTrue(
-        Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+      // when different buttons are pressed on Brennan's controller, the wrist bumps up or down
+      // button 1 = bump wrist up 
+      new Trigger(() -> secondaryController.getRawButtonPressed(1)).whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+      // button 2 = bump wrist down
+      new Trigger(() -> secondaryController.getRawButtonPressed(2)).whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
 
-      secondaryController.povLeft().whileTrue(
-        Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
-
-      secondaryController.L1().onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
       // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
