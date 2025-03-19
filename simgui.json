@@ -35,6 +35,9 @@
         "header": {
           "open": false
         }
+      },
+      "window": {
+        "visible": false
       }
     }
   },
@@ -67,6 +70,9 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
     "Retained Values": {
       "open": false
     },
