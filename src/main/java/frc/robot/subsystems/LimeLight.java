@@ -3,15 +3,21 @@ package frc.robot.subsystems;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.dyn4j.geometry.Transform;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +36,7 @@ public class LimeLight extends SubsystemBase {
     private final ArrayList<ApriltagData> aprilTagDatas = new ArrayList<>();
 
     private final StructPublisher<Pose3d> visionLocalisationPublisher;
+    
 
     private final SwerveSubsystem swerve;
 
@@ -64,6 +71,8 @@ public class LimeLight extends SubsystemBase {
         private double yaw = 0.0;
         private double pitch = 0.0;
         private double area = 0.0;
+        private Pose3d robotPoseBasedOnApriltag;
+        public final Pose3d positionOnField;
         
         private boolean detected = false;
         private boolean updatedOnCycle = false;
@@ -73,6 +82,9 @@ public class LimeLight extends SubsystemBase {
         private static boolean hasPose = false;
         private String tableName;
 
+        private final StructPublisher<Pose3d> visionLocalisationPublisher;
+
+
         public ApriltagData(int id) {
             this.id = id;
             for (int tag : Constants.FieldConstants.GOOD_APRIL_TAGS) {
@@ -81,6 +93,7 @@ public class LimeLight extends SubsystemBase {
                     break;
                 }
             }
+            positionOnField = aprilTagFieldLayout.getTagPose(id).get();
 
             tableName = cameraName + "/Apriltags/" + id + "/";
 
@@ -89,6 +102,9 @@ public class LimeLight extends SubsystemBase {
             } else {
                 SmartDashboard.putString(tableName + "info", "this apriltag is not used for position localisation");
             }
+            visionLocalisationPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+                .getStructTopic(tableName + "Vision Localisation Pose3d", Pose3d.struct).publish();
+
         }
 
         /**
@@ -98,12 +114,15 @@ public class LimeLight extends SubsystemBase {
          * @param area
          * @param detected
          */
-        public void update(double yaw, double pitch, double area, boolean detected) {
+        public void update(double yaw, double pitch, double area, boolean detected, Pose3d robotPoseBasedOnApriltag) {
             this.yaw = yaw;
             this.pitch = pitch;
             this.area = area;
             this.detected = detected;
             updatedOnCycle = true;
+            this.robotPoseBasedOnApriltag = robotPoseBasedOnApriltag;
+            robotPoseBasedOnApriltag = aprilTagFieldLayout.getTagPose(id).get();
+
 
             if (detected && goodForPositionMeasurements) {
                 hasPose = true;
@@ -113,6 +132,7 @@ public class LimeLight extends SubsystemBase {
             SmartDashboard.putNumber(tableName + "Pitch", pitch);
             SmartDashboard.putNumber(tableName + "Area", area);
             SmartDashboard.putBoolean(tableName + "Detected", detected);
+            visionLocalisationPublisher.set(robotPoseBasedOnApriltag);
         }
 
         /**
@@ -123,7 +143,7 @@ public class LimeLight extends SubsystemBase {
                 hasPose = false;
             }
             if (!updatedOnCycle) {
-                update(0.0, 0.0, 0.0, false);
+                update(0.0, 0.0, 0.0, false, getRobotBasedOnTag());
             }
             updatedOnCycle = false;
         }
@@ -145,6 +165,20 @@ public class LimeLight extends SubsystemBase {
         public double getArea() {
             return area;
         }
+
+        public Pose3d getRobotBasedOnTag() {
+            return robotPoseBasedOnApriltag;
+        }
+
+        public Transform3d getRobotToApriltag() {
+            return robotPoseBasedOnApriltag.minus(positionOnField);
+        }
+
+        public Transform3d getRobotToApriltag(double offset) {
+            Transform2d tr = new Transform2d(new Translation2d(offset, 0.0), Rotation2d.fromRadians(positionOnField.getRotation().getZ()));
+            return robotPoseBasedOnApriltag.minus(positionOnField);
+        }
+
 
         /**
          * @return true if an apriltag has taken a valid position measurement
@@ -196,14 +230,15 @@ public class LimeLight extends SubsystemBase {
 
         for (PhotonPipelineResult result : results) {
             SmartDashboard.putBoolean(cameraName + "/Apriltag detected", result.hasTargets());
-
             if (result.hasTargets()) {
                 SmartDashboard.putBoolean(cameraName + "/Result Empty", result.getMultiTagResult().isEmpty());
                 // Loop through all of the apriltag data
                 for (PhotonTrackedTarget target : result.targets) {
                     ApriltagData tagData = getApriltag(target.getFiducialId());
+                
                     // now we know the april tag was detected, updated all of the values of that tag id
-                    tagData.update(target.getYaw(), target.getPitch(), target.getArea(), true);
+                    tagData.update(target.getYaw(), target.getPitch(), target.getArea(), true, 
+                    PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagData.positionOnField, cameraToRobot));
                 }
             }
             // only updates the position if one of april tags was detected that is supposed to be used for vision
@@ -212,12 +247,12 @@ public class LimeLight extends SubsystemBase {
                 if (estimatedPose.isPresent()) {
                     visionPose = estimatedPose.get().estimatedPose;
                     visionLocalisationPublisher.set(visionPose);
-                    swerve.addVisionMeasurement(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
+                    // swerve.addVisionMeasurement(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
+
                     SmartDashboard.putString(cameraName + "/Estimated Robot Position Components", visionPose.toString());
                 }
             }
         }
-
 
         // if the apriltag was not updated, clear its data because otherwise the data from the last time it was detected stays
         // also updated has pose to make if false, i.e. assume false until proven, for the next cycle
