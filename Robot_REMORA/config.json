@@ -15,9 +15,12 @@
         {
             "name": "LimeLight1",
             "rotations": [
-                
+                {
+                    "axis": "y",
+                    "degrees": 30
+                }
             ],
-            "position": [0.4064, -0.03175, 0.1143]
+            "position": [0.3214, -0.03175, 0.16]
         }
     ],
     "components": []
