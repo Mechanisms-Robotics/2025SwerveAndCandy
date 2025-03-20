@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -20,6 +21,9 @@ public class AlgaeMech extends SubsystemBase {
   public final static int WRIST_MOTOR_CAN_ID = 22;
 
   private static final TalonFX m_wristMotor = new TalonFX(WRIST_MOTOR_CAN_ID);
+  private static final int ENCODER_CAN_ID = 100;
+  private static final CANcoder m_encoder = new CANcoder(ENCODER_CAN_ID);
+
 
   private final static double P = 0.005;
   private final static double I = 0.0;
@@ -39,6 +43,8 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_INTAKE = WRIST_ANGLE_LEVEL;
 
   private final double m_wristStartingAngle; // Degrees
+  // determine this by putting the arm up without any offset shenanigans and seeing what the angle reads
+  private static final double WRIST_RAW_STARTING_ANGLE = 0;
   private double m_wristOffset = 0.0; // Degrees
   public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
 
@@ -58,6 +64,7 @@ public class AlgaeMech extends SubsystemBase {
   private static final double INTAKE_DUTY_CYCLE = -1.0;
   private static final double GROUND_INTAKE_DUTY_CYCLE = -0.6;
   private static final double OUTTAKING_DUTY_CYCLE = 1.0;
+
   /* DutyCycle equation: D = PW/T
   Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
   Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
@@ -172,8 +179,7 @@ public class AlgaeMech extends SubsystemBase {
    * @return angle of the wrist as determined by the falcon internal encoder
    */
   public double getWristAngle() {
-    return m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO
-      + WRIST_STARTING_CONFIGURATION_ANGLE - m_wristStartingAngle;
+    return m_encoder.getAbsolutePosition().getValueAsDouble() * 360;
   }
 
   /**
@@ -182,7 +188,7 @@ public class AlgaeMech extends SubsystemBase {
    * @return velocity in degrees per second
    */
   public double getWristVelocity() {
-    return m_wristMotor.getVelocity().getValueAsDouble() * 360.0 / GEAR_RATIO;
+    return m_encoder.getVelocity().getValueAsDouble() * 360;
   }
 
   /**
