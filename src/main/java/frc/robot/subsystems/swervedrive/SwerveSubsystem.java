@@ -141,7 +141,7 @@ public class SwerveSubsystem extends SubsystemBase
     position2DPublisherYAGSL = NetworkTableInstance.getDefault().getTable("SmartDashboard")
       .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
 
-    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), getHeading(), swerveDrive.getModulePositions(), getPose());
+    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), swerveDrive.getYaw(), swerveDrive.getModulePositions(), getPose());
   }
 
   /**
@@ -166,7 +166,7 @@ public class SwerveSubsystem extends SubsystemBase
     position2DPublisherYAGSL = NetworkTableInstance.getDefault().getTable("SmartDashboard")
       .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
 
-    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), getHeading(), swerveDrive.getModulePositions(), getPose());
+    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), swerveDrive.getYaw(), swerveDrive.getModulePositions(), getPose());
   }
 
   /**
