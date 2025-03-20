@@ -15,9 +15,9 @@
         {
             "name": "LimeLight1",
             "rotations": [
-
+                
             ],
-            "position": [0, 0, 0]
+            "position": [0.4064, -0.03175, 0.1143]
         }
     ],
     "components": []
