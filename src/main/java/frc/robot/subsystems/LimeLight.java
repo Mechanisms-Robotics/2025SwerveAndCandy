@@ -1,9 +1,10 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
-import org.dyn4j.geometry.Transform;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -20,6 +21,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -170,14 +172,29 @@ public class LimeLight extends SubsystemBase {
             return robotPoseBasedOnApriltag;
         }
 
-        public Transform3d getRobotToApriltag() {
-            return robotPoseBasedOnApriltag.minus(positionOnField);
+        public Transform2d getRobotApriltagTransform() {
+            return new Transform2d(
+                // converting the x and y courdanites to robot relative
+                robotPoseBasedOnApriltag.getX() - positionOnField.getX(),
+                robotPoseBasedOnApriltag.getY() - positionOnField.getY(),
+                // the angle the apriltag is pointing flipped around (plus PI radians) is facing the apriltag
+                Rotation2d.fromRadians(positionOnField.getRotation().getZ() + Math.PI)
+            );
         }
 
-        public Transform3d getRobotToApriltag(double offset) {
-            Transform2d tr = new Transform2d(new Translation2d(offset, 0.0), Rotation2d.fromRadians(positionOnField.getRotation().getZ()));
-            return robotPoseBasedOnApriltag.minus(positionOnField);
-        }
+        public Transform2d getRobotApriltagTransformOffset(double xOffset) {
+            // creates a transform2d from the desired x offset, it wil be offset from the left and right from the perspective of the apriltag
+            double yaw = positionOnField.getRotation().getZ();
+            double xFieldReleativeOffset = xOffset * Math.cos(yaw);
+            double yFieldReleativeOffset = xOffset * Math.sin(yaw);
+
+            return new Transform2d(
+                // converting the x and y courdanites to robot relative, and then offseting it
+                robotPoseBasedOnApriltag.getX() - positionOnField.getX() + xFieldReleativeOffset,
+                robotPoseBasedOnApriltag.getY() - positionOnField.getY() + yFieldReleativeOffset,
+                // the angle the apriltag is pointing flipped around (plus PI radians) is facing the apriltag
+                Rotation2d.fromRadians(positionOnField.getRotation().getZ() + Math.PI)
+            );        }
 
 
         /**
@@ -220,6 +237,19 @@ public class LimeLight extends SubsystemBase {
         }
             
         return Optional.empty();
+    }
+
+    /**
+     * Get the closest apriltag data (calculated by largest area taken up on the camera).
+     * Acounts for the side of the field
+     * 
+     * @param ids int list of the ids to look for
+     * @return apriltag data if it finds one, otherwise Optional.empty()
+     */
+    public Optional<ApriltagData> getClosestReefApriltag() {
+        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+            return getClosestAprilTag(Constants.FieldConstants.BLUE_REEF_APRIL_TAGS);
+        return getClosestAprilTag(Constants.FieldConstants.RED_REEF_APRIL_TAGS);
     }
 
     @Override
