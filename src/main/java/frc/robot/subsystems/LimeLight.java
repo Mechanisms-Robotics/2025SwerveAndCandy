@@ -1,9 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -15,10 +13,8 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -183,15 +179,16 @@ public class LimeLight extends SubsystemBase {
         }
 
         public Transform2d getRobotApriltagTransformOffset(double xOffset) {
-            // creates a transform2d from the desired x offset, it wil be offset from the left and right from the perspective of the apriltag
+            // the yaw of the angle is the 3d rotations angle around the z coardanite
             double yaw = positionOnField.getRotation().getZ();
-            double xFieldReleativeOffset = xOffset * Math.cos(yaw);
-            double yFieldReleativeOffset = xOffset * Math.sin(yaw);
+            // Since th desired x offset is apriltag relative and the one I need is robot relative, it needs to be converted
+            double xFieldRelativeOffset = xOffset * Math.cos(yaw);
+            double yFieldRelativeOffset = xOffset * Math.sin(yaw);
 
             return new Transform2d(
                 // converting the x and y courdanites to robot relative, and then offseting it
-                robotPoseBasedOnApriltag.getX() - positionOnField.getX() + xFieldReleativeOffset,
-                robotPoseBasedOnApriltag.getY() - positionOnField.getY() + yFieldReleativeOffset,
+                robotPoseBasedOnApriltag.getX() - positionOnField.getX() + xFieldRelativeOffset,
+                robotPoseBasedOnApriltag.getY() - positionOnField.getY() + yFieldRelativeOffset,
                 // the angle the apriltag is pointing flipped around (plus PI radians) is facing the apriltag
                 Rotation2d.fromRadians(positionOnField.getRotation().getZ() + Math.PI)
             );        }
