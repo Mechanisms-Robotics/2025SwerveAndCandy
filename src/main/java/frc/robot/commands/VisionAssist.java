@@ -24,7 +24,7 @@ public class VisionAssist {
         LEFT, RIGHT;
     }
 
-    private static final String CAMERA_NAME = "photonvision"; // TODO confirm
+    private static final String CAMERA_NAME = "LimeLight1"; // this is the front camera
     private static final PhotonCamera CAMERA = new PhotonCamera(CAMERA_NAME);
 
     /**
