@@ -6,6 +6,8 @@ package frc.robot;
 
 
 import java.util.HashMap;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -96,8 +98,8 @@ public final class Constants
   }
   
   public static final class FieldConstants {
-    // Mostly stollen from metal crusaders https://github.com/Metal-Crusaders/Reefscape2025Code/blob/main/src/main/java/frc/robot/constants/Constants.java#L138
-    // These are the apriltags that are used for pose estimation
+    public static final double FIELD_LENGTH = 17.548; // meters
+    public static final double FIELD_WIDTH = 8.042; // meters
     // Currently it is everything due to limited testing - Micah Maphet 3/8/2025
     public static final int[] GOOD_APRIL_TAGS = {
       // Red Coral station
