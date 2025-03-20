@@ -18,8 +18,8 @@ import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -60,6 +60,24 @@ public class SwerveSubsystem extends SubsystemBase
 
   /**
    * Swerve drive object.
+   * 
+   * Vision localisation testing:
+   * 1. Systems check code on robot to make sure it is working
+   *   * Make sure the position of the limelight is correct in constants as it got moved forward
+   * 2. Check to see the difference between yagsls odometry and my odometry
+   *   * Uncomment add vision measurement in LimeLight
+   *   * Look in shuffleboard under SmartDashboard/Swerve/Yagsl Position 2d and compare it with
+   *   * SmartDashboard/Swerve/Position 2d
+   *   * Use advantage scopes 3d Field to display the positions, they should be very close when just using odometry
+   *   * since they use the same logic
+   *   * Put the robot next to the reef to see which one is closer
+   * 3. Test the gyro zeroing
+   *   * Does it zero normaly when Leif presses share?
+   *   * Does the gyro zero badly when it sees and apriltag?
+   * 4. Try the field oriented driving autolineup
+   *   * it should work, especially once the position is set right
+   * 5. If we want to use pathplanner autolineup
+   *   * make the autobuilder use my position localisation
    */
   private final SwerveDrive         swerveDrive;
   /**
@@ -74,6 +92,10 @@ public class SwerveSubsystem extends SubsystemBase
   public final double defaultAngularVelocity;
 
   private final StructPublisher<Pose2d> position2DPublisher;
+  private final StructPublisher<Pose2d> position2DPublisherYAGSL;
+  // rewriting yagsl position stuff so I do not have to deal with its bugs, this does odometry just like yagsl
+  // except that i can pass my vision measurements without it breaking everything
+  private final SwerveDrivePoseEstimator myPositionEstimator;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -115,6 +137,11 @@ public class SwerveSubsystem extends SubsystemBase
 
     position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
       .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
+    
+    position2DPublisherYAGSL = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
+
+    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), getHeading(), swerveDrive.getModulePositions(), getPose());
   }
 
   /**
@@ -135,6 +162,11 @@ public class SwerveSubsystem extends SubsystemBase
 
     position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
       .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
+
+    position2DPublisherYAGSL = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
+
+    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), getHeading(), swerveDrive.getModulePositions(), getPose());
   }
 
   /**
@@ -148,7 +180,9 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-    position2DPublisher.set(getPose());
+    position2DPublisher.set(getMyPose());
+    position2DPublisherYAGSL.set(getPose());
+    myPositionEstimator.update(getHeading(), swerveDrive.getModulePositions());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
@@ -535,7 +569,9 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public void resetOdometry(Pose2d initialHolonomicPose)
   {
-    //Pose2d noGyroResetPose = new Pose2d(initialHolonomicPose.getX(), initialHolonomicPose.getY(), getHeading());
+    // uncomment this if we want it to reset the vision localisation based geometry at the start of an auto,
+    // this is only worth doing if we use my vision localisation for autobuilder
+    // myPositionEstimator.resetPose(initialHolonomicPose);
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
@@ -547,6 +583,15 @@ public class SwerveSubsystem extends SubsystemBase
   public Pose2d getPose()
   {
     return swerveDrive.getPose();
+  }
+
+  /**
+   * Micah Maphet made this because yagsl broke stuff when i used there swerve drive odometry stuff
+   * 
+   * @return
+   */
+  public Pose2d getMyPose() {
+    return myPositionEstimator.getEstimatedPosition();
   }
 
   /**
@@ -741,7 +786,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param timeStamp
    */
   public void addVisionMeasurement(Pose2d pose, double timeStamp) {
-    swerveDrive.addVisionMeasurement(pose, timeStamp);
+    myPositionEstimator.addVisionMeasurement(pose, timeStamp);
   }
 
   public void setMaxSpeed(double velocityMetersPerSecond, double velocityRadiansPerSecond) {

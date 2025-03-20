@@ -22,6 +22,7 @@ public class PIDtoPosition extends Command {
     /**
      * PID to a given position. It pids x, y and rotational compents seperately.
      * Usedfull for its simplicity.
+     * This is using my experimental position localisation
      * 
      * @param swerve used for driving
      * @param targetPosition position to be PIDed to
@@ -44,8 +45,8 @@ public class PIDtoPosition extends Command {
 
     @Override
     public void execute() {
-        double velocityX = xController.calculate(swerve.getPose().getX(), targetPosition.getX()); // meters per second
-        double velocityY = yController.calculate(swerve.getPose().getY(), targetPosition.getY()); // meters per second
+        double velocityX = xController.calculate(swerve.getMyPose().getX(), targetPosition.getX()); // meters per second
+        double velocityY = yController.calculate(swerve.getMyPose().getY(), targetPosition.getY()); // meters per second
         double radiansPerSecond = rotationController.calculate(swerve.getHeading().getDegrees(), targetPosition.getRotation().getDegrees());
         swerve.driveFieldOriented(new ChassisSpeeds(velocityX, velocityY, radiansPerSecond));
     }
@@ -59,7 +60,7 @@ public class PIDtoPosition extends Command {
     @Override
     public boolean isFinished() {
         // finish when the rotation target and position target are within tollerance
-        return swerve.getPose().getTranslation().getDistance(targetPosition.getTranslation()) < positionTolerance
+        return swerve.getMyPose().getTranslation().getDistance(targetPosition.getTranslation()) < positionTolerance
                && Math.abs(swerve.getHeading().getDegrees() - targetPosition.getRotation().getDegrees()) < rotationTolerance;
     }
 }
