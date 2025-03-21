@@ -55,7 +55,10 @@ public class VisionAssist extends Command {
     }
 
     private static final String CAMERA_NAME = "LimeLight1"; // front camera
-    private static final PhotonCamera CAMERA = new PhotonCamera(CAMERA_NAME);
+    private static final PhotonCamera realCamera = new PhotonCamera(CAMERA_NAME);
+
+    // see CameraWrapper for discussion
+    private CameraWrapper wrappedCamera = new CameraWrapper(realCamera);
 
     /**
      * We can simply transform laterly (relative to the target) unless we ever want
@@ -140,82 +143,12 @@ public class VisionAssist extends Command {
      */
 
     private Pose2d getScoringPose(ScoringPosition scoringPosition) {
-
         /**
-         * First we call PhotonVision to get the pose of the best AprilTag
-         * as a Transform3d from the camera.
-         * 
-         * TODO: Check the camera settings to see if it is sending offsets
-         * for where and how it's mounted.
+         * Use the camera to get the transform from the robot
+         * to the AprilTag.
          */
 
-        List<PhotonPipelineResult> results = CAMERA.getAllUnreadResults();
-
-        if (results.isEmpty()) {
-            return null; // no good target pose
-        }
-
-        // Is there a reason to use earlier results?
-        // [fox] i could come up with scenarios, but i don't know how likely they are.
-        //       for exmample, let's say we had already locked on a target in a prior
-        //       loop iteration. and in this iteration, we get 20 new snapshots from photon
-        //       to analyze. but in the last 3 snapshots, something happened and we don't see
-        //       the target now. would we want to operate off our lastKnown snapshot from
-        //       the prior loop? or would we want to get the latest info possible from these
-        //       results before we lost view of the target?
-        //  Maybe an alternative question would be: do we want to bail out as soon as
-        //  we determine our most recent photonResult doesn't have the target in view? Or
-        //  do we want to have some tolerance for such mishaps with a number of retry attempts?
-        //  KISS principle would say just use last and hope for the best
-
-        /**
-         * [joel] That's fair. Part of the behavior of the averager is that if we lose sight
-         * of the target for a brief time, the average error goes down a bit, meaning the
-         * tendency of the robot is to stabilize at holding its course. So if the target is
-         * noisy (maybe every third reading is lousy) it effectively tries less hard but
-         * the good readings keep it geneally moving in the right direction.  If it
-         * loses the target altogether and permanently (maybe the camera is blocked
-         * when we're really close to the scoring position), the effect is the robot
-         * will stop trying to rotate or slew, which is the desired behavior when
-         * it's on the line and really close.
-         * 
-         * I guess we could average all unread results here, too, and use that
-         * as the current result. If there is a timestamp on the result we could
-         * only care about those younger than the periodic loop time, 20 ms.
-         */
-        
-        PhotonPipelineResult result = results.get(results.size() - 1);
-
-        if (!result.hasTargets()) {
-            return null; // no target
-        }
-
-        // [fox] are we comfortable assuming that the bestTarget is the right one we want?
-        //       do we need to check if it is different than the lastKnown bestTarget?
-        //       for example: MetalMountain knocks us off course and even though we still
-        //       see our target that we are locked on, it is no longer the BESTtarget at
-        //       the current time. Do we want to change our goal to the newBestTarget?
-        /**
-         * [joel] That's a good thought. I'd say that this is one way we could
-         * discriminate between a good reading and a bad reading, by the AprilTag
-         * id. Maybe we store a list of the last so many target ids, regardless
-         * of if good or bad and we assume the most frequent target id is what
-         * we care about.
-         */
-
-        PhotonTrackedTarget target = result.getBestTarget();
-
-        Transform3d bestCameraToTarget = target.getBestCameraToTarget();
-        // what is getAlternateCameraToTarget() for??
-        // [fox] I guess you could have one camera on each of the corners of the bot and improve
-        //       accuracy / smooth error correction ??
-
-        /**
-         * TODO throw out obviously bad results here by returning null?
-         * See discussion above for some ideas. We should at least throw out
-         * targets outside of, say a 30-degree cone extending 15 feet in front
-         * of the robot. And maybe ids we know are not reef scoring positions.
-         * / 
+        Transform3d cameraToTarget = wrappedCamera.getCameraToTarget();
 
         /**
          * Now we calculate our scoring pose, which is a constant offset from
@@ -223,13 +156,13 @@ public class VisionAssist extends Command {
          * relative to the orientation of the transform.
          */
 
-        Transform3d scoringTransform = bestCameraToTarget.plus(
+        Transform3d scoringTransform = cameraToTarget.plus(
             scoringPosition == ScoringPosition.LEFT
             ? LEFT_SCORING_TRANSFORM : RIGHT_SCORING_TRANSFORM
         );
 
         /**
-         * The earth is flat, so we should rebuild the transform as a Pose2d.
+         * The earth is flat, so we rebuild the transform as a Pose2d.
          */
         
         Translation3d translation3d = scoringTransform.getTranslation();
@@ -355,5 +288,120 @@ public class VisionAssist extends Command {
         outputs.outputX = Math.max(-1.0, Math.min(P_LATERAL*error.lateralError, 1.0));
         outputs.outputRotation = Math.max(-1.0, Math.min(P_ROTATION*error.rotationError, 1.0));
         return outputs;
+    }
+
+    /**
+     * If I were a good person, I'd write real unit tests, but this series of tests
+     * should at least help. These are meant to be run in simulation in test mode.
+     * 
+     * See Robot.java testInit().
+     */
+
+    public void runTests() {
+        wrappedCamera = new CameraWrapper(); // creates a fake camera
+        /**
+         * To test getScoringPose, 
+         */
+    }
+
+    /**
+     * The camera wrapper is a class that wraps our camera. Its purpose is to allow
+     * us to run tests against a "fake" camera.
+     */
+
+    private class CameraWrapper {
+        private final PhotonCamera camera;
+
+        public CameraWrapper() {
+            this.camera = null; // fake camera
+        }
+
+        public CameraWrapper(PhotonCamera camera) {
+            this.camera = camera;
+        }
+
+        public Transform3d getCameraToTarget() {
+            if (camera == null) {
+                return null; // TODO: send fake reading
+            }
+
+            /**
+             * First we call PhotonVision to get the pose of the best AprilTag
+             * as a Transform3d from the camera.
+             * 
+             * TODO: Check the camera settings to see if it is sending offsets
+             * for where and how it's mounted.
+             */
+
+            List<PhotonPipelineResult> results = camera.getAllUnreadResults();
+
+            if (results.isEmpty()) {
+                return null; // no good target pose
+            }
+
+            // Is there a reason to use earlier results?
+            // [fox] i could come up with scenarios, but i don't know how likely they are.
+            //       for exmample, let's say we had already locked on a target in a prior
+            //       loop iteration. and in this iteration, we get 20 new snapshots from photon
+            //       to analyze. but in the last 3 snapshots, something happened and we don't see
+            //       the target now. would we want to operate off our lastKnown snapshot from
+            //       the prior loop? or would we want to get the latest info possible from these
+            //       results before we lost view of the target?
+            //  Maybe an alternative question would be: do we want to bail out as soon as
+            //  we determine our most recent photonResult doesn't have the target in view? Or
+            //  do we want to have some tolerance for such mishaps with a number of retry attempts?
+            //  KISS principle would say just use last and hope for the best
+
+            /**
+             * [joel] That's fair. Part of the behavior of the averager is that if we lose sight
+             * of the target for a brief time, the average error goes down a bit, meaning the
+             * tendency of the robot is to stabilize at holding its course. So if the target is
+             * noisy (maybe every third reading is lousy) it effectively tries less hard but
+             * the good readings keep it geneally moving in the right direction.  If it
+             * loses the target altogether and permanently (maybe the camera is blocked
+             * when we're really close to the scoring position), the effect is the robot
+             * will stop trying to rotate or slew, which is the desired behavior when
+             * it's on the line and really close.
+             * 
+             * I guess we could average all unread results here, too, and use that
+             * as the current result. If there is a timestamp on the result we could
+             * only care about those younger than the periodic loop time, 20 ms.
+             */
+            
+            PhotonPipelineResult result = results.get(results.size() - 1);
+
+            if (!result.hasTargets()) {
+                return null; // no target
+            }
+
+            // [fox] are we comfortable assuming that the bestTarget is the right one we want?
+            //       do we need to check if it is different than the lastKnown bestTarget?
+            //       for example: MetalMountain knocks us off course and even though we still
+            //       see our target that we are locked on, it is no longer the BESTtarget at
+            //       the current time. Do we want to change our goal to the newBestTarget?
+            /**
+             * [joel] That's a good thought. I'd say that this is one way we could
+             * discriminate between a good reading and a bad reading, by the AprilTag
+             * id. Maybe we store a list of the last so many target ids, regardless
+             * of if good or bad and we assume the most frequent target id is what
+             * we care about.
+             */
+
+            PhotonTrackedTarget target = result.getBestTarget();
+
+            Transform3d bestCameraToTarget = target.getBestCameraToTarget();
+            // what is getAlternateCameraToTarget() for??
+            // [fox] I guess you could have one camera on each of the corners of the bot and improve
+            //       accuracy / smooth error correction ??
+
+            /**
+             * TODO throw out obviously bad results here by returning null?
+             * See discussion above for some ideas. We should at least throw out
+             * targets outside of, say a 30-degree cone extending 15 feet in front
+             * of the robot. And maybe ids we know are not reef scoring positions.
+             */
+
+             return bestCameraToTarget;
+        }
     }
 }
