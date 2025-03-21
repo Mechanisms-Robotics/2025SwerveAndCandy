@@ -55,6 +55,11 @@ import edu.wpi.first.wpilibj2.command.Command;
  * uses driveFieldOriented, but calls the implementation on SwerveDrive, not
  * our SwerveDriveSubsystem.
  * 
+ * NOTE TO JOEL: SEE UPDATES TO RobotContianer. This works, but unfortunately I'll
+ * need a safe way of applying this to modify the driver inputs because it will
+ * indeed need to be field relative.
+ * 
+ * 
  */
 
 /**
