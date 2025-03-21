@@ -17,7 +17,7 @@
             "rotations": [
                 {
                     "axis": "y",
-                    "degrees": 30
+                    "degrees": -30
                 }
             ],
             "position": [0.3214, -0.03175, 0.16]
