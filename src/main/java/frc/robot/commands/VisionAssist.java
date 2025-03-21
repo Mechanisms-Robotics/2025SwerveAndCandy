@@ -12,41 +12,131 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.commands.VisionAssist.ScoringPosition;
+
+// TODO: write unit tests for all of this to see if it's rational before
+// trying it on the robot.
 
 /**
- * TODO
+ * The VisionAssist command helps the driver to line up on the scoring position
+ * by aligning the robot with the scoring position laterally and rotationally.
+ * When activated, it uses a sliding averager to smooth the error between the
+ * robot's vision-determined pose and the desired pose (ignoring distance to the
+ * scoring position as the driver will control that). Here is the flow:
  * 
+ * 1. The driver activates vision assistance.
+ * 2. The averager sets all of its error values to zero, meaning for the first
+ *    few iterations of the periodic loop there will be no outputs.
+ * 3. Every iteration of the periodic loop, the following happens:
+ *      - We get the pose of the AprilTag in front of us and use a transform
+ *        to get the scoring pose (remember we only really care about the
+ *        lateral and rotational part of the pose). This pose is relative to the
+ *        camera, not field relative.
+ *      - From the scoring pose, we calculate the error in rotation and in
+ *        lateral translation. This is simply the difference between the
+ *        current state and the desired state. This error is put into the
+ *        averager and begins to pull the average error toward what we hope is
+ *        the actual error.
+ *      - From the error, we use PID to determine the magnitude of output to the
+ *        drivetrain and send that output to the drivetrain.
+ * 
+ * The end effect is that the robot should smoothly rotate and translate onto
+ * the "scoring line" as the driver drives towards the reef.
  */
 
-public class VisionAssist {
+public class VisionAssist extends Command {
 
-    public enum ScoringPosition { // Could expand for L4, etc...
+    public enum ScoringPosition {
+        // We could expand this for L4, etc. but that may require us to
+        // consider the distance from the pose, not just lateral and rotational.
         LEFT, RIGHT;
     }
 
-    private static final String CAMERA_NAME = "LimeLight1"; // this is the front camera
+    private static final String CAMERA_NAME = "LimeLight1"; // front camera
     private static final PhotonCamera CAMERA = new PhotonCamera(CAMERA_NAME);
 
     /**
      * We can simply transform laterly (relative to the target) unless we ever want
      * to stop short of the target or something. We could use the 3D parts of the
      * transform if we ever install the jetpack.
+     * 
+     * These transforms will be added to the AprilTag's pose (which is relative
+     * to the robot). So the transformation already takes into account a rotational
+     * component of the AprilTag relative to the robot.
      */
 
     private static final double LEFT_OFFSET = -0.75; // meters? TODO verify and estimate
     private static final Transform3d LEFT_SCORING_TRANSFORM = new Transform3d(
-        new Translation3d(LEFT_OFFSET, 0.0, 0.0),
-        new Rotation3d(0.0, 0.0, 0.0)
+        new Translation3d(LEFT_OFFSET, 0.0, 0.0), // merely left
+        new Rotation3d(0.0, 0.0, 0.0) // same orientation as the AprilTag
     );
 
     private static final double RIGHT_OFFSET = 0.75; // meters? TODO verify and estimate
     private static final Transform3d RIGHT_SCORING_TRANSFORM = new Transform3d(
-        new Translation3d(RIGHT_OFFSET, 0.0, 0.0),
-        new Rotation3d(0.0, 0.0, 0.0)
+        new Translation3d(RIGHT_OFFSET, 0.0, 0.0), // merely right
+        new Rotation3d(0.0, 0.0, 0.0)  // same orientation as the AprilTag
     );
 
     /**
-     * TODO document and complete
+     * These are the overrides for VisionAssist as a Command. The idea is that
+     * the driver holds down a button while driving.
+     */
+
+    @Override
+    public void initialize() {
+        averager.reset(); // zeros all error so that we start without jerk
+    }
+    @Override
+    public void execute() {
+        // TODO: put LEFT / RIGHT in the constructor
+        Pose2d scoringPose = getScoringPose(ScoringPosition.RIGHT);
+
+        SmartDashboard.putNumber("Vision Assist/Scoring Pose/X (m)",
+            scoringPose.getTranslation().getX());
+        SmartDashboard.putNumber("Vision Assist/Scoring Pose/Y (m)",
+            scoringPose.getTranslation().getY());
+        SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (deg)",
+            scoringPose.getRotation().getDegrees());
+
+        TargetError error = calculateError(scoringPose);
+
+        SmartDashboard.putNumber("Vision Assist/Error/Lateral",
+            error.lateralError);
+        SmartDashboard.putNumber("Vision Assist/Error/Rotational (rad)",
+            error.rotationError);
+
+        VisionOutputs outputs = getOutputs(error);
+
+        SmartDashboard.putNumber("Vision Assist/Outputs/Lateral",
+            outputs.outputX);
+        SmartDashboard.putNumber("Vision Assist/Outputs/Rotational",
+            outputs.outputRotation);
+
+        // TODO: This is where I need to figue out where to inject the outputs
+
+        //m_swerve.drive(new ChassisSpeeds(speed, 0, 0));
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        // m_timer.stop();
+        // m_timer.reset();
+        // m_swerve.drive(new ChassisSpeeds(0, 0, 0));
+    }
+    
+    @Override
+    public boolean isFinished() {
+        //return m_timer.hasElapsed(m_time);
+        return false; // TODO: I think this is right?
+    }
+
+    /**
+     * This gives us our scoring pose, relative to the robot. Remember that
+     * we don't really care about how far the pose is in front of the robot
+     * since we only want to control side-to-side and rotational motion. So
+     * the returned Pose2d is relative to the robot.
      */
 
     private Pose2d getScoringPose(ScoringPosition scoringPosition) {
@@ -77,13 +167,42 @@ public class VisionAssist {
         //  we determine our most recent photonResult doesn't have the target in view? Or
         //  do we want to have some tolerance for such mishaps with a number of retry attempts?
         //  KISS principle would say just use last and hope for the best
+
+        /**
+         * [joel] That's fair. Part of the behavior of the averager is that if we lose sight
+         * of the target for a brief time, the average error goes down a bit, meaning the
+         * tendency of the robot is to stabilize at holding its course. So if the target is
+         * noisy (maybe every third reading is lousy) it effectively tries less hard but
+         * the good readings keep it geneally moving in the right direction.  If it
+         * loses the target altogether and permanently (maybe the camera is blocked
+         * when we're really close to the scoring position), the effect is the robot
+         * will stop trying to rotate or slew, which is the desired behavior when
+         * it's on the line and really close.
+         * 
+         * I guess we could average all unread results here, too, and use that
+         * as the current result. If there is a timestamp on the result we could
+         * only care about those younger than the periodic loop time, 20 ms.
+         */
+        
         PhotonPipelineResult result = results.get(results.size() - 1);
+
+        if (!result.hasTargets()) {
+            return null; // no target
+        }
 
         // [fox] are we comfortable assuming that the bestTarget is the right one we want?
         //       do we need to check if it is different than the lastKnown bestTarget?
         //       for example: MetalMountain knocks us off course and even though we still
         //       see our target that we are locked on, it is no longer the BESTtarget at
         //       the current time. Do we want to change our goal to the newBestTarget?
+        /**
+         * [joel] That's a good thought. I'd say that this is one way we could
+         * discriminate between a good reading and a bad reading, by the AprilTag
+         * id. Maybe we store a list of the last so many target ids, regardless
+         * of if good or bad and we assume the most frequent target id is what
+         * we care about.
+         */
+
         PhotonTrackedTarget target = result.getBestTarget();
 
         Transform3d bestCameraToTarget = target.getBestCameraToTarget();
@@ -91,7 +210,12 @@ public class VisionAssist {
         // [fox] I guess you could have one camera on each of the corners of the bot and improve
         //       accuracy / smooth error correction ??
 
-        // TODO throw out obviously bad results here by returning null?
+        /**
+         * TODO throw out obviously bad results here by returning null?
+         * See discussion above for some ideas. We should at least throw out
+         * targets outside of, say a 30-degree cone extending 15 feet in front
+         * of the robot. And maybe ids we know are not reef scoring positions.
+         * / 
 
         /**
          * Now we calculate our scoring pose, which is a constant offset from
@@ -100,17 +224,21 @@ public class VisionAssist {
          */
 
         Transform3d scoringTransform = bestCameraToTarget.plus(
-            scoringPosition == ScoringPosition.LEFT ? LEFT_SCORING_TRANSFORM : RIGHT_SCORING_TRANSFORM
+            scoringPosition == ScoringPosition.LEFT
+            ? LEFT_SCORING_TRANSFORM : RIGHT_SCORING_TRANSFORM
         );
+
+        /**
+         * The earth is flat, so we should rebuild the transform as a Pose2d.
+         */
         
         Translation3d translation3d = scoringTransform.getTranslation();
         Rotation3d rotation3d = scoringTransform.getRotation();
 
-        Translation2d translation2d = new Translation2d(translation3d.getX(), translation3d.getY());
+        Translation2d translation2d
+            = new Translation2d(translation3d.getX(), translation3d.getY());
         Rotation2d rotation2d = new Rotation2d(rotation3d.getAngle());
         Pose2d scoringPose = new Pose2d(translation2d, rotation2d);
-
-        // TODO: output to shuffleboard here and see if the outputs are rational in simulation
 
         return scoringPose;
     }
@@ -124,17 +252,21 @@ public class VisionAssist {
     }
 
     /**
-     * TODO: document
+     * ErrorAverager is the averager. It performs a weighted average of the last
+     * so many readings, weighting the recent readings heaviest. The way it
+     * should work is you throw in a zero error if the reading is bad, which
+     * will cause the controller that uses it to start to try less hard. At
+     * some point, with enough zero readings, the controller will simply
+     * "stay the course." The averager also smooths the control outputs.
      */
     
-    private class ErrorList {
-        // [fox] oh no, Remora is a widow?!? ;)
+    private class ErrorAverager {
         private static final int SLIDING_WIDOW_SIZE = 15;
 
         private final TargetError[] errorMeasurements
             = new TargetError[SLIDING_WIDOW_SIZE];
 
-        public ErrorList() {
+        public ErrorAverager() {
             this.reset();
         }
 
@@ -171,11 +303,11 @@ public class VisionAssist {
             accumulator.lateralError /= totalWeight;
             accumulator.rotationError /= totalWeight;
 
-            return accumulator; // TODO: unit test
+            return accumulator;
         }
     }
 
-    private final ErrorList ERROR_LIST = new ErrorList();
+    private final ErrorAverager averager = new ErrorAverager();
 
     private TargetError calculateError(Pose2d targetPose) {
         /**
@@ -185,20 +317,18 @@ public class VisionAssist {
          */
 
         TargetError error = new TargetError();
-
         if (targetPose != null) {
             error.lateralError = targetPose.getX(); // TODO think about this more
             error.rotationError = targetPose.getRotation().getRadians(); // TODO think about this more
         }
-
-        /**
-         * Add the new error reading to the front of the list and drop the
-         * back of the list the return the weighted average.
-         */
-
-        ERROR_LIST.addMeasurement(error);
-        return ERROR_LIST.calculateAverage();
+        averager.addMeasurement(error); // never null, but may be zeros
+        return averager.calculateAverage();
     }
+
+    /**
+     * The vision outputs are between -1.0 and 1.0, inclusive. I'm thinking
+     * of this like joystick controller inputs.
+     */
 
     private class VisionOutputs {
         public double outputX = 0.0;
@@ -215,9 +345,13 @@ public class VisionAssist {
     private static final double P_LATERAL = 1.0;
     private static final double P_ROTATION = 1.0;
 
+    /**
+     * This is a place where proportional control only should be fine, so
+     * we just multiply by P and clamp the outputs to be between -1.0 and 1.0.
+     */
     private VisionOutputs getOutputs(TargetError error) {
         VisionOutputs outputs = new VisionOutputs();
-        // [fox] why is this max and min needed?
+        // [fox] why is this max and min needed? [joel] answering in comments above.
         outputs.outputX = Math.max(-1.0, Math.min(P_LATERAL*error.lateralError, 1.0));
         outputs.outputRotation = Math.max(-1.0, Math.min(P_ROTATION*error.rotationError, 1.0));
         return outputs;
