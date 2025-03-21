@@ -66,12 +66,30 @@ public class VisionAssist {
         }
 
         // Is there a reason to use earlier results?
+        // [fox] i could come up with scenarios, but i don't know how likely they are.
+        //       for exmample, let's say we had already locked on a target in a prior
+        //       loop iteration. and in this iteration, we get 20 new snapshots from photon
+        //       to analyze. but in the last 3 snapshots, something happened and we don't see
+        //       the target now. would we want to operate off our lastKnown snapshot from
+        //       the prior loop? or would we want to get the latest info possible from these
+        //       results before we lost view of the target?
+        //  Maybe an alternative question would be: do we want to bail out as soon as
+        //  we determine our most recent photonResult doesn't have the target in view? Or
+        //  do we want to have some tolerance for such mishaps with a number of retry attempts?
+        //  KISS principle would say just use last and hope for the best
         PhotonPipelineResult result = results.get(results.size() - 1);
 
+        // [fox] are we comfortable assuming that the bestTarget is the right one we want?
+        //       do we need to check if it is different than the lastKnown bestTarget?
+        //       for example: MetalMountain knocks us off course and even though we still
+        //       see our target that we are locked on, it is no longer the BESTtarget at
+        //       the current time. Do we want to change our goal to the newBestTarget?
         PhotonTrackedTarget target = result.getBestTarget();
 
         Transform3d bestCameraToTarget = target.getBestCameraToTarget();
         // what is getAlternateCameraToTarget() for??
+        // [fox] I guess you could have one camera on each of the corners of the bot and improve
+        //       accuracy / smooth error correction ??
 
         // TODO throw out obviously bad results here by returning null?
 
@@ -110,6 +128,7 @@ public class VisionAssist {
      */
     
     private class ErrorList {
+        // [fox] oh no, Remora is a widow?!? ;)
         private static final int SLIDING_WIDOW_SIZE = 15;
 
         private final TargetError[] errorMeasurements
@@ -128,6 +147,8 @@ public class VisionAssist {
         private void addMeasurement(TargetError newError) {
             for (int i = SLIDING_WIDOW_SIZE - 2; i >= 0; i--) {
                 // yeah, this is cringeworthy, but it's fine for short lists
+                // [fox] lol - yeah, for SO many reasons :)
+                //   I would much rather see a queue here that we could push and pop to/from
                 errorMeasurements[i + 1] = errorMeasurements[i];
             }
 
@@ -196,6 +217,7 @@ public class VisionAssist {
 
     private VisionOutputs getOutputs(TargetError error) {
         VisionOutputs outputs = new VisionOutputs();
+        // [fox] why is this max and min needed?
         outputs.outputX = Math.max(-1.0, Math.min(P_LATERAL*error.lateralError, 1.0));
         outputs.outputRotation = Math.max(-1.0, Math.min(P_ROTATION*error.rotationError, 1.0));
         return outputs;
