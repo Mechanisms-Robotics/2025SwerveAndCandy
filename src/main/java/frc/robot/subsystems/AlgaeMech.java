@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -21,7 +23,7 @@ public class AlgaeMech extends SubsystemBase {
   public final static int WRIST_MOTOR_CAN_ID = 22;
 
   private static final TalonFX m_wristMotor = new TalonFX(WRIST_MOTOR_CAN_ID);
-  private static final int ENCODER_CAN_ID = 100;
+  private static final int ENCODER_CAN_ID = 23;
   private static final CANcoder m_encoder = new CANcoder(ENCODER_CAN_ID);
 
 
@@ -44,7 +46,7 @@ public class AlgaeMech extends SubsystemBase {
 
   private final double m_wristStartingAngle; // Degrees
   // determine this by putting the arm up without any offset shenanigans and seeing what the angle reads
-  private static final double WRIST_RAW_STARTING_ANGLE = 0;
+  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.411865;
   private double m_wristOffset = 0.0; // Degrees
   public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
 
@@ -98,7 +100,13 @@ public class AlgaeMech extends SubsystemBase {
     wristConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     
     m_wristMotor.getConfigurator().apply(wristConfig);
+
     setWristBrake(true);
+
+    CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
+    encoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    encoderConfig.MagnetSensor.MagnetOffset = -WRIST_ENCODER_MAGNET_OFFSET;
+    m_encoder.getConfigurator().apply(encoderConfig);
     
     SparkMaxConfig wheelMotorConfig = new SparkMaxConfig();
     // not inverted (it got inverted twice)
@@ -107,6 +115,8 @@ public class AlgaeMech extends SubsystemBase {
     
     m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
     m_desiredAngle = m_wristStartingAngle;
+
+    m_controller.enableContinuousInput(-180.0, 180.0);
   }
   
   public void setWristBrake(boolean brake) {
@@ -179,7 +189,7 @@ public class AlgaeMech extends SubsystemBase {
    * @return angle of the wrist as determined by the falcon internal encoder
    */
   public double getWristAngle() {
-    return m_encoder.getAbsolutePosition().getValueAsDouble() * 360;
+    return (m_encoder.getAbsolutePosition().getValueAsDouble()) * 360.0 + WRIST_STARTING_CONFIGURATION_ANGLE;
   }
 
   /**
@@ -188,7 +198,7 @@ public class AlgaeMech extends SubsystemBase {
    * @return velocity in degrees per second
    */
   public double getWristVelocity() {
-    return m_encoder.getVelocity().getValueAsDouble() * 360;
+    return m_encoder.getVelocity().getValueAsDouble() * 360.0;
   }
 
   /**
@@ -219,7 +229,7 @@ public class AlgaeMech extends SubsystemBase {
       final double POOR_MANS_FEEDFORWARD = 3.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
-    m_wristMotor.set(output);
+    // m_wristMotor.set(output);
 
     SmartDashboard.putNumber("AlgaeMech/Wrist/Controlv Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
@@ -231,5 +241,8 @@ public class AlgaeMech extends SubsystemBase {
 
     SmartDashboard.putNumber("AlgaeMech/wrist motor/velocity", m_wristMotor.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("AlgaeMech/wrist motor/position", m_wristMotor.getPosition().getValueAsDouble());
+
+    SmartDashboard.putNumber("AlgaeMech/CAN encoder/absolute position", m_encoder.getAbsolutePosition().getValueAsDouble());
+    SmartDashboard.putNumber("AlgaeMech/CAN encoder/position", m_encoder.getPosition().getValueAsDouble());
   }
 }
