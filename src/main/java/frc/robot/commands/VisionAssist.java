@@ -16,8 +16,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.VisionAssist.ScoringPosition;
 
-// TODO: write unit tests for all of this to see if it's rational before
-// trying it on the robot.
+/**
+ * NEXT STEPS
+ * 
+ *   Finish simulation test plan and unit tests
+ *   Figure out how to inject the outputs and put that in the code
+ *   Through out obviously bad results (see comment below)
+ * 
+ * SIMULATION TEST PLAN
+ * 
+ *   Make sure that scoring pose is what I think it is (right and cc'wise positive)
+ * 
+ * ON-ROBOT TEST PLAN FOR TMS
+ * 
+ *   Calibrate P_LATERAL and P_ROTATIONAL
+ *   Test LEFT_OFFSET and RIGHT_OFFSET and adjust to approximate better
+ * 
+ * ON-ROBOT TEST PLAN FOR WALTON
+ * 
+ */
+
 
 /**
  * The VisionAssist command helps the driver to line up on the scoring position
@@ -70,13 +88,13 @@ public class VisionAssist extends Command {
      * component of the AprilTag relative to the robot.
      */
 
-    private static final double LEFT_OFFSET = -0.75; // meters? TODO verify and estimate
+    private static final double LEFT_OFFSET = -0.75; // meters
     private static final Transform3d LEFT_SCORING_TRANSFORM = new Transform3d(
         new Translation3d(LEFT_OFFSET, 0.0, 0.0), // merely left
         new Rotation3d(0.0, 0.0, 0.0) // same orientation as the AprilTag
     );
 
-    private static final double RIGHT_OFFSET = 0.75; // meters? TODO verify and estimate
+    private static final double RIGHT_OFFSET = 0.75; // meters
     private static final Transform3d RIGHT_SCORING_TRANSFORM = new Transform3d(
         new Translation3d(RIGHT_OFFSET, 0.0, 0.0), // merely right
         new Rotation3d(0.0, 0.0, 0.0)  // same orientation as the AprilTag
@@ -87,19 +105,31 @@ public class VisionAssist extends Command {
      * the driver holds down a button while driving.
      */
 
+    private final ScoringPosition currentScoringPosition;
+
+    public VisionAssist(ScoringPosition scoringPosition) {
+        this.currentScoringPosition = scoringPosition;
+    }
+
     @Override
     public void initialize() {
         averager.reset(); // zeros all error so that we start without jerk
     }
+
     @Override
     public void execute() {
-        // TODO: put LEFT / RIGHT in the constructor
-        Pose2d scoringPose = getScoringPose(ScoringPosition.RIGHT);
+        /**
+         * This is the main execution loop for the algorithm.
+         */
+
+        Pose2d scoringPose = getScoringPose(currentScoringPosition);
 
         SmartDashboard.putNumber("Vision Assist/Scoring Pose/X (m)",
             scoringPose.getTranslation().getX());
         SmartDashboard.putNumber("Vision Assist/Scoring Pose/Y (m)",
             scoringPose.getTranslation().getY());
+        SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (rad)",
+            scoringPose.getRotation().getRadians());
         SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (deg)",
             scoringPose.getRotation().getDegrees());
 
@@ -117,22 +147,12 @@ public class VisionAssist extends Command {
         SmartDashboard.putNumber("Vision Assist/Outputs/Rotational",
             outputs.outputRotation);
 
-        // TODO: This is where I need to figue out where to inject the outputs
+        /**
+         * We inject the outputs here. Hopefully we don't have to transform
+         * them to the field coordinate system.
+         */
 
         //m_swerve.drive(new ChassisSpeeds(speed, 0, 0));
-    }
-
-    @Override
-    public void end(boolean interrupted) {
-        // m_timer.stop();
-        // m_timer.reset();
-        // m_swerve.drive(new ChassisSpeeds(0, 0, 0));
-    }
-    
-    @Override
-    public boolean isFinished() {
-        //return m_timer.hasElapsed(m_time);
-        return false; // TODO: I think this is right?
     }
 
     /**
@@ -247,12 +267,17 @@ public class VisionAssist extends Command {
          * Determine lateralError and rotationError. Note that we add zeros
          * into the measurement if the targetPose is null (poor or invalid).
          * This causes the error to smoothly go to zero if we loose the target.
+         * 
+         * Notice that if the target pose X offset is positive, the error is
+         * negative because we are left of the target pose. If the target
+         * rotation is positive, our error is negative because we want to
+         * rotate counter clockwise (as viewed from above).
          */
 
         TargetError error = new TargetError();
         if (targetPose != null) {
-            error.lateralError = targetPose.getX(); // TODO think about this more
-            error.rotationError = targetPose.getRotation().getRadians(); // TODO think about this more
+            error.lateralError = -targetPose.getX();
+            error.rotationError = -targetPose.getRotation().getRadians();
         }
         averager.addMeasurement(error); // never null, but may be zeros
         return averager.calculateAverage();
@@ -267,26 +292,22 @@ public class VisionAssist extends Command {
         public double outputX = 0.0;
         public double outputRotation = 0.0;
     }
-
-    /**
-     * TODO: Look into if these need to be transformed for field-relative
-     * drive or if we can send them to the drivetrain robot relative (hopefully).
-     * 
-     * Document better. Think through values. Output and test in sim.
-     */
-
-    private static final double P_LATERAL = 1.0;
-    private static final double P_ROTATION = 1.0;
-
     /**
      * This is a place where proportional control only should be fine, so
      * we just multiply by P and clamp the outputs to be between -1.0 and 1.0.
      */
+
+    // Think of this as the desired control output if we're one meter off
+    private static final double P_LATERAL = 0.25;
+
+    // Think of this as the desired control output if we're one radian (57 degrees) off
+    private static final double P_ROTATION = 0.25;
+
     private VisionOutputs getOutputs(TargetError error) {
         VisionOutputs outputs = new VisionOutputs();
         // [fox] why is this max and min needed? [joel] answering in comments above.
-        outputs.outputX = Math.max(-1.0, Math.min(P_LATERAL*error.lateralError, 1.0));
-        outputs.outputRotation = Math.max(-1.0, Math.min(P_ROTATION*error.rotationError, 1.0));
+        outputs.outputX = Math.max(-1.0, Math.min(-P_LATERAL*error.lateralError, 1.0));
+        outputs.outputRotation = Math.max(-1.0, Math.min(-P_ROTATION*error.rotationError, 1.0));
         return outputs;
     }
 
@@ -324,12 +345,14 @@ public class VisionAssist extends Command {
 
         public Transform3d getCameraToTarget() {
             /**
-             * If camera is null, we consider this a test scenario.
+             * If camera is null, we consider this a test scenario. The
+             * magic numbers below are just for testing.
              */
+
             if (camera == null) {
                 Transform3d xform = new Transform3d(
-                    new Translation3d(3.0, 0.5, 0.0), // AprilTag is in front and slightly right
-                    new Rotation3d(0.03, -0.03, 0.7) // TODO: what direction is yaw positive?
+                    new Translation3d(3.0, 0.5, 0.0),
+                    new Rotation3d(0.03, -0.03, 0.7)
                 );
                 return xform;
             }
@@ -337,9 +360,6 @@ public class VisionAssist extends Command {
             /**
              * First we call PhotonVision to get the pose of the best AprilTag
              * as a Transform3d from the camera.
-             * 
-             * TODO: Check the camera settings to see if it is sending offsets
-             * for where and how it's mounted.
              */
 
             List<PhotonPipelineResult> results = camera.getAllUnreadResults();
@@ -404,7 +424,7 @@ public class VisionAssist extends Command {
             //       accuracy / smooth error correction ??
 
             /**
-             * TODO throw out obviously bad results here by returning null?
+             * This is where we could (should?) throw out obviously bad results.
              * See discussion above for some ideas. We should at least throw out
              * targets outside of, say a 30-degree cone extending 5 meters in front
              * of the robot. And maybe ids we know are not reef scoring positions.
