@@ -17,10 +17,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -47,8 +50,12 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  final         CommandPS4Controller driverController = new CommandPS4Controller(0);
-  private final Joystick secondaryController = new Joystick(3);
+
+  //TODO: swap ports of driverController and secondaryController
+  final         CommandPS4Controller driverController = new CommandPS4Controller(3);
+
+  private final CommandXboxController secondaryController = new CommandXboxController(0);
+
   private final Joystick shifter = new Joystick(1);
   private final Joystick gamePad = new Joystick(2);
 
@@ -151,6 +158,41 @@ public class RobotContainer {
 
     if (Robot.isSimulation())
     {
+      // Testing Brennan's controller
+      DriverStation.reportWarning("Simulation Mode!",false);
+
+      Trigger trigger_button1 = secondaryController.button(1);
+      Trigger trigger_button2 = secondaryController.button(2);
+      Trigger trigger_button3 = secondaryController.button(3);
+      Trigger trigger_button4 = secondaryController.button(4);
+      Trigger trigger_button5 = secondaryController.button(5);
+      Trigger trigger_button6 = secondaryController.button(6);
+      Trigger trigger_button7 = secondaryController.button(7);
+      Trigger trigger_button8 = secondaryController.button(8);
+
+      Trigger trigger_leftTrigger = secondaryController.leftTrigger(0.3);
+      Trigger trigger_rightTrigger = secondaryController.rightTrigger(0.3);
+      Trigger trigger_povUpLeft = secondaryController.povUpLeft();
+      Trigger trigger_povUpRight = secondaryController.povUpRight();
+      Trigger trigger_povCenter = secondaryController.povCenter();
+
+      trigger_button1.onTrue(new PrintCommand("Button1 pressed"));
+      trigger_button2.onTrue(new PrintCommand("Button2 pressed"));
+      trigger_button3.onTrue(new PrintCommand("Button3 pressed"));
+      trigger_button4.onTrue(new PrintCommand("Button4 pressed"));
+      trigger_button5.onTrue(new PrintCommand("Button5 pressed"));
+      trigger_button6.onTrue(new PrintCommand("Button6 pressed"));
+      trigger_button7.onTrue(new PrintCommand("Button7 pressed"));
+      trigger_button8.onTrue(new PrintCommand("Button8 pressed"));
+
+      trigger_leftTrigger.onTrue(new PrintCommand("Left Trigger pressed"));
+      trigger_rightTrigger.onTrue(new PrintCommand("Right Trigger pressed"));
+
+      trigger_povUpLeft.onTrue(new PrintCommand("pov UpLeft pressed"));
+      trigger_povUpRight.onTrue(new PrintCommand("pov UpRight pressed"));
+      trigger_povCenter.onTrue(new PrintCommand("pov Center pressed"));
+
+
       // driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
       //                                                       Rotation2d.fromDegrees(90)),
       //                                      new ProfiledPIDController(5,
@@ -233,15 +275,23 @@ public class RobotContainer {
       /* using Brennan's Saber FGC controller
       TO DO: validate buttons 1-12 are mapped correctly
       ASSUMED that the buttons are mapped as follows: 1-3 are the left 3 buttons from left to right, 4 is the bottom outlier, 5-8 are the right top row from left to right, 9-12 are the right bottom row from left to right, 
-       */
+       
 
       // button 3 = clutch (boolean)
       Supplier<Boolean> clutch = () -> secondaryController.getRawButtonPressed(3) || gamePad.getRawButton(1);
+*/
+
+      // TODO: FIX THIS LOGIC FOR clutch, up, and down
+      Supplier<Boolean> clutch = () -> true;
 
       // button 6 = up (boolean), button 5 = down (boolean)
+      Supplier<Boolean> up = () -> true;
+      Supplier<Boolean> down = () -> true;
+
+/* 
       Supplier<Boolean> up = () -> secondaryController.getRawButtonPressed(6);
       Supplier<Boolean> down = () -> secondaryController.getRawButtonPressed(5);
-
+      
       // when different buttons are pressed on Brennan's controller, the elevator moves to 
       // the desired positions
 
@@ -265,7 +315,7 @@ public class RobotContainer {
       new Trigger(() -> secondaryController.getRawButtonPressed(1)).whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
       // button 2 = bump wrist down
       new Trigger(() -> secondaryController.getRawButtonPressed(2)).whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
-
+*/
   
       new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
       // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
