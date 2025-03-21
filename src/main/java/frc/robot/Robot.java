@@ -218,7 +218,8 @@ public class Robot extends TimedRobot
 
   }
 
-  private VisionAssist testVisionAssist = null; // don't instantiate in a real match because of possible side effects
+  // don't instantiate in a real match because of possible side effects
+  private VisionAssist testVisionAssist = null;
 
   @Override
   public void testInit()
@@ -227,10 +228,8 @@ public class Robot extends TimedRobot
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    if (isSimulation()) {
-      testVisionAssist = new VisionAssist(VisionAssist.ScoringPosition.RIGHT);
-      testVisionAssist.startTestMode();
-    }
+    testVisionAssist = new VisionAssist(VisionAssist.ScoringPosition.RIGHT);
+    testVisionAssist.startTestMode();
   }
 
   /**
@@ -239,9 +238,7 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    if (isSimulation() && testVisionAssist != null) {
-      testVisionAssist.execute();
-    }
+    testVisionAssist.execute();
   }
 
   /**

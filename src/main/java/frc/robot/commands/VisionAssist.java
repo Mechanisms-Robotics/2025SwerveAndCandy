@@ -19,25 +19,49 @@ import frc.robot.commands.VisionAssist.ScoringPosition;
 /**
  * NEXT STEPS
  * 
- *   Finish simulation test plan and unit tests
  *   Figure out how to inject the outputs and put that in the code
+ *   Run it in simulation and document it
  *   Through out obviously bad results (see comment below)
+ *     Maybe comment this out at first then introduce it later
+ *   Finish test plan for TMS and test at TMS
+ *   Create Walton test plan below when it's ready for that
  * 
- * SIMULATION TEST PLAN
+ * SIMULATION TESTS
  * 
  *   Make sure that scoring pose is what I think it is (right and cc'wise positive)
+ *     I ran this simulation and the rotation, X, and Y all make sense.
+ *   Make sure that the error output is rational.
+ *     Yes, the laterl and rotational errors are rational for the test numbers.
+ *   Make sure that the control outputs are rational.
+ *     Yes, they are as expected.
  * 
  * ON-ROBOT TEST PLAN FOR TMS
  * 
  *   Validate that the AprilTags show positive rotation when rotated cc'wise
  *     and positive lateral offset when moved to the right (from camera POV)
+ *     and that the numbers seem rational (meters and radians, etc.). Do this
+ *     with the robot enabled in test mode so I get outputs to the dashboard.
  *   Calibrate P_LATERAL and P_ROTATIONAL
  *   Test LEFT_OFFSET and RIGHT_OFFSET and adjust to approximate better
  * 
  * ON-ROBOT TEST PLAN FOR WALTON
  * 
- */
+ * 
+ * NOTES ON CHANGING THE DRIVE
+ * 
+ * In RobotContainer.java, we create driveAngularVelocity, which is a
+ * SwerveInputStream. It takes inputs from the driver controller. We then create
+ * Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity
+ * and set that command to the drive base's default command. That eventually
+ * uses
 
+    public void driveFieldOriented(ChassisSpeeds velocity)
+    {
+        swerveDrive.driveFieldOriented(velocity);
+    }
+
+ * 
+ */
 
 /**
  * The VisionAssist command helps the driver to line up on the scoring position
@@ -234,8 +258,6 @@ public class VisionAssist extends Command {
         private void addMeasurement(TargetError newError) {
             for (int i = SLIDING_WIDOW_SIZE - 2; i >= 0; i--) {
                 // yeah, this is cringeworthy, but it's fine for short lists
-                // [fox] lol - yeah, for SO many reasons :)
-                //   I would much rather see a queue here that we could push and pop to/from
                 errorMeasurements[i + 1] = errorMeasurements[i];
             }
 
