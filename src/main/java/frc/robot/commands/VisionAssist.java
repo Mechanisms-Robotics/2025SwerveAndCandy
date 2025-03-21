@@ -297,11 +297,13 @@ public class VisionAssist extends Command {
      * See Robot.java testInit().
      */
 
-    public void runTests() {
-        wrappedCamera = new CameraWrapper(); // creates a fake camera
+    public void startTestMode() {
         /**
-         * To test getScoringPose, 
+         * To test getScoringPose we create a fake camera and then see if the
+         * dashboard outputs are rational.
          */
+
+        wrappedCamera = new CameraWrapper(); // creates a fake camera
     }
 
     /**
@@ -313,7 +315,7 @@ public class VisionAssist extends Command {
         private final PhotonCamera camera;
 
         public CameraWrapper() {
-            this.camera = null; // fake camera
+            this.camera = null; // fake camera for testing
         }
 
         public CameraWrapper(PhotonCamera camera) {
@@ -321,8 +323,15 @@ public class VisionAssist extends Command {
         }
 
         public Transform3d getCameraToTarget() {
+            /**
+             * If camera is null, we consider this a test scenario.
+             */
             if (camera == null) {
-                return null; // TODO: send fake reading
+                Transform3d xform = new Transform3d(
+                    new Translation3d(3.0, 0.5, 0.0), // AprilTag is in front and slightly right
+                    new Rotation3d(0.03, -0.03, 0.7) // TODO: what direction is yaw positive?
+                );
+                return xform;
             }
 
             /**
@@ -397,7 +406,7 @@ public class VisionAssist extends Command {
             /**
              * TODO throw out obviously bad results here by returning null?
              * See discussion above for some ideas. We should at least throw out
-             * targets outside of, say a 30-degree cone extending 15 feet in front
+             * targets outside of, say a 30-degree cone extending 5 meters in front
              * of the robot. And maybe ids we know are not reef scoring positions.
              */
 

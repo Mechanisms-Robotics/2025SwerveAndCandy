@@ -218,6 +218,8 @@ public class Robot extends TimedRobot
 
   }
 
+  private VisionAssist testVisionAssist = null; // don't instantiate in a real match because of possible side effects
+
   @Override
   public void testInit()
   {
@@ -226,8 +228,8 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance().cancelAll();
 
     if (isSimulation()) {
-      VisionAssist visionAssist = new VisionAssist();
-      visionAssist.runTests();
+      testVisionAssist = new VisionAssist();
+      testVisionAssist.startTestMode();
     }
   }
 
@@ -237,6 +239,9 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
+    if (isSimulation() && testVisionAssist != null) {
+      testVisionAssist.execute();
+    }
   }
 
   /**
