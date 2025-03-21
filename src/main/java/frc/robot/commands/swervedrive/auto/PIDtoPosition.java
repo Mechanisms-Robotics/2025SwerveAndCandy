@@ -3,6 +3,7 @@ package frc.robot.commands.swervedrive.auto;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
@@ -13,9 +14,9 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class PIDtoPosition extends Command {
     private final SwerveSubsystem swerve;
     private final Pose2d targetPosition;
-    private final PIDController rotationController = new PIDController(0.05, 0, 0);
-    private final PIDController xController = new PIDController(1.0, 0, 0);
-    private final PIDController yController = new PIDController(1.0, 0, 0);
+    private final PIDController rotationController = new PIDController(0.01, 0, 0);
+    private final PIDController xController = new PIDController(3.0, 0, 0);
+    private final PIDController yController = new PIDController(3.0, 0, 0);
     private final double positionTolerance = 0.0;
     private final double rotationTolerance = 0.0;
 
@@ -49,6 +50,9 @@ public class PIDtoPosition extends Command {
         double velocityY = yController.calculate(swerve.getMyPose().getY(), targetPosition.getY()); // meters per second
         double radiansPerSecond = rotationController.calculate(swerve.getHeading().getDegrees(), targetPosition.getRotation().getDegrees());
         swerve.driveFieldOriented(new ChassisSpeeds(velocityX, velocityY, radiansPerSecond));
+        SmartDashboard.putNumber("PIDtoPosition/velocity x", velocityX);
+        SmartDashboard.putNumber("PIDtoPosition/velocity y", velocityY);
+        SmartDashboard.putNumber("PIDtoPosition/radians per second", radiansPerSecond);
     }
 
     @Override
