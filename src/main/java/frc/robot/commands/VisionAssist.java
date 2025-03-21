@@ -29,6 +29,8 @@ import frc.robot.commands.VisionAssist.ScoringPosition;
  * 
  * ON-ROBOT TEST PLAN FOR TMS
  * 
+ *   Validate that the AprilTags show positive rotation when rotated cc'wise
+ *     and positive lateral offset when moved to the right (from camera POV)
  *   Calibrate P_LATERAL and P_ROTATIONAL
  *   Test LEFT_OFFSET and RIGHT_OFFSET and adjust to approximate better
  * 
@@ -350,9 +352,13 @@ public class VisionAssist extends Command {
              */
 
             if (camera == null) {
+                /**
+                 * This is the simulated camera to target. Some of the "small"
+                 * numbers are to simulate noise
+                 */
                 Transform3d xform = new Transform3d(
-                    new Translation3d(3.0, 0.5, 0.0),
-                    new Rotation3d(0.03, -0.03, 0.7)
+                    new Translation3d(0.5, 3.0, 0.4), // 3m in front and 0.5m right
+                    new Rotation3d(0.03, -0.03, 0.7) // 0.7 radians (cc'wise)
                 );
                 return xform;
             }
