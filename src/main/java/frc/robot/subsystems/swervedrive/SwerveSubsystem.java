@@ -38,7 +38,6 @@ import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Meter;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -477,10 +476,6 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public void driveFieldOriented(ChassisSpeeds velocity)
   {
-    SmartDashboard.putNumber("Swerve Chassis Speeds/X mps ", velocity.vxMetersPerSecond);
-    SmartDashboard.putNumber("Swerve Chassis Speeds/Y mps ", velocity.vyMetersPerSecond);
-    SmartDashboard.putNumber("Swerve Chassis Speeds/Rotation rads per s ", velocity.omegaRadiansPerSecond);
-
     swerveDrive.driveFieldOriented(velocity);
   }
 

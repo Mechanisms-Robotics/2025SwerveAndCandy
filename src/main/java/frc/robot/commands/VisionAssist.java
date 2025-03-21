@@ -14,7 +14,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.commands.VisionAssist.ScoringPosition;
 
 /**
  * NEXT STEPS
@@ -53,13 +52,8 @@ import frc.robot.commands.VisionAssist.ScoringPosition;
  * SwerveInputStream. It takes inputs from the driver controller. We then create
  * Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity
  * and set that command to the drive base's default command. That eventually
- * uses
-
-    public void driveFieldOriented(ChassisSpeeds velocity)
-    {
-        swerveDrive.driveFieldOriented(velocity);
-    }
-
+ * uses driveFieldOriented, but calls the implementation on SwerveDrive, not
+ * our SwerveDriveSubsystem.
  * 
  */
 

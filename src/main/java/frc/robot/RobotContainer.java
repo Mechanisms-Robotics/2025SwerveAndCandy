@@ -62,12 +62,25 @@ public class RobotContainer {
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    * 
-   * I THINK THIS IS WHERE WE CAN CHANGE THE DRIVER CONTROL FEEL -- JVO 2 MARCH
+   * The override is for VisionAssist.
    */
+
+  public double getXAxis() {
+    return Math.pow(driverController.getLeftY(), 3);
+  }
+
+  public double getYAxis() {
+    return Math.pow(driverController.getLeftX(), 3);
+  }
+
+  public double getRotationAxis() {
+    return -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2);
+  }
+
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
-        () -> Math.pow(driverController.getLeftY(), 3),
-        () -> Math.pow(driverController.getLeftX(), 3))
-    .withControllerRotationAxis(() -> -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2))
+        () -> this.getXAxis(),
+        () -> this.getYAxis())
+    .withControllerRotationAxis(() -> this.getRotationAxis())
     .deadband(OperatorConstants.DEADBAND)
     .scaleTranslation(0.8)
     .allianceRelativeControl(true);
