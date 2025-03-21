@@ -228,7 +228,7 @@ public class Robot extends TimedRobot
     CommandScheduler.getInstance().cancelAll();
 
     if (isSimulation()) {
-      testVisionAssist = new VisionAssist();
+      testVisionAssist = new VisionAssist(VisionAssist.ScoringPosition.RIGHT);
       testVisionAssist.startTestMode();
     }
   }
