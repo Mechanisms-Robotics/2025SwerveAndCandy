@@ -32,7 +32,7 @@ public class BargeAlign extends Command {
         double horizontalOutput = Math.pow(horizontalInput.getAsDouble(), 3.0) * swerve.getMaximumChassisVelocity();
         double forwardBackOutput = forwardBackController.calculate(swerve.getPose().getX(), targetForwardBack);
         double rotationalOutput = rotationController.calculate(swerve.getHeading().getDegrees(), targetRotation);
-
-        swerve.driveFieldOriented(new ChassisSpeeds(forwardBackOutput, horizontalOutput, rotationalOutput));
+        ChassisSpeeds fieldOrientedChassisSpeeds = new ChassisSpeeds(forwardBackOutput, horizontalOutput, rotationalOutput);
+        swerve.drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldOrientedChassisSpeeds, swerve.getMyPose().getRotation()));
     }
 }
