@@ -158,40 +158,40 @@ public final class Constants
       // Rotating around the center of the reef by 60 degrees (counter clockwise positive) is how we calculate the reef positions
       // from one measured reef position
       // Here, we measured the position that worked using apriltag id 7. We rotate around 7 for the other positions
-      Pose2d tag7refLeft = new Pose2d(14.43, 3.65, Rotation2d.fromDegrees(180));
+      Pose2d tagrefLeft = new Pose2d(14.43, 3.65, Rotation2d.fromDegrees(180));
       // Offseting the left position by the reef pipe center to center distance computes the right position
       // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
-      Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE, Rotation2d.kZero));
+      Pose2d tagrefRight = tagrefLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE, Rotation2d.kZero));
       RED_REEF_POSES.put(6, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
+        tagrefLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
+        tagrefRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
       ));
       RED_REEF_POSES.put(7, new Pair<>(
-        tag7refLeft,
-        tag7refRight
+        tagrefLeft,
+        tagrefRight
       ));
       RED_REEF_POSES.put(8, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
+        tagrefLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
+        tagrefRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
       ));
       RED_REEF_POSES.put(9, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0))
+        tagrefLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0)),
+        tagrefRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0))
       ));
       RED_REEF_POSES.put(10, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0))
+        tagrefLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0)),
+        tagrefRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0))
       ));
       RED_REEF_POSES.put(11, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0))
+        tagrefLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0)),
+        tagrefRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0))
       ));
 
       // I'm just creating a reference point at 11 so I can reflect it across the field
       Pose2d tag11ref = 
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
+        tagrefLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
       Pose2d tag11refOffset = 
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
+        tagrefRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
 
       Pose2d tag17ref = new Pose2d(tag11ref.getX() - REEF_CENTER_DISTANCE, tag11ref.getY(), Rotation2d.fromDegrees(60.0));
       Pose2d tag17refOffset = new Pose2d(tag11refOffset.getX() - REEF_CENTER_DISTANCE, tag11refOffset.getY(), Rotation2d.fromDegrees(60.0));
