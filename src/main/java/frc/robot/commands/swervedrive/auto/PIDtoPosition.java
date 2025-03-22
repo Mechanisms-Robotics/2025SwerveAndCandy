@@ -1,5 +1,6 @@
 package frc.robot.commands.swervedrive.auto;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,11 +18,13 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class PIDtoPosition extends Command {
     private final SwerveSubsystem swerve;
     private final Pose2d targetPosition;
-    private final PIDController rotationController = new PIDController(0.05, 0, 0);
-    private final PIDController xController = new PIDController(1.0, 0, 0);
-    private final PIDController yController = new PIDController(1.0, 0, 0);
+    private final PIDController rotationController = new PIDController(0.07, 0, 0);
+    private final PIDController xController = new PIDController(3.0, 0, 0);
+    private final PIDController yController = new PIDController(3.0, 0, 0);
     private final double positionTolerance = 0.0;
     private final double rotationTolerance = 0.0;
+    private final double maxComponentVelocity = 2.0;
+    private final double maxRotationVelocity = Math.PI;
 
     // outputs the direction the robot is trying to go, this is meant for visualisation
     private final StructPublisher<Pose2d> pidOutputPublisher;
@@ -65,6 +68,9 @@ public class PIDtoPosition extends Command {
         double velocityX = xController.calculate(swerve.getMyPose().getX(), targetPosition.getX()); // meters per second
         double velocityY = yController.calculate(swerve.getMyPose().getY(), targetPosition.getY()); // meters per second
         double radiansPerSecond = rotationController.calculate(swerve.getMyPose().getRotation().getDegrees(), targetPosition.getRotation().getDegrees());
+        velocityX = MathUtil.clamp(velocityX, -maxComponentVelocity, maxComponentVelocity);
+        velocityY = MathUtil.clamp(velocityY, -maxComponentVelocity, maxComponentVelocity);
+        radiansPerSecond = MathUtil.clamp(radiansPerSecond, -maxRotationVelocity, maxRotationVelocity);
         ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(velocityX, velocityY, radiansPerSecond);
         swerve.drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, swerve.getMyPose().getRotation()));
 
