@@ -6,7 +6,6 @@ package frc.robot;
 
 
 import java.util.HashMap;
-
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -158,7 +157,7 @@ public final class Constants
       // Rotating around the center of the reef by 60 degrees (counter clockwise positive) is how we calculate the reef positions
       // from one measured reef position
       // Here, we measured the position that worked using apriltag id 7. We rotate around 7 for the other positions
-      Pose2d tag7refLeft = new Pose2d(14.43, 3.65, Rotation2d.fromDegrees(180));
+      Pose2d tag7refLeft = new Pose2d(14.41, 3.56, Rotation2d.fromDegrees(180));
       // Offseting the left position by the reef pipe center to center distance computes the right position
       // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
       Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE, Rotation2d.kZero));
