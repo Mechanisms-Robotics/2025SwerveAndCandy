@@ -162,6 +162,8 @@ public final class Constants
       // Offseting the left position by the reef pipe center to center distance computes the right position
       // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
       Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE, Rotation2d.kZero));
+      // I think that we should make a list of all the apriltag values on each reef, and in the place of the keys below, it would be x in the reference, 
+      //x-1 in the one before, x+1 in the one after, etc, where x it the item number of the id on the list
       RED_REEF_POSES.put(6, new Pair<>(
         tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
         tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
