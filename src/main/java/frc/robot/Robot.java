@@ -146,6 +146,7 @@ public class Robot extends TimedRobot
   @Override
   public void disabledInit()
   {
+    m_robotContainer.cancelOverride();
     m_robotContainer.setMotorBrake(true);
     disabledTimer.reset();
     disabledTimer.start();
@@ -192,6 +193,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopInit()
   {
+    m_robotContainer.cancelOverride();
     resetMotorsOnInit();
 
     // This makes sure that the autonomous stops running when

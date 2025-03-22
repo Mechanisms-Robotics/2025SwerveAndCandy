@@ -20,8 +20,6 @@ import frc.robot.RobotContainer;
  * NEXT STEPS
  * 
  *   Add buttons to trigger the command
- *   Run it in simulation and document it
- *   Finish lateral override
  *   Finish test plan for TMS and test at TMS
  *   Create Walton test plan below when it's ready for that
  *   Through out obviously bad results (see comment below)
@@ -36,8 +34,9 @@ import frc.robot.RobotContainer;
  *   Make sure that the control outputs are rational.
  *     DONE Yes, they are as expected.
  *   Test that the rotation override works in simulation.
- *     IN PROGRESS  It works in test mode but this doesn't check the control
- *      override the same way
+ *     DONE It works in test mode
+ *   Test that the lateral override works in simulation.
+ *     DONE It works in test mode, or at least seems rational.
  * 
  * ON-ROBOT TEST PLAN FOR TMS
  * 
@@ -405,7 +404,7 @@ public class VisionAssist extends Command {
                  */
                 Transform3d xform = new Transform3d(
                     new Translation3d(0.5, 3.0, 0.4), // 3m in front and 0.5m right
-                    new Rotation3d(0.03, -0.03, 0.7) // 0.7 radians (cc'wise)
+                    new Rotation3d(0.03, -0.03, 0.1) // 0.1 radians (cc'wise)
                 );
                 return xform;
             }

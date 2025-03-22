@@ -87,6 +87,30 @@
         "Field": {
           "open": true
         },
+        "Vision Assist": {
+          "Outputs": {
+            "open": true
+          },
+          "Transform": {
+            "Field Vector": {
+              "open": true
+            },
+            "Modified Vector": {
+              "open": true
+            },
+            "New Field Relative": {
+              "open": true
+            },
+            "Robot Relative": {
+              "open": true
+            },
+            "open": true
+          },
+          "Transform Code": {
+            "open": true
+          },
+          "open": true
+        },
         "open": true
       }
     }

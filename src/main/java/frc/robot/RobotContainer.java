@@ -10,6 +10,8 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -66,6 +68,10 @@ public class RobotContainer {
    * to finer control at low speeds.
    * 
    * The override is for VisionAssist.
+   * 
+   * I don't love the way we have to calculate the transform twice,
+   * but I see no guarantee that the callbacks to get(X/Y)Axis would
+   * happen about the same time, so this is safest.
    */
 
   public boolean override = false;
@@ -81,32 +87,71 @@ public class RobotContainer {
     override = false;
   }
 
-  public double getXAxis() {
-    if (override) {
-      /**
-       * First convert field-relative driver inputs (each -1 to 1) to
-       * robot-relative. I'll need to refactor the logic below for that
-       * and will need the robot heading.
-       * 
-       * Then replace robot-relative later component with override.
-       * 
-       * Then convert back to field-relative.
-       */
+  private double[] calculateOutputs() {
+    double driverX = Math.pow(driverController.getLeftY(), 3);
+    double driverY = Math.pow(driverController.getLeftX(), 3);
+
+    /**
+     * There is something kind of confusing here. I have defined in VisionAssist
+     * the robot-relative X axis as the lateral axis, but the FRC field is defined
+     * with the X and Y axis as if you're looking at it from the admin table, so
+     * the robot's lateral axis when it's pointed downrange corresponds to the
+     * NEGATIVE Y direction of the field's axis. We ought to rationalize coordinate
+     * systems in the offseason because I think we're doing the rotation wrong.
+     * This implementation may not even be what I'm saying, but I tweaked it until
+     * it worked in simulation.
+     */
+    
+    if (!override) {
+      // returned the scaled driver inputs as the outputs
+      return new double[] { driverX, driverY };
     }
+    
+    // Get the robot's current heading as a Rotation2d.
 
-    return Math.pow(driverController.getLeftY(), 3);
+    Rotation2d heading = m_drivebase.getHeading();
+    SmartDashboard.putNumber("Vision Assist/Transform/Robot Heading (rad)", heading.getRadians());
+    
+    // Convert the field–relative vector into the robot’s coordinate system by rotating by -heading.
+
+    Translation2d fieldVector = new Translation2d(driverX, driverY);
+    SmartDashboard.putNumber("Vision Assist/Transform/Field Vector/X", fieldVector.getX());
+    SmartDashboard.putNumber("Vision Assist/Transform/Field Vector/Y", fieldVector.getY());
+
+    Translation2d robotRelative = fieldVector.rotateBy(new Rotation2d(-heading.getRadians()));
+    SmartDashboard.putNumber("Vision Assist/Transform/Robot Relative/X", fieldVector.getX());
+    SmartDashboard.putNumber("Vision Assist/Transform/Robot Relative/Y", fieldVector.getY());
+    
+    // Override the lateral (y) component in the robot–relative frame.
+
+    Translation2d modifiedRobotRelative = new Translation2d(robotRelative.getX(), -lateralOverride);
+    SmartDashboard.putNumber("Vision Assist/Transform/Modified Vector/X", modifiedRobotRelative.getX());
+    SmartDashboard.putNumber("Vision Assist/Transform/Modified Vector/Y", modifiedRobotRelative.getY());
+    
+    // Convert the modified robot–relative vector back to field–relative by rotating by +heading.
+
+    Translation2d newFieldRelative = modifiedRobotRelative.rotateBy(heading);
+    SmartDashboard.putNumber("Vision Assist/Transform/New Field Relative/X", newFieldRelative.getX());
+    SmartDashboard.putNumber("Vision Assist/Transform/New Field Relative/Y", newFieldRelative.getY());
+    
+    return new double[] { newFieldRelative.getX(), newFieldRelative.getY() };
   }
 
-  public double getYAxis() { // not overridden
-    return Math.pow(driverController.getLeftX(), 3);
+  public double getXAxis() {
+    return calculateOutputs()[0];
   }
 
-  public double getRotationAxis() { // override is easy
-    if (override) {
+  public double getYAxis() {
+    return calculateOutputs()[1];
+  }
+
+  public double getRotationAxis() {
+    if (override) { // trivial
       return rotationOverride;
     }
 
-    return -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2);
+    double rightX = driverController.getRightX();
+    return -Math.signum(rightX)*Math.pow(rightX, 2);
   }
 
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
