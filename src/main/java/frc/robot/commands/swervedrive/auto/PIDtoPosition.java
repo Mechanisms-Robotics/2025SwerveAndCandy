@@ -65,7 +65,8 @@ public class PIDtoPosition extends Command {
         double velocityX = xController.calculate(swerve.getMyPose().getX(), targetPosition.getX()); // meters per second
         double velocityY = yController.calculate(swerve.getMyPose().getY(), targetPosition.getY()); // meters per second
         double radiansPerSecond = rotationController.calculate(swerve.getMyPose().getRotation().getDegrees(), targetPosition.getRotation().getDegrees());
-        swerve.driveFieldOriented(new ChassisSpeeds(velocityX, velocityY, radiansPerSecond));
+        ChassisSpeeds fieldRelativeSpeeds = new ChassisSpeeds(velocityX, velocityY, radiansPerSecond);
+        swerve.drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, swerve.getMyPose().getRotation()));
 
         Rotation2d vectorAngle = Rotation2d.fromRadians(Math.atan2(velocityY, velocityX));
         pidOutputPublisher.set(new Pose2d(swerve.getMyPose().getX(), swerve.getMyPose().getY(), vectorAngle));
