@@ -77,7 +77,7 @@ public final class Constants
       // the distance from the right of the center from YOUR perspective.
       Units.inchesToMeters(-1.25),
       // Distance from the floor to the camera
-      16.0,
+      0.16,
       // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
       new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
   }

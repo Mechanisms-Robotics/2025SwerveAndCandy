@@ -64,7 +64,6 @@ public class AutoReefLineup extends SequentialCommandGroup {
 
         return closest;
     }
-    
 }
 
 
