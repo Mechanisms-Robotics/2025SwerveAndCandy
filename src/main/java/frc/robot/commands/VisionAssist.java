@@ -94,6 +94,9 @@ public class VisionAssist extends Command {
     public enum ScoringPosition {
         // We could expand this for L4, etc. but that may require us to
         // consider the distance from the pose, not just lateral and rotational.
+        //
+        // [fox] if we are going to assume that driver parks against reef, we could
+        //  update L4 command to bump swerve backwards before extending elevator
         LEFT, RIGHT;
     }
 
@@ -328,7 +331,7 @@ public class VisionAssist extends Command {
 
     private VisionOutputs getOutputs(TargetError error) {
         VisionOutputs outputs = new VisionOutputs();
-        // [fox] why is this max and min needed? [joel] answering in comments above.
+
         outputs.outputX = Math.max(-1.0, Math.min(-P_LATERAL*error.lateralError, 1.0));
         outputs.outputRotation = Math.max(-1.0, Math.min(-P_ROTATION*error.rotationError, 1.0));
         return outputs;
@@ -423,6 +426,12 @@ public class VisionAssist extends Command {
              * as the current result. If there is a timestamp on the result we could
              * only care about those younger than the periodic loop time, 20 ms.
              */
+
+             /** [fox] i think i read somewhere that the max results queue in photon is 20.
+              *  But that was probably stupid late at night, so don't quote me. After digesting
+              *  your average, I'd vote for KISS. Just analyze the most recent result from the
+              *  PhotonPipeline as you've already coded below.
+              */
             
             PhotonPipelineResult result = results.get(results.size() - 1);
 
@@ -442,6 +451,14 @@ public class VisionAssist extends Command {
              * of if good or bad and we assume the most frequent target id is what
              * we care about.
              */
+
+             /* [fox] i was thinking simpler, but along the lines of the state machine that
+              * you've seen me asking Nolan to start on. 
+              *     -- If not yet in vision-assist mode, then the
+              *        bestTarget is the one we want.
+              *     -- If already in vision-assist, then we compare bestTarget to
+              *        lastKnown bestTarget. If they are different, enter 0 in averager.
+              */
 
             PhotonTrackedTarget target = result.getBestTarget();
 
