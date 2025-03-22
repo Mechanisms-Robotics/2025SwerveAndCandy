@@ -60,20 +60,52 @@ public class RobotContainer {
   }
 
   /**
-   * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
+   * Converts driver input into a field-relative ChassisSpeeds
+   * controlled by angular velocity. Notice that we apply some
+   * math to the inputs to make the outputs nonlinear, leading
+   * to finer control at low speeds.
    * 
    * The override is for VisionAssist.
    */
 
+  public boolean override = false;
+  public double rotationOverride, lateralOverride;
+
+  public void overrideDriver(double rotationOverride, double lateralOverride) {
+    override = true;
+    this.rotationOverride = rotationOverride;
+    this.lateralOverride = lateralOverride;
+  }
+
+  public void cancelOverride() {
+    override = false;
+  }
+
   public double getXAxis() {
+    if (override) {
+      /**
+       * First convert field-relative driver inputs (each -1 to 1) to
+       * robot-relative. I'll need to refactor the logic below for that
+       * and will need the robot heading.
+       * 
+       * Then replace robot-relative later component with override.
+       * 
+       * Then convert back to field-relative.
+       */
+    }
+
     return Math.pow(driverController.getLeftY(), 3);
   }
 
-  public double getYAxis() {
+  public double getYAxis() { // not overridden
     return Math.pow(driverController.getLeftX(), 3);
   }
 
-  public double getRotationAxis() {
+  public double getRotationAxis() { // override is easy
+    if (override) {
+      return rotationOverride;
+    }
+
     return -Math.signum(driverController.getRightX())*Math.pow(driverController.getRightX(), 2);
   }
 

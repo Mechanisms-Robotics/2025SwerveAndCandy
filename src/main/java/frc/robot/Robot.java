@@ -228,7 +228,8 @@ public class Robot extends TimedRobot
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
 
-    testVisionAssist = new VisionAssist(VisionAssist.ScoringPosition.RIGHT);
+    testVisionAssist = new VisionAssist(
+      m_robotContainer, VisionAssist.ScoringPosition.RIGHT);
     testVisionAssist.startTestMode();
   }
 

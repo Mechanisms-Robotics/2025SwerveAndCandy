@@ -14,32 +14,41 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.RobotContainer;
 
 /**
  * NEXT STEPS
  * 
- *   Figure out how to inject the outputs and put that in the code
+ *   Add buttons to trigger the command
  *   Run it in simulation and document it
- *   Through out obviously bad results (see comment below)
- *     Maybe comment this out at first then introduce it later
+ *   Finish lateral override
  *   Finish test plan for TMS and test at TMS
  *   Create Walton test plan below when it's ready for that
+ *   Through out obviously bad results (see comment below)
+ *     Maybe comment this out at first then introduce it later
  * 
  * SIMULATION TESTS
  * 
  *   Make sure that scoring pose is what I think it is (right and cc'wise positive)
- *     I ran this simulation and the rotation, X, and Y all make sense.
+ *     DONE I ran this simulation and the rotation, X, and Y all make sense.
  *   Make sure that the error output is rational.
- *     Yes, the laterl and rotational errors are rational for the test numbers.
+ *     DONE Yes, the laterl and rotational errors are rational for the test numbers.
  *   Make sure that the control outputs are rational.
- *     Yes, they are as expected.
+ *     DONE Yes, they are as expected.
+ *   Test that the rotation override works in simulation.
+ *     IN PROGRESS  It works in test mode but this doesn't check the control
+ *      override the same way
  * 
  * ON-ROBOT TEST PLAN FOR TMS
  * 
+ *   Check camera calibration.
  *   Validate that the AprilTags show positive rotation when rotated cc'wise
  *     and positive lateral offset when moved to the right (from camera POV)
  *     and that the numbers seem rational (meters and radians, etc.). Do this
  *     with the robot enabled in test mode so I get outputs to the dashboard.
+ *   Try out the rotation overrride only and make sure it overrides in the right direction.
+ *     See RobotContainer's getRotationAxis and probably correct there if it's backwards
+ *       unless I'm convinced it's something in the logic here.
  *   Calibrate P_LATERAL and P_ROTATIONAL
  *   Test LEFT_OFFSET and RIGHT_OFFSET and adjust to approximate better
  * 
@@ -127,15 +136,19 @@ public class VisionAssist extends Command {
         new Translation3d(RIGHT_OFFSET, 0.0, 0.0), // merely right
         new Rotation3d(0.0, 0.0, 0.0)  // same orientation as the AprilTag
     );
-
+    
     /**
      * These are the overrides for VisionAssist as a Command. The idea is that
      * the driver holds down a button while driving.
      */
-
+    
+    private final RobotContainer robotContainer;
     private final ScoringPosition currentScoringPosition;
 
-    public VisionAssist(ScoringPosition scoringPosition) {
+    public VisionAssist(
+        RobotContainer robotContainer, ScoringPosition scoringPosition)
+    {
+        this.robotContainer = robotContainer;
         this.currentScoringPosition = scoringPosition;
     }
 
@@ -176,11 +189,21 @@ public class VisionAssist extends Command {
             outputs.outputRotation);
 
         /**
-         * We inject the outputs here. Hopefully we don't have to transform
-         * them to the field coordinate system.
+         * This puts the robot in driver override mode if it isn't already.
+         * The override ends when the command ends (below).
          */
 
-        //m_swerve.drive(new ChassisSpeeds(speed, 0, 0));
+        robotContainer.overrideDriver(
+            outputs.outputRotation, outputs.outputX);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        /**
+         * This absolutely has to happen or we are done for the match.
+         */
+
+        robotContainer.cancelOverride();
     }
 
     /**
@@ -226,7 +249,7 @@ public class VisionAssist extends Command {
 
     private class TargetError {
         // positive error means we are left of target line
-        public double lateralError = 0.0;
+        public double lateralError = 0.0; // meters
 
         // positive error means we need to rotate clockwise
         public double rotationError = 0.0; // radians
@@ -431,6 +454,7 @@ public class VisionAssist extends Command {
               *  But that was probably stupid late at night, so don't quote me. After digesting
               *  your average, I'd vote for KISS. Just analyze the most recent result from the
               *  PhotonPipeline as you've already coded below.
+              *  [odom] I read 20 as well.
               */
             
             PhotonPipelineResult result = results.get(results.size() - 1);
@@ -458,6 +482,13 @@ public class VisionAssist extends Command {
               *        bestTarget is the one we want.
               *     -- If already in vision-assist, then we compare bestTarget to
               *        lastKnown bestTarget. If they are different, enter 0 in averager.
+              *
+              * [odom] Something like that. My thought is to solve for target noise
+              * if we discover that we have a problem with it. It may be unnecessary.
+              * Keep in mind that I don't envision this running constantly, only when
+              * the vision assist button is held, so the averager would start with all
+              * zeros and populate over the course of about half a second, leading to an
+              * initial smooth start.
               */
 
             PhotonTrackedTarget target = result.getBestTarget();
