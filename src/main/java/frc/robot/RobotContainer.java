@@ -252,8 +252,8 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.cross().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
+      driverController.cross().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
       driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
       driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
 
