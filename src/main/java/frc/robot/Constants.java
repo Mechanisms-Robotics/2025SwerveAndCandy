@@ -98,7 +98,7 @@ public final class Constants
   
   public static final class FieldConstants {
     public static final double FIELD_LENGTH = 17.548; // meters
-    public static final double FIELD_WIDTH = 8.042; // meters
+    public static final double FIELD_WIDTH = 8.052; // meters
     // Currently it is everything due to limited testing - Micah Maphet 3/8/2025
     public static final int[] GOOD_APRIL_TAGS = {
       // Red Coral station
