@@ -24,9 +24,7 @@ import frc.robot.RobotContainer;
  *     Maybe comment this out at first then introduce it later
  * 
  * ON-ROBOT TEST PLAN FOR TMS
- * 
- *   Figure out why translational driving is broken
- * 
+ *  * 
  *   Test lateral outputs and calibrate P_LATERAL
  * 
  *   Drive it to find bugs
@@ -312,7 +310,7 @@ public class VisionAssist extends Command {
      */
 
     // Think of this as the desired control output if we're one meter off
-    private static final double P_LATERAL = 0.25;
+    private static final double P_LATERAL = 0.5;
 
     // Think of this as the desired control output if we're one radian (57 degrees) off
     private static final double P_ROTATION = 0.4;
