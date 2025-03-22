@@ -29,8 +29,6 @@ import frc.robot.RobotContainer;
  * 
  *   Test lateral outputs and calibrate P_LATERAL
  * 
- *   Test LEFT_OFFSET and RIGHT_OFFSET and adjust to approximate better
- * 
  *   Drive it to find bugs
  * 
  *   Enjoy a stiff drink of strong chocolate milk
