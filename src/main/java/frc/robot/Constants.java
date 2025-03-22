@@ -12,7 +12,9 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -99,6 +101,19 @@ public final class Constants
   public static final class FieldConstants {
     public static final double FIELD_LENGTH = 17.548; // meters
     public static final double FIELD_WIDTH = 8.052; // meters
+    public static final double PIPE_DISTANCE = Units.inchesToMeters(13);
+    public static final Translation2d RED_REEF_CENTER = new Translation2d(
+      // calculated to be the midpoint between the position of apriltag 10 and 7
+      (12.227305999999999 + 13.890498)/2, 
+      FIELD_WIDTH / 2.0);
+    public static final Translation2d BLUE_REEF_CENTER = new Translation2d(
+      // calculated to be the midpoint between the position of apriltag 21 and 7
+      (5.321046 + 3.6576)/2, 
+      FIELD_WIDTH / 2.0);
+    // teh distance between apriltag 10 and 7 divided by 2
+    public static final double REEF_RADIUS = (13.890498 - 12.2273059999999990)/2.0;
+    public static final double REEF_CENTER_DISTANCE = RED_REEF_CENTER.getX() - BLUE_REEF_CENTER.getX();
+
     // Currently it is everything due to limited testing - Micah Maphet 3/8/2025
     public static final int[] GOOD_APRIL_TAGS = {
       // Red Coral station
@@ -135,74 +150,71 @@ public final class Constants
     public static final HashMap<Integer, Pair<Pose2d, Pose2d>> BLUE_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
     public static final HashMap<Integer, Pair<Pose2d, Pose2d>> RED_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
     static {
+      // Note for doing the math, it is counter clockwise positive, and the right side of the blue side is the origin
+      // Rotating around the center of the reef by 60 degrees (counter clockwise positive) is how we calculate the reef positions
+      // from one measured reef position
+      // Here, we measured the position that worked using apriltag id 7. We rotate around 7 for the other positions
+      Pose2d tag7refLeft = new Pose2d(14.43, 3.65, Rotation2d.fromDegrees(180));
+      // Offseting the left position by the reef pipe center to center distance computes the right position
+      // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
+      Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE, Rotation2d.kZero));
       RED_REEF_POSES.put(6, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
-        new Pose2d())
-      );
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
+      ));
       RED_REEF_POSES.put(7, new Pair<>(
-        new Pose2d(14.43, 3.65, Rotation2d.fromDegrees(180)),
-        new Pose2d(14.43, 3.65 + 0.4, Rotation2d.fromDegrees(180))
+        tag7refLeft,
+        tag7refRight
       ));
       RED_REEF_POSES.put(8, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(-120)),
-        new Pose2d()
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
       ));
       RED_REEF_POSES.put(9, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
-        new Pose2d()
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0))
       ));
       RED_REEF_POSES.put(10, new Pair<>(
-        new Pose2d(11.64, 4.48, Rotation2d.fromDegrees(0.0)), 
-        new Pose2d(11.64, 4.48 - 0.4, Rotation2d.fromDegrees(0.0))
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0))
       ));
       RED_REEF_POSES.put(11, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
-        new Pose2d()
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0))
       ));
 
+      // I'm just creating a reference point at 11 so I can reflect it across the field
+      Pose2d tag11ref = 
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
+      Pose2d tag11refOffset = 
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
+
+      Pose2d tag17ref = new Pose2d(tag11ref.getX() - REEF_CENTER_DISTANCE, tag11ref.getY(), Rotation2d.fromDegrees(60.0));
+      Pose2d tag17refOffset = new Pose2d(tag11refOffset.getX() - REEF_CENTER_DISTANCE, tag11refOffset.getY(), Rotation2d.fromDegrees(60.0));
       BLUE_REEF_POSES.put(17, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
-        new Pose2d()
+        tag17ref, 
+        tag17refOffset
       ));
       BLUE_REEF_POSES.put(18, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
-        new Pose2d()
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0))
       ));
       BLUE_REEF_POSES.put(19, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
-        new Pose2d()
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0))
       ));
       BLUE_REEF_POSES.put(20, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)), 
-        new Pose2d()
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0))
       ));
       BLUE_REEF_POSES.put(21, new Pair<>(
-        new Pose2d(5.83, 3.6, Rotation2d.fromDegrees(180)),
-        new Pose2d(5.83, 3.6 + 0.4, Rotation2d.fromDegrees(180))
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0))
       ));
       BLUE_REEF_POSES.put(22, new Pair<>(
-        new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0)),
-        new Pose2d()
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*5.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*5.0))
       ));
-
     }
-    //  {
-    //     new Pose2d(13.917, 2.859, new Rotation2d(2.0943951023931957)), // ID 6
-    //     new Pose2d(14.49476434251882, 4.182964006546419, new Rotation2d(3.141592653589793)), // ID 7
-    //     new Pose2d(13.636158342518822, 5.344784006546417, new Rotation2d(-2.0943951023931957)), // ID 8
-    //     new Pose2d(12.200804, 5.182639999999999, new Rotation2d(-1.0471975511965979)), // ID 9
-    //     new Pose2d(11.623039657481177, 3.8586759934535824, new Rotation2d(0.0)), // ID 10
-    //     new Pose2d(12.481645657481177, 2.696855993453582, new Rotation2d(1.0471975511965974)) // ID 11
-    // };
-    
-    // BLUE_REEF_POSES array for ID 17 through 22
-    // public static final Pose2d[] BLUE_REEF_POSES = new Pose2d[] {
-    //     new Pose2d(3.9121936574811764, 2.696855993453582, new Rotation2d(1.0471975511965974)), // ID 17
-    //     new Pose2d(3.0533336574811782, 3.8586759934535824, new Rotation2d(0.0)), // ID 18
-    //     new Pose2d(3.6313519999999997, 5.182639999999999, new Rotation2d(-1.0471975511965979)), // ID 19
-    //     new Pose2d(5.066452342518822, 5.344784006546417, new Rotation2d(-2.0943951023931957)), // ID 20
-    //     new Pose2d(5.83, 3.6, Rotation2d.fromDegrees(-179.87)), // ID 21 on the left side
-    //     new Pose2d(5.347293999999999, 2.859, new Rotation2d(2.0943951023931957)) // ID 22
-    // };
   }
 }
