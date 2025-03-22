@@ -16,26 +16,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 
 /**
- * NEXT STEPS
- * 
- *   Add buttons to trigger the command
- *   Create Walton test plan below when it's ready for that
- *   Through out obviously bad results (see comment below)
- *     Maybe comment this out at first then introduce it later
- * 
- * ON-ROBOT TEST PLAN FOR TMS
- *  * 
- *   Test lateral outputs and calibrate P_LATERAL
- * 
- *   Drive it to find bugs
- * 
- *   Enjoy a stiff drink of strong chocolate milk
- * 
- * ON-ROBOT TEST PLAN FOR WALTON
- * 
- */
-
-/**
  * The VisionAssist command helps the driver to line up on the scoring position
  * by aligning the robot with the scoring position laterally and rotationally.
  * When activated, it uses a sliding averager to smooth the error between the
@@ -79,7 +59,7 @@ public class VisionAssist extends Command {
     // see CameraWrapper for discussion
     private CameraWrapper wrappedCamera = new CameraWrapper(realCamera);
 
-    private static final double LEFT_OFFSET = -0.42; // meters
+    private static final double LEFT_OFFSET = -0.43; // meters
     private static final double RIGHT_OFFSET = -0.05; // meters
     
     /**
@@ -139,6 +119,12 @@ public class VisionAssist extends Command {
          * This puts the robot in driver override mode if it isn't already.
          * The override ends when the command ends (below).
          */
+
+        // if (error.lateralError == 0.0 && error.rotationError == 0.0) {
+        //     // no targets at all, so let the driver keep driving until we have one
+        //     robotContainer.cancelOverride();
+        //     return;
+        // }
 
         robotContainer.overrideDriver(
             outputs.outputRotation, outputs.outputX);

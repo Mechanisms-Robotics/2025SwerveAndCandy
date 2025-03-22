@@ -28,6 +28,8 @@ import frc.robot.commands.ElevatorBarge;
 import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
+import frc.robot.commands.VisionAssist;
+import frc.robot.commands.VisionAssist.ScoringPosition;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
@@ -296,10 +298,12 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
-      driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
-      driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      // driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
+      // driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      // driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
+      // driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.R1().whileTrue(new VisionAssist(this, ScoringPosition.RIGHT));
+      driverController.L1().whileTrue(new VisionAssist(this, ScoringPosition.LEFT));
 
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here

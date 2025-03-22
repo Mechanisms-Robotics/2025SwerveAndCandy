@@ -217,7 +217,7 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-
+    SmartDashboard.putData("Command Scheduler", CommandScheduler.getInstance());
   }
 
   // don't instantiate in a real match because of possible side effects
@@ -228,10 +228,10 @@ public class Robot extends TimedRobot
   {
     resetMotorsOnInit();
     // Cancels all running commands at the start of test mode.
-    CommandScheduler.getInstance().cancelAll();
+    //CommandScheduler.getInstance().cancelAll();
 
-    testVisionAssist = new VisionAssist(
-      m_robotContainer, VisionAssist.ScoringPosition.RIGHT);
+    // testVisionAssist = new VisionAssist(
+    //   m_robotContainer, VisionAssist.ScoringPosition.RIGHT);
     //testVisionAssist.startTestMode();
   }
 
@@ -241,7 +241,7 @@ public class Robot extends TimedRobot
   @Override
   public void testPeriodic()
   {
-    testVisionAssist.execute();
+    //testVisionAssist.execute();
   }
 
   /**
