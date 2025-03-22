@@ -19,13 +19,13 @@ import frc.robot.RobotContainer;
 /**
  * NEXT STEPS
  * 
- *   Add buttons to trigger the command
  *   Finish test plan for TMS and test at TMS
+ *   Add buttons to trigger the command
  *   Create Walton test plan below when it's ready for that
  *   Through out obviously bad results (see comment below)
  *     Maybe comment this out at first then introduce it later
  * 
- * SIMULATION TESTS
+ * SIMULATION TESTS (DONE)
  * 
  *   Make sure that scoring pose is what I think it is (right and cc'wise positive)
  *     DONE I ran this simulation and the rotation, X, and Y all make sense.
@@ -40,33 +40,31 @@ import frc.robot.RobotContainer;
  * 
  * ON-ROBOT TEST PLAN FOR TMS
  * 
- *   Check camera calibration.
+ *   Check camera calibration and outputs in general.
+ * 
  *   Validate that the AprilTags show positive rotation when rotated cc'wise
  *     and positive lateral offset when moved to the right (from camera POV)
  *     and that the numbers seem rational (meters and radians, etc.). Do this
  *     with the robot enabled in test mode so I get outputs to the dashboard.
+ *     NOTICE THAT I WILL NEED TO MODIFY Robot.java TO BE SURE THE ROBOT DOESN'T MOVE.
+ * 
+ *   Add controller inputs with some help from Micah or Mike and consultation with drive team.
+ * 
  *   Try out the rotation overrride only and make sure it overrides in the right direction.
  *     See RobotContainer's getRotationAxis and probably correct there if it's backwards
- *       unless I'm convinced it's something in the logic here.
- *   Calibrate P_LATERAL and P_ROTATIONAL
+ *       unless I'm convinced it's something in the logic here. THIS WILL REQUIRE ME TO
+ *       MODIFY THE TRANSLATIONAL OUTPUTS TO (0, 0) TO PREVENT THE ROBOT FROM MOVING.
+ *     Tune P_ROTATIONAL
+ * 
+ *   Test lateral outputs and calibrate P_LATERAL
+ * 
  *   Test LEFT_OFFSET and RIGHT_OFFSET and adjust to approximate better
  * 
+ *   Drive it to find bugs
+ * 
+ *   Enjoy a stiff drink of strong chocolate milk
+ * 
  * ON-ROBOT TEST PLAN FOR WALTON
- * 
- * 
- * NOTES ON CHANGING THE DRIVE
- * 
- * In RobotContainer.java, we create driveAngularVelocity, which is a
- * SwerveInputStream. It takes inputs from the driver controller. We then create
- * Command driveFieldOrientedAnglularVelocity = m_drivebase.driveFieldOriented(driveAngularVelocity
- * and set that command to the drive base's default command. That eventually
- * uses driveFieldOriented, but calls the implementation on SwerveDrive, not
- * our SwerveDriveSubsystem.
- * 
- * NOTE TO JOEL: SEE UPDATES TO RobotContianer. This works, but unfortunately I'll
- * need a safe way of applying this to modify the driver inputs because it will
- * indeed need to be field relative.
- * 
  * 
  */
 
