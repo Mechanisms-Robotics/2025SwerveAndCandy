@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,36 +18,14 @@ import frc.robot.RobotContainer;
 /**
  * NEXT STEPS
  * 
- *   Finish test plan for TMS and test at TMS
  *   Add buttons to trigger the command
  *   Create Walton test plan below when it's ready for that
  *   Through out obviously bad results (see comment below)
  *     Maybe comment this out at first then introduce it later
  * 
- * SIMULATION TESTS (DONE)
- * 
- *   Make sure that scoring pose is what I think it is (right and cc'wise positive)
- *     DONE I ran this simulation and the rotation, X, and Y all make sense.
- *   Make sure that the error output is rational.
- *     DONE Yes, the laterl and rotational errors are rational for the test numbers.
- *   Make sure that the control outputs are rational.
- *     DONE Yes, they are as expected.
- *   Test that the rotation override works in simulation.
- *     DONE It works in test mode
- *   Test that the lateral override works in simulation.
- *     DONE It works in test mode, or at least seems rational.
- * 
  * ON-ROBOT TEST PLAN FOR TMS
- * 
- *   Check camera calibration and outputs in general.
- * 
- *   Validate that the AprilTags show positive rotation when rotated cc'wise
- *     and positive lateral offset when moved to the right (from camera POV)
- *     and that the numbers seem rational (meters and radians, etc.). Do this
- *     with the robot enabled in test mode so I get outputs to the dashboard.
- *     NOTICE THAT I WILL NEED TO MODIFY Robot.java TO BE SURE THE ROBOT DOESN'T MOVE.
- * 
- *   Add controller inputs with some help from Micah or Mike and consultation with drive team.
+ *
+ *   I changed test mode to work for real and commented out the outputs for safety
  * 
  *   Try out the rotation overrride only and make sure it overrides in the right direction.
  *     See RobotContainer's getRotationAxis and probably correct there if it's backwards
@@ -112,27 +89,8 @@ public class VisionAssist extends Command {
     // see CameraWrapper for discussion
     private CameraWrapper wrappedCamera = new CameraWrapper(realCamera);
 
-    /**
-     * We can simply transform laterly (relative to the target) unless we ever want
-     * to stop short of the target or something. We could use the 3D parts of the
-     * transform if we ever install the jetpack.
-     * 
-     * These transforms will be added to the AprilTag's pose (which is relative
-     * to the robot). So the transformation already takes into account a rotational
-     * component of the AprilTag relative to the robot.
-     */
-
-    private static final double LEFT_OFFSET = -0.75; // meters
-    private static final Transform3d LEFT_SCORING_TRANSFORM = new Transform3d(
-        new Translation3d(LEFT_OFFSET, 0.0, 0.0), // merely left
-        new Rotation3d(0.0, 0.0, 0.0) // same orientation as the AprilTag
-    );
-
-    private static final double RIGHT_OFFSET = 0.75; // meters
-    private static final Transform3d RIGHT_SCORING_TRANSFORM = new Transform3d(
-        new Translation3d(RIGHT_OFFSET, 0.0, 0.0), // merely right
-        new Rotation3d(0.0, 0.0, 0.0)  // same orientation as the AprilTag
-    );
+    private static final double LEFT_OFFSET = -0.42; // meters
+    private static final double RIGHT_OFFSET = -0.05; // meters
     
     /**
      * These are the overrides for VisionAssist as a Command. The idea is that
@@ -162,14 +120,16 @@ public class VisionAssist extends Command {
 
         Pose2d scoringPose = getScoringPose(currentScoringPosition);
 
-        SmartDashboard.putNumber("Vision Assist/Scoring Pose/X (m)",
-            scoringPose.getTranslation().getX());
-        SmartDashboard.putNumber("Vision Assist/Scoring Pose/Y (m)",
-            scoringPose.getTranslation().getY());
-        SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (rad)",
-            scoringPose.getRotation().getRadians());
-        SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (deg)",
-            scoringPose.getRotation().getDegrees());
+        if (scoringPose != null) {
+            SmartDashboard.putNumber("Vision Assist/Scoring Pose/X (m)",
+                scoringPose.getTranslation().getX());
+            SmartDashboard.putNumber("Vision Assist/Scoring Pose/Y (m)",
+                scoringPose.getTranslation().getY());
+            SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (rad)",
+                scoringPose.getRotation().getRadians());
+            SmartDashboard.putNumber("Vision Assist/Scoring Pose/Rotation (deg)",
+                scoringPose.getRotation().getDegrees());
+        }
 
         TargetError error = calculateError(scoringPose);
 
@@ -190,8 +150,8 @@ public class VisionAssist extends Command {
          * The override ends when the command ends (below).
          */
 
-        robotContainer.overrideDriver(
-            outputs.outputRotation, outputs.outputX);
+        // robotContainer.overrideDriver(
+        //     outputs.outputRotation, outputs.outputX);
     }
 
     @Override
@@ -218,30 +178,46 @@ public class VisionAssist extends Command {
 
         Transform3d cameraToTarget = wrappedCamera.getCameraToTarget();
 
+        if (cameraToTarget == null)
+            return null; // no good target
+
         /**
-         * Now we calculate our scoring pose, which is a constant offset from
-         * the AprilTag RELATIVE TO THE APRILTAG. plus() transforms a transform
-         * relative to the orientation of the transform.
+         * As it turns out, PhotonVision uses a coordinate system that
+         * I discovered we have to transform. Here's where that's done. 
          */
 
-        Transform3d scoringTransform = cameraToTarget.plus(
-            scoringPosition == ScoringPosition.LEFT
-            ? LEFT_SCORING_TRANSFORM : RIGHT_SCORING_TRANSFORM
+        cameraToTarget = new Transform3d(
+            new Translation3d(
+                -cameraToTarget.getY(),
+                cameraToTarget.getX(),
+                0.0),
+            cameraToTarget.getRotation().plus(
+                new Rotation3d(0.0, 0.0, Math.PI)
+            )
         );
 
+        SmartDashboard.putNumber("Vision Assist/Camera To Target/X",
+            cameraToTarget.getX());
+        SmartDashboard.putNumber("Vision Assist/Camera To Target/Y",
+            cameraToTarget.getY());
+        SmartDashboard.putNumber("Vision Assist/Camera To Target/Rotation (rad)",
+            cameraToTarget.getRotation().toRotation2d().getRadians());
+
         /**
-         * The earth is flat, so we rebuild the transform as a Pose2d.
+         * The earth is flat, so we project the transform onto the plane and
+         * then we use math to find the relative scoring position. BUT as it
+         * turns out math is hard and the change in scoring position based on
+         * the rotation of the target is trivial and that error should go to
+         * zero as we drive, so I'm throwing out that correction for now.u
          */
         
-        Translation3d translation3d = scoringTransform.getTranslation();
-        Rotation3d rotation3d = scoringTransform.getRotation();
+        double x = cameraToTarget.getX();
+        double angle = cameraToTarget.getRotation().toRotation2d().getRadians();
 
-        Translation2d translation2d
-            = new Translation2d(translation3d.getX(), translation3d.getY());
-        Rotation2d rotation2d = new Rotation2d(rotation3d.getAngle());
-        Pose2d scoringPose = new Pose2d(translation2d, rotation2d);
+        double offset = scoringPosition == ScoringPosition.RIGHT ? RIGHT_OFFSET : LEFT_OFFSET;
+        x += offset; //*Math.cos(angle);
 
-        return scoringPose;
+        return new Pose2d(x, 0.0, new Rotation2d(angle));
     }
 
     private class TargetError {
@@ -398,11 +374,16 @@ public class VisionAssist extends Command {
             if (camera == null) {
                 /**
                  * This is the simulated camera to target. Some of the "small"
-                 * numbers are to simulate noise
+                 * numbers are to simulate noise.
+                 * 
+                 * NOTE: I don't think these are actually how the camera outputs
+                 * so don't believe them. The camera coordinate system is different!
+                 * See comments above about how to change thes to mimic the real
+                 * camera.
                  */
                 Transform3d xform = new Transform3d(
-                    new Translation3d(0.5, 3.0, 0.4), // 3m in front and 0.5m right
-                    new Rotation3d(0.03, -0.03, 0.1) // 0.1 radians (cc'wise)
+                    new Translation3d(0.5, 3.0, 0.4),
+                    new Rotation3d(0.03, -0.03, 0.1)
                 );
                 return xform;
             }
