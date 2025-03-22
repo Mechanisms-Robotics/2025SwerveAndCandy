@@ -40,6 +40,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import swervelib.SwerveInputStream;
@@ -234,7 +235,8 @@ public class RobotContainer {
       //   () -> driverController.getLeftY(),
       //   () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
 
-      driverController.touchpad().whileTrue(new AutoReefLineup(m_drivebase, driverController.R1()));
+      driverController.L1().whileTrue(new AutoReefLineup(m_drivebase, ()->false));
+      driverController.R1().whileTrue(new AutoReefLineup(m_drivebase, ()->true));
         
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
@@ -254,8 +256,8 @@ public class RobotContainer {
       // Coral Mech
       driverController.cross().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
       driverController.cross().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
-      driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
-      driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.touchpad().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
+      driverController.touchpad().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
 
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
