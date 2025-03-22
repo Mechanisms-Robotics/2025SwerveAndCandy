@@ -17,9 +17,9 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class PIDtoPosition extends Command {
     private final SwerveSubsystem swerve;
     private final Pose2d targetPosition;
-    private final PIDController rotationController = new PIDController(0.05, 0, 0);
-    private final PIDController xController = new PIDController(1.0, 0, 0);
-    private final PIDController yController = new PIDController(1.0, 0, 0);
+    private final PIDController rotationController = new PIDController(0.01, 0, 0);
+    private final PIDController xController = new PIDController(3.0, 0, 0);
+    private final PIDController yController = new PIDController(3.0, 0, 0);
     private final double positionTolerance = 0.0;
     private final double rotationTolerance = 0.0;
 
