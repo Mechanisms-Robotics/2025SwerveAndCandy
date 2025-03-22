@@ -24,14 +24,8 @@ import frc.robot.RobotContainer;
  *     Maybe comment this out at first then introduce it later
  * 
  * ON-ROBOT TEST PLAN FOR TMS
- *
- *   I changed test mode to work for real and commented out the outputs for safety
  * 
- *   Try out the rotation overrride only and make sure it overrides in the right direction.
- *     See RobotContainer's getRotationAxis and probably correct there if it's backwards
- *       unless I'm convinced it's something in the logic here. THIS WILL REQUIRE ME TO
- *       MODIFY THE TRANSLATIONAL OUTPUTS TO (0, 0) TO PREVENT THE ROBOT FROM MOVING.
- *     Tune P_ROTATIONAL
+ *   Figure out why translational driving is broken
  * 
  *   Test lateral outputs and calibrate P_LATERAL
  * 
@@ -150,8 +144,8 @@ public class VisionAssist extends Command {
          * The override ends when the command ends (below).
          */
 
-        // robotContainer.overrideDriver(
-        //     outputs.outputRotation, outputs.outputX);
+        robotContainer.overrideDriver(
+            outputs.outputRotation, outputs.outputX);
     }
 
     @Override
@@ -323,7 +317,7 @@ public class VisionAssist extends Command {
     private static final double P_LATERAL = 0.25;
 
     // Think of this as the desired control output if we're one radian (57 degrees) off
-    private static final double P_ROTATION = 0.25;
+    private static final double P_ROTATION = 0.4;
 
     private VisionOutputs getOutputs(TargetError error) {
         VisionOutputs outputs = new VisionOutputs();

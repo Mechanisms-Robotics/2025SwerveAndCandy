@@ -158,7 +158,7 @@ public class RobotContainer {
         () -> this.getXAxis(),
         () -> this.getYAxis())
     .withControllerRotationAxis(() -> this.getRotationAxis())
-    .deadband(OperatorConstants.DEADBAND)
+    .deadband(0.0)
     .scaleTranslation(0.8)
     .allianceRelativeControl(true);
 
