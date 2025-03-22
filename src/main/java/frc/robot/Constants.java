@@ -144,6 +144,10 @@ public final class Constants
 
     public static final double RED_BARG_POSE = 7.1;
     public static final double BLUE_BARG_POSE = 10.4;
+    public static final Pose2d BLUE_PROCESSOR_LEFT = new Pose2d(1.0, 7.0, Rotation2d.fromDegrees(-145.0));
+    public static final Pose2d BLUE_PROCESSOR_RIGHT;
+    public static final Pose2d RED_PROCESSOR_LEFT;
+    public static final Pose2d RED_PROCESSOR_RIGHT;
 
     
     // Reef positions pairs, first for left, second for right, mapped to the apriltag ids
@@ -215,6 +219,23 @@ public final class Constants
         tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*5.0)),
         tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*5.0))
       ));
+
+      // unary minus reflects the angle across the length of the field for rotation
+      BLUE_PROCESSOR_RIGHT = new Pose2d(
+        BLUE_PROCESSOR_LEFT.getX(),
+        FIELD_WIDTH - BLUE_PROCESSOR_LEFT.getY(), 
+        BLUE_PROCESSOR_LEFT.getRotation().unaryMinus().rotateBy(Rotation2d.k180deg)
+      );
+      RED_PROCESSOR_LEFT = new Pose2d(
+        FIELD_LENGTH - BLUE_PROCESSOR_LEFT.getX(),
+        BLUE_PROCESSOR_RIGHT.getY(),
+        BLUE_PROCESSOR_LEFT.getRotation().rotateBy(Rotation2d.k180deg)
+      );
+      RED_PROCESSOR_RIGHT = new Pose2d(
+        RED_PROCESSOR_LEFT.getX(),
+        FIELD_WIDTH - RED_PROCESSOR_LEFT.getY(),
+        RED_PROCESSOR_LEFT.getRotation().unaryMinus().rotateBy(Rotation2d.k180deg)
+      );
     }
   }
 }

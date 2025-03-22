@@ -33,6 +33,7 @@ import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.commands.swervedrive.auto.AutoReefLineup;
 import frc.robot.commands.swervedrive.auto.BargeAlign;
+import frc.robot.commands.swervedrive.auto.ProcessorLineup;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
@@ -172,6 +173,7 @@ public class RobotContainer {
 
       xboxController.a().whileTrue(new AutoReefLineup(m_drivebase, xboxController.rightBumper()));
       xboxController.b().whileTrue(new BargeAlign(m_drivebase, () -> -xboxController.getLeftX()));
+      xboxController.x().whileTrue(new ProcessorLineup(m_drivebase));
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityXbox);
     } else
     {
