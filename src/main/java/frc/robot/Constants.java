@@ -101,6 +101,8 @@ public final class Constants
     public static final double FIELD_LENGTH = 17.548; // meters
     public static final double FIELD_WIDTH = 8.052; // meters
     public static final double PIPE_DISTANCE = Units.inchesToMeters(13);
+    // the pipe distance for our reef is an inch to long
+    public static final double MECHANISMS_PIPE_DISTANCE = Units.inchesToMeters(14);
     public static final Translation2d RED_REEF_CENTER = new Translation2d(
       // calculated to be the midpoint between the position of apriltag 10 and 7
       (12.227305999999999 + 13.890498)/2, 
