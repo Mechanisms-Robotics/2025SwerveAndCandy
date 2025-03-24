@@ -351,9 +351,13 @@ public class RobotContainer {
   {
     // shifter triggers
     Trigger trigger_shifter_1 = new Trigger(() -> shifter.getRawButtonPressed(1));
-    Trigger trigger_shifter_2 = new Trigger(() -> shifter.getRawButtonPressed(2));
-    Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButtonPressed(3));
-    Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButtonPressed(4));
+
+    // since L2 - L4 leverage offsets and clutch operation, they need continuous state of shifter,
+    // thus using getRawButton()
+    Trigger trigger_shifter_2 = new Trigger(() -> shifter.getRawButton(2));
+    Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButton(3));
+    Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButton(4));
+    
     Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButtonPressed(5));
     Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButtonPressed(6));
     Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButtonPressed(7));
