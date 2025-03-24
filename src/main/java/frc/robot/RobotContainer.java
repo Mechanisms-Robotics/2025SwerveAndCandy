@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,6 +33,7 @@ import frc.robot.commands.ElevatorBarge;
 import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
+import frc.robot.commands.L4;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
@@ -51,13 +53,14 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
-  //TODO: swap ports of driverController and secondaryController
-  final         CommandPS4Controller driverController = new CommandPS4Controller(3);
+  final         CommandPS4Controller driverController = new CommandPS4Controller(0);
 
-  private final CommandXboxController secondaryController = new CommandXboxController(0);
+  private final CommandXboxController secondaryController = new CommandXboxController(3);
 
-  private final Joystick shifter = new Joystick(1);
-  private final Joystick gamePad = new Joystick(2);
+  private final CommandJoystick pedals = new CommandJoystick(1);
+
+  private final Joystick shifter = new Joystick(2);
+  //private final Joystick gamePad = new Joystick(2);
 
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -66,6 +69,16 @@ public class RobotContainer {
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
   private final SendableChooser<Command> m_autoChooser = new SendableChooser();
+
+  private Supplier<Boolean> m_algaeClutch = () -> false;
+  private Supplier<Boolean> m_coralClutch = () -> false;
+
+  private Supplier<Boolean> m_elevUp = () -> false;
+  private Supplier<Boolean> m_elevDown = () -> false;
+
+  private static final double LEFT_PEDAL_THRESHOLD = -0.6;
+  private static final double RIGHT_PEDAL_THRESHOLD = -0.8;
+  private static final double MIDDLE_PEDAL_THRESHOLD = -0.6;
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -161,37 +174,7 @@ public class RobotContainer {
       // Testing Brennan's controller
       DriverStation.reportWarning("Simulation Mode!",false);
 
-      Trigger trigger_button1 = secondaryController.button(1);
-      Trigger trigger_button2 = secondaryController.button(2);
-      Trigger trigger_button3 = secondaryController.button(3);
-      Trigger trigger_button4 = secondaryController.button(4);
-      Trigger trigger_button5 = secondaryController.button(5);
-      Trigger trigger_button6 = secondaryController.button(6);
-      Trigger trigger_button7 = secondaryController.button(7);
-      Trigger trigger_button8 = secondaryController.button(8);
-
-      Trigger trigger_leftTrigger = secondaryController.leftTrigger(0.3);
-      Trigger trigger_rightTrigger = secondaryController.rightTrigger(0.3);
-      Trigger trigger_povUpLeft = secondaryController.povUpLeft();
-      Trigger trigger_povUpRight = secondaryController.povUpRight();
-      Trigger trigger_povCenter = secondaryController.povCenter();
-
-      trigger_button1.onTrue(new PrintCommand("Button1 pressed"));
-      trigger_button2.onTrue(new PrintCommand("Button2 pressed"));
-      trigger_button3.onTrue(new PrintCommand("Button3 pressed"));
-      trigger_button4.onTrue(new PrintCommand("Button4 pressed"));
-      trigger_button5.onTrue(new PrintCommand("Button5 pressed"));
-      trigger_button6.onTrue(new PrintCommand("Button6 pressed"));
-      trigger_button7.onTrue(new PrintCommand("Button7 pressed"));
-      trigger_button8.onTrue(new PrintCommand("Button8 pressed"));
-
-      trigger_leftTrigger.onTrue(new PrintCommand("Left Trigger pressed"));
-      trigger_rightTrigger.onTrue(new PrintCommand("Right Trigger pressed"));
-
-      trigger_povUpLeft.onTrue(new PrintCommand("pov UpLeft pressed"));
-      trigger_povUpRight.onTrue(new PrintCommand("pov UpRight pressed"));
-      trigger_povCenter.onTrue(new PrintCommand("pov Center pressed"));
-
+      configureSimSecondaryControllers();
 
       // driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
       //                                                       Rotation2d.fromDegrees(90)),
@@ -236,6 +219,9 @@ public class RobotContainer {
      * 
      */
     {
+      // setup secondaryController and pedals for REAL physical mode
+      configureRealSecondaryControllers();
+
       driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
 
       // Algae Mech
@@ -269,70 +255,6 @@ public class RobotContainer {
       driverController.povUp().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 2000), m_elevator)
       );
-
-      // Modifier controlls for elevator positions
-
-      /* using Brennan's Saber FGC controller
-      TO DO: validate buttons 1-12 are mapped correctly
-      ASSUMED that the buttons are mapped as follows: 1-3 are the left 3 buttons from left to right, 4 is the bottom outlier, 5-8 are the right top row from left to right, 9-12 are the right bottom row from left to right, 
-       
-
-      // button 3 = clutch (boolean)
-      Supplier<Boolean> clutch = () -> secondaryController.getRawButtonPressed(3) || gamePad.getRawButton(1);
-*/
-
-      // TODO: FIX THIS LOGIC FOR clutch, up, and down
-      Supplier<Boolean> clutch = () -> true;
-
-      // button 6 = up (boolean), button 5 = down (boolean)
-      Supplier<Boolean> up = () -> true;
-      Supplier<Boolean> down = () -> true;
-
-/* 
-      Supplier<Boolean> up = () -> secondaryController.getRawButtonPressed(6);
-      Supplier<Boolean> down = () -> secondaryController.getRawButtonPressed(5);
-      
-      // when different buttons are pressed on Brennan's controller, the elevator moves to 
-      // the desired positions
-
-      // button 4 = rest
-      new Trigger(() -> secondaryController.getRawButtonPressed(4)).onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
-      // button 9 = L1 
-      new Trigger(() -> secondaryController.getRawButtonPressed(9)).onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-      // button 10 = L2
-      new Trigger(() -> secondaryController.getRawButtonPressed(10)).onTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
-      // button 11 = L3
-      new Trigger(() -> secondaryController.getRawButtonPressed(11)).onTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
-      // button 12 = L4
-      new Trigger(() -> secondaryController.getRawButtonPressed(12)).onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
-      // button 8 = barge
-      new Trigger(() -> secondaryController.getRawButtonPressed(8)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-
-      // when different buttons are pressed on Brennan's controller, the wrist bumps up or down
-      // button 1 = bump wrist up 
-      new Trigger(() -> secondaryController.getRawButtonPressed(1)).whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
-      // button 2 = bump wrist down
-      new Trigger(() -> secondaryController.getRawButtonPressed(2)).whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
-*/
-  
-      new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-      // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
-      // and comment the lines that would cause problems (.getRawButton(2, 3))
-      // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
-      // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
-      // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
-      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
-      new Trigger(() -> shifter.getRawButton(4)).whileTrue(
-        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
-        // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
-      // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-        //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
     }  
   }
 
@@ -379,5 +301,116 @@ public class RobotContainer {
   public void setMotorBrake(boolean brake)
   {
     m_drivebase.setMotorBrake(brake);
+  }
+
+  private void configureSimSecondaryControllers() {
+
+    Trigger trigger_button1 = secondaryController.button(1);
+    Trigger trigger_button2 = secondaryController.button(2);
+    Trigger trigger_button3 = secondaryController.button(3);
+    Trigger trigger_button4 = secondaryController.button(4);
+    Trigger trigger_button5 = secondaryController.button(5);
+    Trigger trigger_button6 = secondaryController.button(6);
+    Trigger trigger_button7 = secondaryController.button(7);
+    Trigger trigger_button8 = secondaryController.button(8);
+
+    Trigger trigger_leftTrigger = secondaryController.leftTrigger(0.3);
+    Trigger trigger_rightTrigger = secondaryController.rightTrigger(0.3);
+    Trigger trigger_povLeft = secondaryController.povLeft();
+    Trigger trigger_povRight = secondaryController.povRight();
+    Trigger trigger_povUp = secondaryController.povUp();
+    Trigger trigger_povDown = secondaryController.povDown();
+
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
+    Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
+
+    trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
+    trigger_middlePedal.onTrue(new PrintCommand("Middle Pedal pressed"));
+    trigger_rightPedal.onTrue(new PrintCommand("Right Pedal pressed"));
+
+    trigger_button1.onTrue(new PrintCommand("Button1 pressed"));
+    trigger_button2.onTrue(new PrintCommand("Button2 pressed"));
+    trigger_button3.onTrue(new PrintCommand("Button3 pressed"));
+    trigger_button4.onTrue(new PrintCommand("Button4 pressed"));
+    trigger_button5.onTrue(new PrintCommand("Button5 pressed"));
+    trigger_button6.onTrue(new PrintCommand("Button6 pressed"));
+    trigger_button7.onTrue(new PrintCommand("Button7 pressed"));
+    trigger_button8.onTrue(new PrintCommand("Button8 pressed"));
+
+    trigger_leftTrigger.onTrue(new PrintCommand("Left Trigger pressed"));
+    trigger_rightTrigger.onTrue(new PrintCommand("Right Trigger pressed"));
+
+    trigger_povLeft.onTrue(new PrintCommand("pov Left pressed"));
+    trigger_povRight.onTrue(new PrintCommand("pov Right pressed"));
+    trigger_povUp.onTrue(new PrintCommand("pov Up pressed"));
+    trigger_povDown.onTrue(new PrintCommand("pov Down pressed"));
+  }
+
+  private void configureRealSecondaryControllers()
+  {
+    // shifter triggers
+    Trigger trigger_shifter_1 = new Trigger(() -> shifter.getRawButtonPressed(1));
+    Trigger trigger_shifter_2 = new Trigger(() -> shifter.getRawButtonPressed(2));
+    Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButtonPressed(3));
+    Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButtonPressed(4));
+    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButtonPressed(5));
+    Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButtonPressed(6));
+    Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButtonPressed(7));
+    Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButtonPressed(8));
+    
+    // using Brennan's Saber FGC controller
+    Trigger trigger_barge = secondaryController.povRight();
+    Trigger trigger_rest = secondaryController.povUp();
+    Trigger trigger_L1 = secondaryController.button(1);
+    Trigger trigger_L2 = secondaryController.button(2);
+    Trigger trigger_L3 = secondaryController.leftTrigger();
+    Trigger trigger_L4 = secondaryController.rightTrigger();
+    Trigger trigger_elevDown = secondaryController.button(3);
+    Trigger trigger_elevUp = secondaryController.button(4);
+    Trigger trigger_wristDown = secondaryController.button(5);
+    Trigger trigger_wristUp = secondaryController.button(6);
+    Trigger trigger_algaeClutch = secondaryController.povLeft();
+    Trigger trigger_coralClutch = secondaryController.povDown();
+
+    Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
+    Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
+
+    // left pedal not used yet - just print command for now
+    //trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
+
+    m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
+    m_coralClutch = () -> trigger_coralClutch.or(trigger_coralClutchPedal).getAsBoolean();
+
+    m_elevUp = () -> trigger_elevUp.getAsBoolean();
+    m_elevDown = () -> trigger_elevDown.getAsBoolean();
+
+    trigger_barge.onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+    trigger_rest.onTrue(new ElevatorRest(m_elevator, m_algaeMech));
+
+    /**** IMPORTANT ***
+      TODO: Need to decide as a team how we want to deal with conflicts if shifter is set
+      to different level than the L<n> button pressed on the gamepad. Not sure what will happen
+      in such a scenario with code below, since there will be 2 conflicting commands issued. I
+      expect a race condition for which one goes first, and then the other one will go once the
+      first one finishes if the "requirements" are configured properly for the custom Command.
+    */
+
+    trigger_L1.or(trigger_shifter_1).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+
+    // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
+    trigger_L2.or(trigger_shifter_2).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, m_elevUp, m_elevDown));
+    trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_elevUp, m_elevDown));
+    trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, m_algaeClutch));
+
+    trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
+    trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+
+    trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+    trigger_shifter_7.onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+    trigger_shifter_8.onTrue(new ElevatorRest(m_elevator, m_algaeMech));
+      // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
+    // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
+      //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
   }
 }
