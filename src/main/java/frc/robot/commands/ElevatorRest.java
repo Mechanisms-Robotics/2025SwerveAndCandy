@@ -25,7 +25,10 @@ public class ElevatorRest extends Command {
     public void execute() {
         // [M.Fox] After speaking with Leif and Ada, determined we don't need to examine clutch
         // for this command. Just set wrist angle for Intake every time before going to RESTING.
-        m_algaeMech.setWristAngle(AlgaeMech.WRIST_INTAKE);
+
+        // TODO -- DURING CODE REVIEW: Program Team decided to remove the wrist angle adjustment until further
+        // discussion with Drive TEam.
+     //   m_algaeMech.setWristAngle(AlgaeMech.WRIST_INTAKE);
         m_elevator.setTargetPosition(Elevator.RESTING);
 
         // [M.Fox] This command was causing intake to spin continuously until Leif pressed some other button
