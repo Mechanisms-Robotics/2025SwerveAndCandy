@@ -39,7 +39,7 @@ public class L4 extends Command {
             } else if (down.get()) {
                 m_elevator.increaseL4Offset(-200);
             }
-            m_elevator.setTargetPosition(Elevator.L4_OFFSET);
+            m_elevator.setTargetPosition(Elevator.L4_Offset);
         } else {
             m_elevator.setTargetPosition(Elevator.L4);
         }
