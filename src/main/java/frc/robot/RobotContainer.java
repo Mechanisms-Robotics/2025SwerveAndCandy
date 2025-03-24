@@ -357,7 +357,7 @@ public class RobotContainer {
     Trigger trigger_shifter_2 = new Trigger(() -> shifter.getRawButton(2));
     Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButton(3));
     Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButton(4));
-    
+
     Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButtonPressed(5));
     Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButtonPressed(6));
     Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButtonPressed(7));
@@ -386,6 +386,7 @@ public class RobotContainer {
     // Set BooleanSuppliers based on clutch and elevUp/elevDown states
     m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
     m_coralClutch = () -> trigger_coralClutch.or(trigger_coralClutchPedal).getAsBoolean();
+    Supplier<Boolean> L4_clutch = () -> m_algaeClutch.get() || m_coralClutch.get();
     m_elevUp = () -> trigger_elevUp.getAsBoolean();
     m_elevDown = () -> trigger_elevDown.getAsBoolean();
 
@@ -400,9 +401,9 @@ public class RobotContainer {
     trigger_L1.or(trigger_shifter_1).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
 
     // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-    trigger_L2.or(trigger_shifter_2).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, m_elevUp, m_elevDown));
-    trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_elevUp, m_elevDown));
-    trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, m_algaeClutch));
+    trigger_L2.or(trigger_shifter_2).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
+    trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
+    trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
 
     trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
     trigger_barge.or(trigger_shifter_7).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
