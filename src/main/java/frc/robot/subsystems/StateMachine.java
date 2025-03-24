@@ -13,6 +13,11 @@ public class StateMachine {
         ArrivedAtReefTarget
     }
 
+    public StateMachine(State myState) {
+        this.myState = myState;
+        myState = State.NoTargetIdentified;
+    }
+
     private State myState = State.NoTargetIdentified;
 
     public State getState() {

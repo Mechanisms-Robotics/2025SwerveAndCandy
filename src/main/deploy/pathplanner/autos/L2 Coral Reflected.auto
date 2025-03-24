@@ -33,18 +33,6 @@
           "data": {
             "name": "Feed Coral"
           }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "L2 Coral Reflected to Coral Station"
-          }
         }
       ]
     }
