@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -165,6 +163,7 @@ public class RobotContainer {
 
     if (RobotBase.isSimulation())
     {
+      // uncomment these out when needs for the controller in use
       // CommandPS4Controller rotationJoystick = new CommandPS4Controller(1);
       // SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
       //   () -> Math.pow(driverController.getLeftY(), 3),
@@ -201,59 +200,18 @@ public class RobotContainer {
 
       configureSimSecondaryControllers();
 
-      // driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
-      //                                                       Rotation2d.fromDegrees(90)),
-      //                                      new ProfiledPIDController(5,
-      //                                                                0,
-      //                                                                0,
-      //                                                                new Constraints(5,
-      //                                                                                3)),
-      //                                      new ProfiledPIDController(5,
-      //                                                                0,
-      //                                                                0,
-      //                                                                new Constraints(
-      //                                                                    Math.toRadians(
-      //                                                                        360),
-      //                                                                    Math.toRadians(
-      //                                                                        90))));
-      // driverController.options().onTrue(Commands.runOnce(() -> m_drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      // driverController.button(1).whileTrue(m_drivebase.sysIdDriveMotorCommand());
-      // driverController.button(2).whileTrue(Commands.runEnd(() -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-      //                                                () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
-
-      // // Joystick buttons = new Joystick(0);
-      // // Supplier<Boolean> clutch = () -> buttons.getRawButton(4);
-      // // new Trigger(() -> buttons.getRawButtonPressed(1)).onTrue(new L2(m_elevator, m_algaeMech, clutch, secondaryController));
-      // // new Trigger(() -> buttons.getRawButtonPressed(2)).onTrue(new L3(m_elevator, m_algaeMech, clutch));
     }
     if (DriverStation.isTest())
     {
-      // m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity); // Overrides drive command above!
-
-      // driverController.square().whileTrue(Commands.runOnce(m_drivebase::lock, m_drivebase).repeatedly());
-      // driverController.triangle().whileTrue(m_drivebase.driveToDistanceCommand(1.0, 0.2));
-      // driverController.options().onTrue((Commands.runOnce(m_drivebase::zeroGyro)));
-      // driverController.share().whileTrue(m_drivebase.centerModulesCommand());
-      // driverController.L2().onTrue(Commands.none());
-      // driverController.R2().onTrue(Commands.none());
     } else
     /**
      * 
      ******** The following code is the acutal drive code used *******
-     * 
-     * 
      */
     {
       driverController.share().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
       // setup secondaryController and pedals for REAL physical mode
       configureRealSecondaryControllers();
-
-      // driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 5));
-
-      // driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight1,
-      //   () -> driverController.getLeftX(),
-      //   () -> driverController.getLeftY(),
-      //   () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
 
       driverController.L1().whileTrue(new AutoReefLineup(m_drivebase, ()->false));
       driverController.R1().whileTrue(new AutoReefLineup(m_drivebase, ()->true));

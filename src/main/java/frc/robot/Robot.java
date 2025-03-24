@@ -83,8 +83,8 @@ public class Robot extends TimedRobot
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    // // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
-    // // immediately when disabled, but then also let it be pushed more 
+    // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
+    // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
 
     if (isSimulation())
@@ -92,7 +92,7 @@ public class Robot extends TimedRobot
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    // // Interpolations to throttle the swerve drive when the elevator is raised
+    // Interpolations to throttle the swerve drive when the elevator is raised
 
     final double SPEED_REDUCTION_FACTOR = 0.05;
 
@@ -119,12 +119,12 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic()
   {
-    // // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // // block in order for anything in the Command-based framework to work.
+    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
+    // commands, running already-scheduled commands, removing finished or interrupted commands,
+    // and running subsystem periodic() methods.  This must be called from the robot's periodic
+    // block in order for anything in the Command-based framework to work.
 
-    // // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
+    // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
 
     double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
     double swerveVelocityThrottle = swerveVelocityMap.get(currentPosition);
@@ -194,10 +194,10 @@ public class Robot extends TimedRobot
   {
     resetMotorsOnInit();
 
-    // // This makes sure that the autonomous stops running when
-    // // teleop starts running. If you want the autonomous to
-    // // continue until interrupted by another command, remove
-    // // this line or comment it out.
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
     m_robotContainer.setMotorBrake(true);
     
     if (m_autonomousCommand != null)
