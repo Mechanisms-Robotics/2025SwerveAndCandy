@@ -143,8 +143,8 @@ public final class Constants
       17, 18, 19, 20, 21, 22
     };
 
-    public static final double RED_BARG_POSE = 7.1;
-    public static final double BLUE_BARG_POSE = 10.4;
+    public static final double BLUE_BARG_POSE = 7.0;
+    public static final double RED_BARG_POSE = FIELD_LENGTH - BLUE_BARG_POSE;
     public static final Pose2d BLUE_PROCESSOR_LEFT = new Pose2d(1.0, 7.0, Rotation2d.fromDegrees(-145.0));
     public static final Pose2d BLUE_PROCESSOR_RIGHT;
     public static final Pose2d RED_PROCESSOR_LEFT;
