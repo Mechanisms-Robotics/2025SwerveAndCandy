@@ -379,14 +379,11 @@ public class RobotContainer {
     // left pedal not used yet - just print command for now
     //trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
 
+    // Set BooleanSuppliers based on clutch and elevUp/elevDown states
     m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
     m_coralClutch = () -> trigger_coralClutch.or(trigger_coralClutchPedal).getAsBoolean();
-
     m_elevUp = () -> trigger_elevUp.getAsBoolean();
     m_elevDown = () -> trigger_elevDown.getAsBoolean();
-
-    trigger_barge.onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-    trigger_rest.onTrue(new ElevatorRest(m_elevator, m_algaeMech));
 
     /**** IMPORTANT ***
       TODO: Need to decide as a team how we want to deal with conflicts if shifter is set
@@ -403,12 +400,13 @@ public class RobotContainer {
     trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_elevUp, m_elevDown));
     trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, m_algaeClutch));
 
+    trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+    trigger_barge.or(trigger_shifter_7).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+    trigger_rest.or(trigger_shifter_8).onTrue(new ElevatorRest(m_elevator, m_algaeMech));
+    
     trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
     trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
 
-    trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-    trigger_shifter_7.onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-    trigger_shifter_8.onTrue(new ElevatorRest(m_elevator, m_algaeMech));
       // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
     // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
       //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
