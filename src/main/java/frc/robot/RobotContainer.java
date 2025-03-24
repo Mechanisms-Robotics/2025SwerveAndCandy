@@ -8,11 +8,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -33,14 +27,13 @@ import frc.robot.commands.L3;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.commands.swervedrive.auto.AutoReefLineup;
 import frc.robot.commands.swervedrive.auto.BargeAlign;
-import frc.robot.commands.swervedrive.auto.ProcessorLineup;
+import frc.robot.commands.swervedrive.auto.CoralStationLineup;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
-import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import swervelib.SwerveInputStream;
@@ -152,15 +145,15 @@ public class RobotContainer {
 
     if (RobotBase.isSimulation())
     {
-      CommandPS4Controller rotationJoystick = new CommandPS4Controller(1);
-      SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
-        () -> Math.pow(driverController.getLeftY(), 3),
-        () -> Math.pow(driverController.getLeftX(), 3))
-          .withControllerRotationAxis(() -> -Math.signum(rotationJoystick.getRawAxis(0))*Math.pow(rotationJoystick.getRawAxis(0), 2))
-          .deadband(OperatorConstants.DEADBAND)
-          .scaleTranslation(0.8)
-          .allianceRelativeControl(true);
-      Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+      // CommandPS4Controller rotationJoystick = new CommandPS4Controller(1);
+      // SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
+      //   () -> Math.pow(driverController.getLeftY(), 3),
+      //   () -> Math.pow(driverController.getLeftX(), 3))
+      //     .withControllerRotationAxis(() -> -Math.signum(rotationJoystick.getRawAxis(0))*Math.pow(rotationJoystick.getRawAxis(0), 2))
+      //     .deadband(OperatorConstants.DEADBAND)
+      //     .scaleTranslation(0.8)
+      //     .allianceRelativeControl(true);
+      // Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
 
       CommandXboxController xboxController = new CommandXboxController(0);
       SwerveInputStream driveAngularVelocityXbox = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
@@ -174,7 +167,7 @@ public class RobotContainer {
 
       xboxController.a().whileTrue(new AutoReefLineup(m_drivebase, xboxController.rightBumper()));
       xboxController.b().whileTrue(new BargeAlign(m_drivebase, () -> -xboxController.getLeftX()));
-      xboxController.x().whileTrue(new ProcessorLineup(m_drivebase));
+      xboxController.x().whileTrue(new CoralStationLineup(m_drivebase));
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityXbox);
     } else
     {
