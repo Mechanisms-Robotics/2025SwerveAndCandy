@@ -8,9 +8,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
-public class ProcessorLineup extends SequentialCommandGroup {
+public class CoralStationLineup extends SequentialCommandGroup {
     private final SwerveSubsystem swerve;
-    public ProcessorLineup(SwerveSubsystem swerve) {
+    public CoralStationLineup(SwerveSubsystem swerve) {
         this.swerve = swerve;
         addRequirements(this.swerve);
         addCommands(new DeferredCommand(() -> new PIDtoPosition(this.swerve, findClosestTarget()), getRequirements()));
