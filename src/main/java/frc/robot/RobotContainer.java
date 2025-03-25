@@ -50,6 +50,8 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
 
+  private static final boolean SHIFT_CONFIRM_MODE = true;
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
   final         CommandPS4Controller driverController = new CommandPS4Controller(0);
@@ -59,8 +61,8 @@ public class RobotContainer {
   private final CommandJoystick pedals = new CommandJoystick(1);
 
   private final Joystick shifter = new Joystick(2);
-  //private final Joystick gamePad = new Joystick(2);
 
+  
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
     "swerve"));
@@ -415,6 +417,16 @@ public class RobotContainer {
     Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
+    // combine redundant controls into single trigger for simpler logic below
+    Trigger trigger_coralClutchDuo = trigger_coralClutch.or(trigger_coralClutchPedal);
+    Trigger trigger_algaeClutchDuo = trigger_algaeClutch.or(trigger_algaeClutchPedal);
+    Trigger trigger_bargeDuo = trigger_barge.or(trigger_shifter_7);
+    Trigger trigger_restDuo = trigger_rest.or(trigger_shifter_8);
+    Trigger trigger_L1Duo = trigger_L1.or(trigger_shifter_1);
+    Trigger trigger_L2Duo = trigger_L2.or(trigger_shifter_2);
+    Trigger trigger_L3Duo = trigger_L3.or(trigger_shifter_3);
+    Trigger trigger_L4Duo = trigger_L4.or(trigger_shifter_4);
+
     // left pedal not used yet - just print command for now
     //trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
 
@@ -425,30 +437,59 @@ public class RobotContainer {
     m_elevUp = () -> trigger_elevUp.getAsBoolean();
     m_elevDown = () -> trigger_elevDown.getAsBoolean();
 
-    /**** IMPORTANT ***
-      TODO: Need to decide as a team how we want to deal with conflicts if shifter is set
-      to different level than the L<n> button pressed on the gamepad. Not sure what will happen
-      in such a scenario with code below, since there will be 2 conflicting commands issued. I
-      expect a race condition for which one goes first, and then the other one will go once the
-      first one finishes if the "requirements" are configured properly for the custom Command.
+    if (SHIFT_CONFIRM_MODE) {
+    /**** BAD CODING PRACTICE BELOW [M.Fox] ***
+      We could end up in a situation where the shifter is left in one position, say L3, and the
+      gamepad requests a different position by pressing, say L2. Now the OR conditions below should
+      theoretically trigger both L2 and L3 commands to be called by the scheduler which could result
+      in indeterminate behavior. Through testing it appears that the scheduler handles this by simply
+      letting the last-executed command win. This is logical, and is fine for competition, but still
+      bad coding nonetheless. We should try to avoid such scenarios.
     */
 
-    trigger_L1.or(trigger_shifter_1).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      // Only trigger when coral clutch (CONFIRM) AND L(n) is pressed for all of these commands
+      trigger_coralClutchDuo.and(trigger_L1Duo).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      // Since L2-L4 have elevBumps, they need to be triggered continuously to update 
+      // L2 when coral clutch (CONFIRM) AND L2 is pressed
+      trigger_coralClutchDuo.and(trigger_L2Duo).whileTrue(new L2(m_elevator, m_algaeMech, ()->false, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_coralClutchDuo.and(trigger_L3Duo).whileTrue(new L3(m_elevator, m_algaeMech, ()->false, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_coralClutchDuo.and(trigger_L4Duo).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
 
-    // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-    trigger_L2.or(trigger_shifter_2).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
-    trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
-    trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
+      trigger_coralClutchDuo.and(trigger_shifter_6).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      trigger_coralClutchDuo.and(trigger_bargeDuo).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      trigger_coralClutchDuo.and(trigger_restDuo).onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+      
+      trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
+      trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
 
-    trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-    trigger_barge.or(trigger_shifter_7).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-    trigger_rest.or(trigger_shifter_8).onTrue(new ElevatorRest(m_elevator, m_algaeMech));
-    
-    trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
-    trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+      // ALGAE MODE TRIGGERS FOR L2 and L3 ONLY WHEN ALGAE_CONFIRM IS PRESSED
+      trigger_algaeClutchDuo.and(trigger_L2Duo).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, ()->false, m_elevUp, m_elevDown));
+      trigger_algaeClutchDuo.and(trigger_L3Duo).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, ()->false, m_elevUp, m_elevDown));
+ 
+    } else{ // original mode, SHIFT_CONFIRM_MODE = false
 
-      // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
-    // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-      //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+    /**** BAD CODING PRACTICE BELOW [M.Fox] ***
+      We could end up in a situation where the shifter is left in one position, say L3, and the
+      gamepad requests a different position by pressing, say L2. Now the OR conditions below should
+      theoretically trigger both L2 and L3 commands to be called by the scheduler which could result
+      in indeterminate behavior. Through testing it appears that the scheduler handles this by simply
+      letting the last-executed command win. This is logical, and is fine for competition, but still
+      bad coding nonetheless. We should try to avoid such scenarios.
+    */
+
+      trigger_L1.or(trigger_shifter_1).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+
+      // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
+      trigger_L2.or(trigger_shifter_2).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
+
+      trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      trigger_barge.or(trigger_shifter_7).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      trigger_rest.or(trigger_shifter_8).onTrue(new ElevatorRest(m_elevator, m_algaeMech, m_algaeClutch));
+      
+      trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
+      trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+    }
   }
 }
