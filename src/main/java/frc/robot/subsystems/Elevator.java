@@ -85,12 +85,15 @@ public class Elevator extends SubsystemBase {
     public static final int PROCESSOR = 500;
     public static final int LOADING = 1000;
     public static final int L1 = 6000;
+    public static int L1_Offset = 6000;
     public static final int L2 = 12500;
+    public static int L2_Offset = 12500;
     public static int L2_ALGAE_OFFSET = 16500;
     public static final int L3 = 19700;
+    public static int L3_Offset = 19700;
     public static int L3_ALGAE_OFFSET = 23500;
     public static final int L4 = 32700;
-    public static final int L4_OFFSET = 34000;
+    public static int L4_Offset = 34000;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
 
     private static final int LEADER_CAN_ID = 11;
@@ -199,14 +202,26 @@ public class Elevator extends SubsystemBase {
         return m_outputEncoder.getPosition();
     }
 
-    public void increaseL2Offset(double ticks) {
+    public void increaseL2AlgaeOffset(double ticks) {
         L2_ALGAE_OFFSET += ticks;
     }
 
-    
-    public void increaseL3Offset(double ticks) {
+    public void increaseL2Offset(double ticks) {
+        L2_Offset += ticks;
+    }
+
+    public void increaseL3AlgaeOffset(double ticks) {
         L3_ALGAE_OFFSET += ticks;
     }
+
+    public void increaseL3Offset(double ticks) {
+        L3_Offset += ticks;
+    }
+
+    public void increaseL4Offset(double ticks) {
+        L4_Offset += ticks;
+    }
+
 
     @Override
     public void periodic() {
