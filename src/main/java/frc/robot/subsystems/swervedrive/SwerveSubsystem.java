@@ -785,7 +785,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param pose the new position to update with
    * @param timeStamp
    */
-  public void addVisionMeasurement(Pose2d pose, double timeStamp) {
+  public void addMicahVision(Pose2d pose, double timeStamp) {
     myPositionEstimator.addVisionMeasurement(pose, timeStamp);
   }
 
