@@ -50,7 +50,8 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
 
-  private static final boolean SHIFT_CONFIRM_MODE = true;
+  // toggle setting for CONFIRM MODE for elevator commands - defaults to TRUE
+  private boolean m_shiftConfirmMode = true;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
 
@@ -437,7 +438,16 @@ public class RobotContainer {
     m_elevUp = () -> trigger_elevUp.getAsBoolean();
     m_elevDown = () -> trigger_elevDown.getAsBoolean();
 
-    if (SHIFT_CONFIRM_MODE) {
+    // Toggle CONFIRM MODE if cheat code enabled
+    //   cheat code = Barge + Rest + CoralClutch + AlgaeClutch all on gamePad
+    // 
+    // If team likes original mode better, the default at top of the file should be flipped
+    // so they don't have to toggle on gamepad for each match.
+    trigger_barge.and(trigger_rest).and(trigger_coralClutch).and(trigger_algaeClutch).onTrue(
+      Commands.runOnce(() -> toggleConfirmMode())
+    );
+
+    if (m_shiftConfirmMode) {
     /**** BAD CODING PRACTICE BELOW [M.Fox] ***
       We could end up in a situation where the shifter is left in one position, say L3, and the
       gamepad requests a different position by pressing, say L2. Now the OR conditions below should
@@ -491,5 +501,10 @@ public class RobotContainer {
       trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
       trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
     }
+  }
+
+  private void toggleConfirmMode() {
+    m_shiftConfirmMode = !m_shiftConfirmMode;
+    DriverStation.reportWarning("CONFIRM_MODE CHANGED! confirmMode = "+String.valueOf(m_shiftConfirmMode),false);
   }
 }
