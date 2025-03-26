@@ -63,7 +63,6 @@ public class L3 extends Command {
             }
         } else if (coral_clutch.get()){
             m_elevator.setTargetPosition(Elevator.L3_Offset);
-            m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_DOWN);
             if (up.get()) {
                 m_elevator.increaseL3Offset(200);
             } else if (down.get()) {
