@@ -97,35 +97,25 @@ public class Elevator extends SubsystemBase {
     private static final int THROUGHBORE_TICKS_PER_REVOLUTION = 8192;
 
     // Soft limits determined experimentally.
-    /**
-     * RETUNE: Check these limits as above by carefully moving it with the Rev
-     * client.
-     */
-    private static final double FORWARD_SOFT_LIMIT = 40500.0; // Ticks
+    private static final double FORWARD_SOFT_LIMIT = 32900.0; // Ticks
     private static final double REVERSE_SOFT_LIMIT = 10.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
-    // about 700 (RETUNE TBD, if diifferent) ticks per inch
-
-    /**
-     * RETUNE The process will involve getting the speed to "medium",
-     * checking these numbers, upping the speed to "fast" and rechecking
-     * them with the new speeds.
-     */
+    // about 600 ticks to inch
 
     public static final int RESTING = (int)REVERSE_SOFT_LIMIT;
-    public static final int PROCESSOR = 500;
-    public static final int LOADING = 1000;
-    public static final int L1 = 6000;
+    public static final int PROCESSOR = 407;
+    public static final int LOADING = 815;
+    public static final int L1 = 4889;
     public static int L1_Offset = L1; // same at the robot start
-    public static final int L2 = 12500;
+    public static final int L2 = 10185;
     public static int L2_Offset = L2;
-    public static int L2_ALGAE_OFFSET = 16500;
-    public static final int L3 = 19700;
+    public static int L2_ALGAE_OFFSET = 13444;
+    public static final int L3 = 16052;
     public static int L3_Offset = L3;
-    public static int L3_ALGAE_OFFSET = 23500;
-    public static final int L4 = 32700;
-    public static int L4_Offset = 34000; // RETUNE question -- remind me why this is different?
+    public static int L3_ALGAE_OFFSET = 19148;
+    public static final int L4 = 26644;
+    public static int L4_Offset = 27703;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
 
     private static final int LEADER_CAN_ID = 11;
@@ -142,19 +132,14 @@ public class Elevator extends SubsystemBase {
     private final SparkClosedLoopController m_sparkClosedLoopController
         = m_leader.getClosedLoopController();
 
-    /**
-     * RETUNE: These may or may not need to be changed to get to the right speeds
-     * and consistency.
-     */
-
     // Tunables for the SparkMax PID and output
     
-    private static final double KP = 0.000175;
+    private static final double KP = 0.00025;
     private static final double KI = 0.0;
     private static final double KD = 0.0;
 
-    private static final double MIN_OUTPUT = -10.0; // Volts
-    private static final double MAX_OUTPUT = 10.0; // Volts
+    private static final double MIN_OUTPUT = -12.0; // Volts
+    private static final double MAX_OUTPUT = 12.0; // Volts
     private static final int CURRENT_LIMIT = 40; // Amps per motor
     
     // Tunables for the elevator feedforward
@@ -186,9 +171,9 @@ public class Elevator extends SubsystemBase {
      */
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 1*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
+    private static final double MAX_VELOCITY = 4*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
     private static final double MAX_ACCELERATION = 2*MAX_VELOCITY; // Ticks per second per second
-    private static final double EPSILON = 50.0; // Allowed error, presumably in ticks
+    private static final double EPSILON = 40.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
