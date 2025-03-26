@@ -595,6 +595,25 @@ public class SwerveSubsystem extends SubsystemBase
   }
 
   /**
+   * Returns true if the given targets position to the swerve (based on Micah's vision+odometry pose estimator) is within the given tollerance
+   * @param target the position in which the distance (not rotation) is being compared to
+   * @param distanceToleranceMeters the tolerance distance, how many meters is considered to far away to be neer
+   * @return true if distance is less than the distance tolerance meters
+   */
+  public boolean isNear(Pose2d target, double distanceToleranceMeters) {
+    return getMyPose().getTranslation().getDistance(target.getTranslation()) < distanceToleranceMeters;
+  }
+
+  /**
+   * Returns true if the target is considered near to the swerve position (based on Micah's vision+odometry pose estimator)
+   * @param target
+   * @return
+   */
+  public boolean isNear(Pose2d target) {
+    return isNear(target, 0.05);
+  }
+
+  /**
    * Set chassis speeds with closed-loop velocity control.
    *
    * @param chassisSpeeds Chassis Speeds to set.

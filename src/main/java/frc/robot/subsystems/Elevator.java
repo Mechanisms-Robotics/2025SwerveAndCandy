@@ -199,6 +199,11 @@ public class Elevator extends SubsystemBase {
         return m_outputEncoder.getPosition();
     }
 
+
+    public boolean atGoal() {
+        return Math.abs(m_outputEncoder.getPosition() - m_goal.position) < EPSILON;
+    }
+
     public void increaseL2Offset(double ticks) {
         L2_ALGAE_OFFSET += ticks;
     }
