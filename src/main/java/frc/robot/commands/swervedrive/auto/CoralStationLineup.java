@@ -17,7 +17,7 @@ public class CoralStationLineup extends SequentialCommandGroup {
     }
 
     public Pose2d findClosestTarget() {
-        List<Pose2d> Poses = List.of(FieldConstants.BLUE_PROCESSOR_LEFT, FieldConstants.BLUE_PROCESSOR_RIGHT, FieldConstants.RED_PROCESSOR_LEFT, FieldConstants.RED_PROCESSOR_RIGHT);
+        List<Pose2d> Poses = List.of(FieldConstants.BLUE_CORAL_STATION_LEFT, FieldConstants.BLUE_CORAL_STATION_RIGHT, FieldConstants.RED_CORAL_STATION_LEFT, FieldConstants.RED_CORAL_STATION_RIGHT);
         
         Pose2d closest = null;
         double closestDistance = Double.MAX_VALUE;
