@@ -114,7 +114,7 @@ public class Elevator extends SubsystemBase {
     public static final int L3 = 15615;
     public static int L3_Offset = L3;
     public static int L3_ALGAE_OFFSET = 19148;
-    public static final int L4 = 26246;
+    public static final int L4 = 26800;
     public static int L4_Offset = 27703;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
 
