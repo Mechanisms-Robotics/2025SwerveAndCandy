@@ -108,13 +108,13 @@ public class Elevator extends SubsystemBase {
     public static final int LOADING = 815;
     public static final int L1 = 4889;
     public static int L1_Offset = L1; // same at the robot start
-    public static final int L2 = 10185;
+    public static final int L2 = 9104;
     public static int L2_Offset = L2;
     public static int L2_ALGAE_OFFSET = 13444;
-    public static final int L3 = 16052;
+    public static final int L3 = 15615;
     public static int L3_Offset = L3;
     public static int L3_ALGAE_OFFSET = 19148;
-    public static final int L4 = 26644;
+    public static final int L4 = 26246;
     public static int L4_Offset = 27703;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
 
@@ -171,7 +171,7 @@ public class Elevator extends SubsystemBase {
      */
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 4*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
+    private static final double MAX_VELOCITY = 6*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
     private static final double MAX_ACCELERATION = 2*MAX_VELOCITY; // Ticks per second per second
     private static final double EPSILON = 40.0; // Allowed error, presumably in ticks
 
