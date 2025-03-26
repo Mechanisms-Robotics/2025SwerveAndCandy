@@ -166,28 +166,28 @@ public final class Constants
       // I think that we should make a list of all the apriltag values on each reef, and in the place of the keys below, it would be x in the reference, 
       //x-1 in the one before, x+1 in the one after, etc, where x it the item number of the id on the list
       RED_REEF_POSES.put(6, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
       ));
       RED_REEF_POSES.put(7, new Pair<>(
         tag7refLeft,
         tag7refRight
       ));
       RED_REEF_POSES.put(8, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
       ));
       RED_REEF_POSES.put(9, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0))
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0))
       ));
       RED_REEF_POSES.put(10, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0))
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0))
       ));
       RED_REEF_POSES.put(11, new Pair<>(
-        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0)),
-        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0))
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0))
       ));
 
       // I'm just creating a reference point at 11 so I can reflect it across the field
@@ -203,24 +203,24 @@ public final class Constants
         tag17refOffset
       ));
       BLUE_REEF_POSES.put(18, new Pair<>(
-        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
-        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0))
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
       ));
       BLUE_REEF_POSES.put(19, new Pair<>(
-        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0)),
-        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0))
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0))
       ));
       BLUE_REEF_POSES.put(20, new Pair<>(
-        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0)),
-        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0))
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0))
       ));
       BLUE_REEF_POSES.put(21, new Pair<>(
-        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0)),
-        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0))
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0))
       ));
       BLUE_REEF_POSES.put(22, new Pair<>(
-        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*5.0)),
-        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(60.0*5.0))
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*5.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*5.0))
       ));
 
       // unary minus reflects the angle across the length of the field for rotation

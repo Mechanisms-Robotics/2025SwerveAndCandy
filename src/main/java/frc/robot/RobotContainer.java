@@ -24,6 +24,7 @@ import frc.robot.commands.ElevatorBarge;
 import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
+import frc.robot.commands.autos.MyAutoBuilder;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.commands.swervedrive.auto.AutoReefLineup;
 import frc.robot.commands.swervedrive.auto.BargeAlign;
@@ -329,7 +330,8 @@ public class RobotContainer {
     m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
     m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
     m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
-    m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto")); 
+    m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
+    m_autoChooser.addOption("two coral", MyAutoBuilder.twoCoral(m_drivebase));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
