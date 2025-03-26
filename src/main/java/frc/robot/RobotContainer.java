@@ -169,6 +169,7 @@ public class RobotContainer {
       xboxController.a().whileTrue(new AutoReefLineup(m_drivebase, xboxController.rightBumper()));
       xboxController.b().whileTrue(new BargeAlign(m_drivebase, () -> -xboxController.getLeftX()));
       xboxController.x().whileTrue(new CoralStationLineup(m_drivebase));
+      xboxController.start().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityXbox);
     } else
     {
@@ -331,7 +332,7 @@ public class RobotContainer {
     m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
     m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
     m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
-    m_autoChooser.addOption("two coral", MyAutoBuilder.twoCoral(m_drivebase));
+    m_autoChooser.addOption("two coral", MyAutoBuilder.twoCoral(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
