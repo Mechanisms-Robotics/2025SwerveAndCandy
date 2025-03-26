@@ -25,6 +25,10 @@ public class ElevatorRest extends Command {
         addRequirements(m_elevator);
     }
 
+    public ElevatorRest(Elevator elevator, AlgaeMech algaeMech) {
+        this(elevator, algaeMech, ()->false);
+    }
+
     @Override
     public void execute() {
         if (clutch.get()) {

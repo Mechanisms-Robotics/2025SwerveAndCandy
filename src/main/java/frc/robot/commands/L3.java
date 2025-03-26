@@ -47,6 +47,10 @@ public class L3 extends Command {
         this(elevator, algaeMech, clutch, ()->false, ()->false);
     }
 
+    public L3(Elevator elevator, AlgaeMech algaeMech) {
+        this(elevator, algaeMech, ()->false);
+    }
+
     @Override
     public void execute() {
         if (clutch.get()) {

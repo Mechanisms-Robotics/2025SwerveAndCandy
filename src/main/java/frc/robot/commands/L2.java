@@ -36,6 +36,10 @@ public class L2 extends Command {
         this(elevator, algaeMech, clutch, ()->false, ()->false);
     }
 
+    public L2(Elevator elevator, AlgaeMech algaeMech) {
+        this(elevator, algaeMech, ()->false, ()->false, ()->false);
+    }
+
     @Override
     public void execute() {
         if (clutch.get()) {

@@ -22,6 +22,10 @@ public class L4 extends Command {
         addRequirements(m_elevator);
     }
 
+    public L4(Elevator elevator) {
+        this(elevator, ()->false);
+    }
+
     @Override
     public void execute() {
         if (clutch.get()) {
