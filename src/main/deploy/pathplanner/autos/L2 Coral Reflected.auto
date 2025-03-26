@@ -33,6 +33,12 @@
           "data": {
             "name": "Feed Coral"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
         }
       ]
     }
