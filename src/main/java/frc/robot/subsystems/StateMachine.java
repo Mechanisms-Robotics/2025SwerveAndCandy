@@ -85,9 +85,11 @@ public class StateMachine extends SubsystemBase{
     private void setNotIdentified() {
         myState = State.NoTargetIdentified;
         
-        // TODO: turn off all lights
-
-        // TODO: turn on white light
+        // turn on white light 
+        outputLEDRed.set(false);
+        outputLEDGreen.set(false);
+        outputLEDBlue.set(false);
+        outputLEDWhite.set(true);
 
         return;
     }
