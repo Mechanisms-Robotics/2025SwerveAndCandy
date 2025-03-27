@@ -97,7 +97,7 @@ public class StateMachine extends SubsystemBase{
 
         // TODO: turn off all lights
         
-        // TODO: turn on green light
+        // TODO: turn on blue light
 
         return;
     }
@@ -107,7 +107,7 @@ public class StateMachine extends SubsystemBase{
 
         // TODO: turn off all lights
         
-        // TODO: turn on blue light
+        // TODO: turn on red light
 
         return;
     }
@@ -117,7 +117,7 @@ public class StateMachine extends SubsystemBase{
 
         // TODO: turn off all lights
         
-        // TODO: turn on red light
+        // TODO: turn on green light
         
         return;
     }
