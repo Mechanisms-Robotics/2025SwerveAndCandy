@@ -12,12 +12,15 @@ public class StateMachine {
         /**Arrived at AprilTag on the reef */
         ArrivedAtReefTarget
     }
+    private State myState;
 
     public StateMachine(State inputState) {
         this.myState = inputState;
     }
 
-    private State myState = State.NoTargetIdentified;
+    public StateMachine() {
+        this.myState = State.NoTargetIdentified;
+    }
 
     public State getState() {
         return myState;
