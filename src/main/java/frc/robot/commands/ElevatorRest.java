@@ -10,19 +10,17 @@ public class ElevatorRest extends Command {
     private final Elevator m_elevator;
     private final AlgaeMech m_algaeMech;
     private final Supplier<Boolean> clutch;
-
+   
     /**
-     * Raise the elevator to L4 and if the clutch is engaged, it raises a little heigher.
-     * The purpose of this is to allow the coral to come all the way out of the mechanism as it gets stuck.
      * 
      * @param elevator used for raising the elevator.
-     * @param clutch button boolean supplier for determining if the elevator is to offset a little higher.
+     * @param algaeMech used for setting the wrist angle.
      */
     public ElevatorRest(Elevator elevator, AlgaeMech algaeMech, Supplier<Boolean> clutch) {
         m_elevator = elevator;
         m_algaeMech = algaeMech;
         this.clutch = clutch;
-        addRequirements(m_elevator);
+        addRequirements(m_elevator, algaeMech);
     }
 
     public ElevatorRest(Elevator elevator, AlgaeMech algaeMech) {
@@ -31,13 +29,25 @@ public class ElevatorRest extends Command {
 
     @Override
     public void execute() {
+
+        // TODO -- DURING CODE REVIEW: Program Team decided to remove the wrist angle adjustment until further
+        // discussion with Drive TEam.
+
+        // This is the code to use if Drive Team agrees they want clutch operation to move wrist at rest
         if (clutch.get()) {
-            m_elevator.setTargetPosition(Elevator.RESTING);
             m_algaeMech.setWristAngle(AlgaeMech.WRIST_INTAKE);
-            m_algaeMech.groundIntake();
         } else {
-            m_elevator.setTargetPosition(Elevator.RESTING);
+            // clutch not engaged, thus don't move the wrist
+            // i.e, DO NOTHING
         }
+
+        m_elevator.setTargetPosition(Elevator.RESTING);
+
+        // [M.Fox] This command was causing intake to spin continuously until Leif pressed some other button
+        // to make it stop. Since Leif has intake/outtake controls on this controller anyway, he
+        // asked to remove this from the elevator commands driven by secondary controller.
+       // m_algaeMech.groundIntake();
+         
     }
 
 }

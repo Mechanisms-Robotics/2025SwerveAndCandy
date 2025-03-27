@@ -274,7 +274,7 @@ public class LimeLight extends SubsystemBase {
                 if (estimatedPose.isPresent()) {
                     visionPose = estimatedPose.get().estimatedPose;
                     visionLocalisationPublisher.set(visionPose);
-                    swerve.addVisionMeasurement(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
+                    swerve.addMicahVision(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
 
                     SmartDashboard.putString(cameraName + "/Estimated Robot Position Components", visionPose.toString());
                 }
