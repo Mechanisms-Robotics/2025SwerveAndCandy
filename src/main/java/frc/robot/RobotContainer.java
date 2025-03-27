@@ -415,6 +415,7 @@ public class RobotContainer {
     Trigger trigger_algaeClutch = secondaryController.povLeft();
     Trigger trigger_coralClutch = secondaryController.povDown();
 
+    Trigger trigger_eRestPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
@@ -428,8 +429,8 @@ public class RobotContainer {
     Trigger trigger_L3Duo = trigger_L3.or(trigger_shifter_3);
     Trigger trigger_L4Duo = trigger_L4.or(trigger_shifter_4);
 
-    // left pedal not used yet - just print command for now
-    //trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
+    // left pedal is emergency rest
+    trigger_eRestPedal.onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
 
     // Set BooleanSuppliers based on clutch and elevUp/elevDown states
     m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
@@ -473,13 +474,14 @@ public class RobotContainer {
       trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
 
       // ALGAE MODE TRIGGERS FOR L2 and L3 ONLY WHEN ALGAE_CONFIRM IS PRESSED
-      // Ada and James requested that wrist go to intake position when in algae mode for resting
-      trigger_algaeClutchDuo.and(trigger_restDuo).whileTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      trigger_algaeClutchDuo.and(trigger_L1Duo).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));      
       trigger_algaeClutchDuo.and(trigger_L2Duo).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, ()->false, m_elevUp, m_elevDown));
       trigger_algaeClutchDuo.and(trigger_L3Duo).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, ()->false, m_elevUp, m_elevDown));
       // Ada said it would be intutive for the barge to be confirmed on algae clutch because barge does algae stuff
       trigger_algaeClutchDuo.and(trigger_bargeDuo).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
- 
+      trigger_algaeClutchDuo.and(trigger_restDuo).whileTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+      trigger_algaeClutchDuo.and(trigger_L4Duo).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
+
     } else{ // original mode, SHIFT_CONFIRM_MODE = false
 
     /**** BAD CODING PRACTICE BELOW [M.Fox] ***
