@@ -19,11 +19,11 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class MyAutoBuilder {
     public static Command twoCoral(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
         Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-        ? FieldConstants.BLUE_REEF_POSES.get(20).getFirst()
+        ? FieldConstants.BLUE_REEF_POSES.get(20).getSecond()
         : FieldConstants.RED_REEF_POSES.get(9).getSecond();
         Pose2d reefTarget2 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
         ? FieldConstants.BLUE_REEF_POSES.get(19).getSecond()
-        : FieldConstants.RED_REEF_POSES.get(8).getFirst();
+        : FieldConstants.RED_REEF_POSES.get(8).getSecond();
         Pose2d coralStationTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
         ? FieldConstants.BLUE_CORAL_STATION_RIGHT
         : FieldConstants.RED_CORAL_STATION_RIGHT;
