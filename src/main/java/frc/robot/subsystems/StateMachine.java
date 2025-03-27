@@ -18,24 +18,31 @@ public class StateMachine extends SubsystemBase{
 
     private State myState;
     private DigitalOutput outputLEDWhite;
+    private DigitalOutput outputLEDRed;
     private DigitalOutput outputLEDGreen;
     private DigitalOutput outputLEDBlue;
-    private DigitalOutput outputLEDRed;
 
+    /* OFFSEASON: setup data structures to manage the LED colors as an
+    *    {R,G,B} array of booleans. Each possible state should then have
+    *    a corresponding {R,G,B} array that represent the desired color
+    *    for that state. THen when calling setState(), you don't need to hardcode
+    *    the colors within the method, and don't need a separate method for
+    *    each state. But rather can lookup the desired color for the newState
+    *    and set the outputs based on the lookup. This will make the code more
+    *    maintainable: easier to change color preferences, and easier to add new
+    *    states in the future.
+    */
 
     /** Constructor that takes an initial state as a parameter */
-    public StateMachine(State initialState) {
+    public StateMachine(State inputState) {
         // map LEDs to correct ports
         outputLEDWhite = new DigitalOutput(0);
-        outputLEDGreen = new DigitalOutput(1);
-        outputLEDBlue = new DigitalOutput(2);
-        outputLEDRed = new DigitalOutput(3);
-
-        // turn on white light
-        outputLEDWhite.set(true);
+        outputLEDRed = new DigitalOutput(1);
+        outputLEDGreen = new DigitalOutput(2);
+        outputLEDBlue = new DigitalOutput(3);
 
         /* call method to set initial state and configure lights */
-        setState(initialState);
+        setState(inputState);
     }
 
     /** default constructor with no parameter will
@@ -52,6 +59,10 @@ public class StateMachine extends SubsystemBase{
     }
 
     public void setState(State newState) {
+        // [M.Fox] This is not the most elegant way to do this,
+        // but it is the most straightforward way to do for teaching
+        // purposes. See comments at top of file labeled "OFFSEASON"
+        // for a more maintanable way to do this.
         switch (newState) {
             case NoTargetIdentified:
                 setNotIdentified();
