@@ -322,6 +322,7 @@ public class RobotContainer {
     m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
     m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
     m_autoChooser.addOption("two coral", MyAutoBuilder.twoCoral(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
+    m_autoChooser.addOption("two coral pathplanner", MyAutoBuilder.twoCoralPathplanner(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }

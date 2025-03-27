@@ -6,6 +6,10 @@ package frc.robot;
 
 
 import java.util.HashMap;
+
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.RobotConfig;
+
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,6 +19,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
 
@@ -33,6 +38,21 @@ public final class Constants
   public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
   public static final double MAX_SPEED  = Units.feetToMeters(14.5);
+
+  public static RobotConfig config = null;
+
+  static {
+    try {
+      config = RobotConfig.fromGUISettings();
+      
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      if (config == null)
+        config = new RobotConfig(ROBOT_MASS, 8.260, new ModuleConfig(2.0, 1.5, 1.2, DCMotor.getFalcon500(1), 40, 1));
+    }
+  }
+
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
 //  public static final class AutonConstants

@@ -13,7 +13,7 @@ public class CoralStationLineup extends SequentialCommandGroup {
     public CoralStationLineup(SwerveSubsystem swerve) {
         this.swerve = swerve;
         addRequirements(this.swerve);
-        addCommands(new DeferredCommand(() -> new PIDtoPosition(this.swerve, findClosestTarget()), getRequirements()));
+        addCommands(new DeferredCommand(() -> new DriveCommands.PID(this.swerve, findClosestTarget()), getRequirements()));
     }
 
     public Pose2d findClosestTarget() {

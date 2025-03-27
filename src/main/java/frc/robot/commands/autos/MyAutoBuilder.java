@@ -6,11 +6,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L4;
-import frc.robot.commands.swervedrive.auto.PIDtoPosition;
+import frc.robot.commands.swervedrive.auto.DriveCommands;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
@@ -32,7 +31,7 @@ public class MyAutoBuilder {
 
         return Commands.sequence(
             Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state", "I am driving to the reef (" + reefTarget1.toString() + ")"))
-            , new PIDtoPosition(swerve, reefTarget1)
+            , new DriveCommands.PID(swerve, reefTarget1)
                 .until(() -> swerve.isNear(reefTarget1))
                     .withTimeout(5)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
@@ -53,13 +52,13 @@ public class MyAutoBuilder {
                     .withTimeout(5)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               " I am now moving to the coral station"))
-            , new PIDtoPosition(swerve, coralStationTarget)
+            , new DriveCommands.PID(swerve, coralStationTarget)
                 .until(() -> swerve.isNear(coralStationTarget))
                     .withTimeout(5)
             , new WaitCommand(2)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               " I am now moving to my second reef target"))
-            , new PIDtoPosition(swerve, reefTarget2)
+            , new DriveCommands.PID(swerve, reefTarget2)
                 .until(() -> swerve.isNear(reefTarget2))
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               "I am now moving elevator to L4"))
@@ -76,7 +75,16 @@ public class MyAutoBuilder {
                 .until(elevator::atGoal)
                     .withTimeout(5)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state", "I am driving to the coral station again"))
-            , new PIDtoPosition(swerve, coralStationTarget)
+            , new DriveCommands.PID(swerve, coralStationTarget)
+        );
+    }
+
+    public static Command twoCoralPathplanner(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
+        Pose2d firstReef = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+        ? FieldConstants.BLUE_REEF_POSES.get(20).getSecond()
+        : FieldConstants.RED_REEF_POSES.get(9).getSecond();
+        return Commands.sequence(
+          DriveCommands.pathToPose(swerve, firstReef)
         );
     }
 }

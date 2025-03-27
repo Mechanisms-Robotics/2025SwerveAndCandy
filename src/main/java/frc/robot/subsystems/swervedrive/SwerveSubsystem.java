@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
@@ -97,6 +98,8 @@ public class SwerveSubsystem extends SubsystemBase
   // except that i can pass my vision measurements without it breaking everything
   private final SwerveDrivePoseEstimator myPositionEstimator;
 
+  public BiConsumer<ChassisSpeeds, DriveFeedforwards> autoDrive;
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -142,6 +145,21 @@ public class SwerveSubsystem extends SubsystemBase
       .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
 
     myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), swerveDrive.getYaw(), swerveDrive.getModulePositions(), getPose());
+    autoDrive = (ChassisSpeeds speedsRobotRelative, DriveFeedforwards moduleFeedForwards) -> {
+      boolean enableFeedforward = false;
+      if (enableFeedforward)
+      {
+        swerveDrive.drive(
+            speedsRobotRelative,
+            swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
+            moduleFeedForwards.linearForces()
+                         );
+      } else
+      {
+        swerveDrive.setChassisSpeeds(speedsRobotRelative);
+      }
+    };
+
   }
 
   /**
@@ -167,6 +185,22 @@ public class SwerveSubsystem extends SubsystemBase
       .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
 
     myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), swerveDrive.getYaw(), swerveDrive.getModulePositions(), getPose());
+
+    autoDrive = (ChassisSpeeds speedsRobotRelative, DriveFeedforwards moduleFeedForwards) -> {
+      boolean enableFeedforward = false;
+      if (enableFeedforward)
+      {
+        swerveDrive.drive(
+            speedsRobotRelative,
+            swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
+            moduleFeedForwards.linearForces()
+                         );
+      } else
+      {
+        swerveDrive.setChassisSpeeds(speedsRobotRelative);
+      }
+    };
+
   }
 
   /**
@@ -196,7 +230,7 @@ public class SwerveSubsystem extends SubsystemBase
   {
   }
 
-  /**
+    /**
    * Setup AutoBuilder for PathPlanner.
    */
   public void setupPathPlanner()
