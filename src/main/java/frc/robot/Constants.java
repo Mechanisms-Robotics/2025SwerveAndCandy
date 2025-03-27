@@ -145,7 +145,7 @@ public final class Constants
 
     public static final double BLUE_BARG_POSE = 7.0;
     public static final double RED_BARG_POSE = FIELD_LENGTH - BLUE_BARG_POSE;
-    public static final Pose2d BLUE_CORAL_STATION_LEFT = new Pose2d(1.0, 7.0, Rotation2d.fromDegrees(-145.0));
+    public static final Pose2d BLUE_CORAL_STATION_LEFT = new Pose2d(0.8, 7.25, Rotation2d.fromDegrees(-145.0));
     public static final Pose2d BLUE_CORAL_STATION_RIGHT;
     public static final Pose2d RED_CORAL_STATION_LEFT;
     public static final Pose2d RED_CORAL_STATION_RIGHT;

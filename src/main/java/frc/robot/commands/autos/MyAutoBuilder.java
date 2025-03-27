@@ -44,18 +44,19 @@ public class MyAutoBuilder {
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               "I am feeding coral, waiting to stop"))
             , Commands.runOnce(coralMech::feed)
-            , new WaitCommand(2)
+            , new WaitCommand(1)
             , Commands.runOnce(coralMech::stop)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               "I stopped feeding coral and am now lowering the elevator to rest"))
             , new ElevatorRest(elevator, algaeMech)
-                .until(elevator::atGoal)
+                .until(() -> Math.abs(elevator.getCurrentPosition() - Elevator.RESTING) < 5000)
                     .withTimeout(5)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               " I am now moving to the coral station"))
             , new PIDtoPosition(swerve, coralStationTarget)
                 .until(() -> swerve.isNear(coralStationTarget))
                     .withTimeout(5)
+            , new WaitCommand(2)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               " I am now moving to my second reef target"))
             , new PIDtoPosition(swerve, reefTarget2)
