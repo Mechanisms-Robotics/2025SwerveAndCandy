@@ -229,8 +229,8 @@ public class AlgaeMech extends SubsystemBase {
       final double POOR_MANS_FEEDFORWARD = 3.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
-    // m_wristMotor.set(output);
-
+    m_wristMotor.set(output);
+    
     SmartDashboard.putNumber("AlgaeMech/Wrist/Controlv Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
 
