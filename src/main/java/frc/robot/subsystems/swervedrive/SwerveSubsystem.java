@@ -17,9 +17,8 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -27,9 +26,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -60,6 +60,24 @@ public class SwerveSubsystem extends SubsystemBase
 
   /**
    * Swerve drive object.
+   * 
+   * Vision localisation testing:
+   * 1. Systems check code on robot to make sure it is working
+   *   * Make sure the position of the limelight is correct in constants as it got moved forward
+   * 2. Check to see the difference between yagsls odometry and my odometry
+   *   * Uncomment add vision measurement in LimeLight
+   *   * Look in shuffleboard under SmartDashboard/Swerve/Yagsl Position 2d and compare it with
+   *   * SmartDashboard/Swerve/Position 2d
+   *   * Use advantage scopes 3d Field to display the positions, they should be very close when just using odometry
+   *   * since they use the same logic
+   *   * Put the robot next to the reef to see which one is closer
+   * 3. Test the gyro zeroing
+   *   * Does it zero normaly when Leif presses share?
+   *   * Does the gyro zero badly when it sees and apriltag?
+   * 4. Try the field oriented driving autolineup
+   *   * it should work, especially once the position is set right
+   * 5. If we want to use pathplanner autolineup
+   *   * make the autobuilder use my position localisation
    */
   private final SwerveDrive         swerveDrive;
   /**
@@ -72,6 +90,12 @@ public class SwerveSubsystem extends SubsystemBase
   private Vision vision;
 
   public final double defaultAngularVelocity;
+
+  private final StructPublisher<Pose2d> position2DPublisher;
+  private final StructPublisher<Pose2d> position2DPublisherYAGSL;
+  // rewriting yagsl position stuff so I do not have to deal with its bugs, this does odometry just like yagsl
+  // except that i can pass my vision measurements without it breaking everything
+  private final SwerveDrivePoseEstimator myPositionEstimator;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -110,6 +134,14 @@ public class SwerveSubsystem extends SubsystemBase
     }
     setupPathPlanner();
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
+
+    position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
+    
+    position2DPublisherYAGSL = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
+
+    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), swerveDrive.getYaw(), swerveDrive.getModulePositions(), getPose());
   }
 
   /**
@@ -127,6 +159,14 @@ public class SwerveSubsystem extends SubsystemBase
                                              Rotation2d.fromDegrees(0)));
 
     defaultAngularVelocity = swerveDrive.getMaximumChassisAngularVelocity();
+
+    position2DPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/Position 2D", Pose2d.struct).publish();
+
+    position2DPublisherYAGSL = NetworkTableInstance.getDefault().getTable("SmartDashboard")
+      .getStructTopic("Swerve/YAGSL Position 2D", Pose2d.struct).publish();
+
+    myPositionEstimator =  new SwerveDrivePoseEstimator(getKinematics(), swerveDrive.getYaw(), swerveDrive.getModulePositions(), getPose());
   }
 
   /**
@@ -140,6 +180,9 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
+    position2DPublisher.set(getMyPose());
+    position2DPublisherYAGSL.set(getPose());
+    myPositionEstimator.update(getHeading(), swerveDrive.getModulePositions());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
@@ -267,8 +310,8 @@ public class SwerveSubsystem extends SubsystemBase
   {
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumChassisVelocity(), 4.0,
-        swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+        swerveDrive.getMaximumChassisVelocity()/10, 1.0,
+        swerveDrive.getMaximumChassisAngularVelocity()/3, Units.degreesToRadians(720)/3);
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
@@ -276,6 +319,10 @@ public class SwerveSubsystem extends SubsystemBase
         constraints,
         edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
                                      );
+  }
+
+  public double getMaximumChassisVelocity() {
+    return swerveDrive.getMaximumChassisVelocity();
   }
 
   /**
@@ -522,7 +569,9 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public void resetOdometry(Pose2d initialHolonomicPose)
   {
-    //Pose2d noGyroResetPose = new Pose2d(initialHolonomicPose.getX(), initialHolonomicPose.getY(), getHeading());
+    // uncomment this if we want it to reset the vision localisation based geometry at the start of an auto,
+    // this is only worth doing if we use my vision localisation for autobuilder
+    // myPositionEstimator.resetPose(initialHolonomicPose);
     swerveDrive.resetOdometry(initialHolonomicPose);
   }
 
@@ -534,6 +583,34 @@ public class SwerveSubsystem extends SubsystemBase
   public Pose2d getPose()
   {
     return swerveDrive.getPose();
+  }
+
+  /**
+   * Micah Maphet made this because yagsl broke stuff when i used there swerve drive odometry stuff
+   * 
+   * @return
+   */
+  public Pose2d getMyPose() {
+    return myPositionEstimator.getEstimatedPosition();
+  }
+
+  /**
+   * Returns true if the given targets position to the swerve (based on Micah's vision+odometry pose estimator) is within the given tollerance
+   * @param target the position in which the distance (not rotation) is being compared to
+   * @param distanceToleranceMeters the tolerance distance, how many meters is considered to far away to be neer
+   * @return true if distance is less than the distance tolerance meters
+   */
+  public boolean isNear(Pose2d target, double distanceToleranceMeters) {
+    return getMyPose().getTranslation().getDistance(target.getTranslation()) < distanceToleranceMeters;
+  }
+
+  /**
+   * Returns true if the target is considered near to the swerve position (based on Micah's vision+odometry pose estimator)
+   * @param target
+   * @return
+   */
+  public boolean isNear(Pose2d target) {
+    return isNear(target, 0.05);
   }
 
   /**
@@ -719,6 +796,16 @@ public class SwerveSubsystem extends SubsystemBase
   public void addFakeVisionReading()
   {
     swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
+  }
+
+  /**
+   * Update localisation base on pose
+   * 
+   * @param pose the new position to update with
+   * @param timeStamp
+   */
+  public void addMicahVision(Pose2d pose, double timeStamp) {
+    myPositionEstimator.addVisionMeasurement(pose, timeStamp);
   }
 
   public void setMaxSpeed(double velocityMetersPerSecond, double velocityRadiansPerSecond) {
