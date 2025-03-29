@@ -37,13 +37,15 @@ public class LimeLight extends SubsystemBase {
     
 
     private final SwerveSubsystem swerve;
+    private final boolean localisation;
 
 
-    public LimeLight(String cameraName, Transform3d cameraToRobot, SwerveSubsystem swerve) {
+    public LimeLight(String cameraName, Transform3d cameraToRobot, SwerveSubsystem swerve, boolean localisation) {
         camera = new PhotonCamera(cameraName);
         this.cameraName = cameraName;
         this.cameraToRobot = cameraToRobot;
         this.swerve = swerve;
+        this.localisation  = localisation;
 
         aprilTagFieldLayout = AprilTagFieldLayout.loadField(Constants.Vision.FIELD);
         aprilTagFieldLayout.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
@@ -274,7 +276,8 @@ public class LimeLight extends SubsystemBase {
                 if (estimatedPose.isPresent()) {
                     visionPose = estimatedPose.get().estimatedPose;
                     visionLocalisationPublisher.set(visionPose);
-                    swerve.addMicahVision(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
+                    if (localisation)
+                        swerve.addMicahVision(visionPose.toPose2d(), estimatedPose.get().timestampSeconds);
 
                     SmartDashboard.putString(cameraName + "/Estimated Robot Position Components", visionPose.toString());
                 }
