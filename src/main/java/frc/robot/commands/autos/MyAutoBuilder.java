@@ -188,7 +188,7 @@ public class MyAutoBuilder {
           , new ElevatorRest(elevator, algaeMech)
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
             "I am now moving to barge"))
-          , new BargeAlign(swerve, () -> bargeTarget)
+          , new BargeAlign(swerve, () -> 0)
                   .withTimeout(5)
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
             "I am now raising the elevator to barge"))
