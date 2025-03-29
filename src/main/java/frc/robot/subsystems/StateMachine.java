@@ -97,9 +97,12 @@ public class StateMachine extends SubsystemBase{
     private void setDetectedReefTarget() {
         myState = State.DetectedReefTarget;
 
-        // TODO: turn off all lights
-        
-        // TODO: turn on blue light
+        // turn on blue light 
+        outputLEDRed.set(false);
+        outputLEDGreen.set(false);
+        outputLEDBlue.set(true);
+        outputLEDWhite.set(false);
+
 
         return;
     }
@@ -107,9 +110,12 @@ public class StateMachine extends SubsystemBase{
     private void setDrivingToReefTarget() {
         myState = State.DrivingToReefTarget;
 
-        // TODO: turn off all lights
-        
-        // TODO: turn on red light
+        // turn on red light 
+        outputLEDRed.set(true);
+        outputLEDGreen.set(false);
+        outputLEDBlue.set(false);
+        outputLEDWhite.set(false);
+
 
         return;
     }
@@ -117,9 +123,12 @@ public class StateMachine extends SubsystemBase{
     private void setArrivedAtReefTarget() {
         myState = State.ArrivedAtReefTarget;
 
-        // TODO: turn off all lights
-        
-        // TODO: turn on green light
+        // turn on green light 
+        outputLEDRed.set(false);
+        outputLEDGreen.set(true);
+        outputLEDBlue.set(false);
+        outputLEDWhite.set(false);
+
         
         return;
     }
