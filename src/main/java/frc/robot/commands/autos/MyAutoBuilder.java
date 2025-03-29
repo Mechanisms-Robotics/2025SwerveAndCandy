@@ -9,7 +9,9 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.ElevatorRest;
+import frc.robot.commands.L3;
 import frc.robot.commands.L4;
+import frc.robot.commands.swervedrive.auto.BargeAlign;
 import frc.robot.commands.swervedrive.auto.PIDtoPosition;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
@@ -28,7 +30,7 @@ public class MyAutoBuilder {
         ? FieldConstants.BLUE_CORAL_STATION_RIGHT
         : FieldConstants.RED_CORAL_STATION_RIGHT;
 
-        String ntTable = "Commands/auto/2 L4 coral/";
+        String ntTable = "Commands/auto/2 L4 coral left/";
 
         return Commands.sequence(
             Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state", "I am driving to the reef (" + reefTarget1.toString() + ")"))
@@ -91,7 +93,7 @@ public class MyAutoBuilder {
       ? FieldConstants.BLUE_CORAL_STATION_LEFT
       : FieldConstants.RED_CORAL_STATION_LEFT;
 
-      String ntTable = "Commands/auto/2 L4 coral/";
+      String ntTable = "Commands/auto/2 L4 coral right/";
 
       return Commands.sequence(
             Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state", "I am driving to the reef (" + reefTarget1.toString() + ")"))
@@ -142,4 +144,61 @@ public class MyAutoBuilder {
             , new PIDtoPosition(swerve, coralStationTarget)
         );
     }
+
+    public static Command coralAndAlgaeCenter(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
+      Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+      ? FieldConstants.BLUE_REEF_POSES.get(21).getSecond()
+      : FieldConstants.RED_REEF_POSES.get(10).getSecond();
+      double bargeTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+      ? FieldConstants.BLUE_BARG_POSE
+      : FieldConstants.RED_BARG_POSE;
+
+      String ntTable = "Commands/auto/L4 coral and algae center/";
+
+      return Commands.sequence(
+          Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state", "I am driving to the reef (" + reefTarget1.toString() + ")"))
+          , new PIDtoPosition(swerve, reefTarget1)
+              .until(() -> swerve.isNear(reefTarget1))
+                  .withTimeout(5)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+              "I am raising the elevator to L4. I got " + swerve.getMyPose().getTranslation().getDistance(reefTarget1.getTranslation())
+              + " meters close to my target"))
+          , new L4(elevator)
+              .until(elevator::atGoal)
+                  .withTimeout(3)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+            "I am feeding coral, waiting to stop"))
+          , Commands.runOnce(coralMech::feed)
+          , new WaitCommand(1)
+          , Commands.runOnce(coralMech::stop)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+            "I stopped feeding coral and am now lowering the elevator to get the algae"))
+          , new L3(elevator, algaeMech, true, false, false, false)
+              .until(elevator::atGoal)
+                  .withTimeout(2)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+            " I am now intaking the algae"))
+          , Commands.runOnce(algaeMech::intake)
+          , new WaitCommand(1)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+            " I am now moving the elevator to rest"))
+          , new ElevatorRest(elevator, algaeMech)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+            "I am now moving to barge"))
+          , new BargeAlign(swerve, bargeTarget)
+              .until(swerve::atGoal)
+                  .withTimeout(5)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
+            "I am now raising the elevator to barge"))
+          , Commands.runOnce(algaeMech::outtake)
+          , new WaitCommand(1)
+          , Commands.runOnce(algaeMech::stop)
+          , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state", "I am lowering the elevator to rest"))
+          , new ElevatorRest(elevator, algaeMech)
+              .until(elevator::atGoal)
+                  .withTimeout(5)
+      );
+  }
+
 }
+
