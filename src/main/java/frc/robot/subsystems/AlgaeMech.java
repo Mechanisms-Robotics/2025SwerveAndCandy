@@ -116,7 +116,7 @@ public class AlgaeMech extends SubsystemBase {
     m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
     m_desiredAngle = m_wristStartingAngle;
 
-    // TODO what is this?   m_controller.enableContinuousInput(-180.0, 180.0);
+    m_controller.enableContinuousInput(-180.0, 180.0);
   }
   
   public void setWristBrake(boolean brake) {
