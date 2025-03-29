@@ -226,7 +226,7 @@ public class AlgaeMech extends SubsystemBase {
     SmartDashboard.putNumber("AlgaeMech/Wrist/Feedforward Output", feedforwardOutput);
     double output = m_controller.calculate(getWristAngle(), angle) + feedforwardOutput;
     if (output < 0) {
-      final double POOR_MANS_FEEDFORWARD = 3.0;
+      final double POOR_MANS_FEEDFORWARD = 2.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
     m_wristMotor.set(output);
