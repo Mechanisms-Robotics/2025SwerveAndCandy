@@ -149,6 +149,8 @@ public final class Constants
     public static final Pose2d BLUE_CORAL_STATION_RIGHT;
     public static final Pose2d RED_CORAL_STATION_LEFT;
     public static final Pose2d RED_CORAL_STATION_RIGHT;
+    public static final Pose2d RED_PROCESSOR_POSE = new Pose2d(11.18, 7.43, Rotation2d.fromDegrees(90));
+    public static final Pose2d BLUE_PROCESSOR_POSE = new Pose2d(FIELD_LENGTH - RED_PROCESSOR_POSE.getX(), FIELD_WIDTH - RED_PROCESSOR_POSE.getY(), Rotation2d.fromDegrees(-90));
 
     
     // Reef positions pairs, first for left, second for right, mapped to the apriltag ids

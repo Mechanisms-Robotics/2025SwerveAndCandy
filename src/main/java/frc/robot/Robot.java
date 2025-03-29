@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.Elevator;
 
 /**
@@ -42,9 +43,10 @@ public class Robot extends TimedRobot
    */
   public void resetMotorsOnInit() {
     m_robotContainer.m_algaeMech.setWristBrake(true);
-    m_robotContainer.m_algaeMech.setWristAngle(
-      m_robotContainer.m_algaeMech.getWristAngle()
-    );
+    m_robotContainer.m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP);
+    // m_robotContainer.m_algaeMech.setWristAngle(
+    //   m_robotContainer.m_algaeMech.getWristAngle()
+    // );
 
     m_robotContainer.setElevatorToWhereItsAt();
 

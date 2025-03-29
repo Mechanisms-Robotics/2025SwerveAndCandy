@@ -38,7 +38,9 @@ public class AlgaeMech extends SubsystemBase {
   Zero degrees is pointed straight out. */
 
   public final static double WRIST_STARTING_CONFIGURATION_ANGLE = 86.0; // Degrees
-  public final static double WRIST_ANGLE_UP = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE;
+  public final static double WRIST_ANGLE_STARTING_OFFSET = 10.0; // Degrees
+  public final static double WRIST_ANGLE_UP
+    = AlgaeMech.WRIST_STARTING_CONFIGURATION_ANGLE - WRIST_ANGLE_STARTING_OFFSET;
   public final static double WRIST_ANGLE_LEVEL = 5.0;
   public final static double WRIST_ANGLE_DOWN = -10.0;
   public final static double WRIST_INTAKE = WRIST_ANGLE_LEVEL;
