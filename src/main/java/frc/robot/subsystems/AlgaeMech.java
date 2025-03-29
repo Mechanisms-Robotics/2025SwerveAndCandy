@@ -21,11 +21,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class AlgaeMech extends SubsystemBase {
   public final static int WRIST_MOTOR_CAN_ID = 22;
-
   private static final TalonFX m_wristMotor = new TalonFX(WRIST_MOTOR_CAN_ID);
+
   private static final int ENCODER_CAN_ID = 23;
   private static final CANcoder m_encoder = new CANcoder(ENCODER_CAN_ID);
-
 
   private final static double P = 0.005;
   private final static double I = 0.0;
@@ -45,8 +44,10 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_INTAKE = WRIST_ANGLE_LEVEL;
 
   private final double m_wristStartingAngle; // Degrees
+
   // determine this by putting the arm up without any offset shenanigans and seeing what the angle reads
   private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.411865;
+
   private double m_wristOffset = 0.0; // Degrees
   public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
 
@@ -70,7 +71,6 @@ public class AlgaeMech extends SubsystemBase {
   /* DutyCycle equation: D = PW/T
   Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
   Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
-
 
   private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
 
@@ -116,7 +116,7 @@ public class AlgaeMech extends SubsystemBase {
     m_wristStartingAngle = m_wristMotor.getPosition().getValueAsDouble() * 360.0 / GEAR_RATIO;
     m_desiredAngle = m_wristStartingAngle;
 
-    m_controller.enableContinuousInput(-180.0, 180.0);
+    // TODO what is this?   m_controller.enableContinuousInput(-180.0, 180.0);
   }
   
   public void setWristBrake(boolean brake) {
@@ -189,7 +189,7 @@ public class AlgaeMech extends SubsystemBase {
    * @return angle of the wrist as determined by the falcon internal encoder
    */
   public double getWristAngle() {
-    return (m_encoder.getAbsolutePosition().getValueAsDouble()) * 360.0 + WRIST_STARTING_CONFIGURATION_ANGLE;
+    return m_encoder.getAbsolutePosition().getValueAsDouble() * 360 WRIST_STARTING_CONFIGURATION_ANGLE;
   }
 
   /**
@@ -229,8 +229,8 @@ public class AlgaeMech extends SubsystemBase {
       final double POOR_MANS_FEEDFORWARD = 3.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
-    m_wristMotor.set(output);
-    
+    m_wristMotor.set(output); // TODO Micah had this commented out
+
     SmartDashboard.putNumber("AlgaeMech/Wrist/Controlv Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
 
