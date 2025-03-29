@@ -25,15 +25,19 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class MyAutoBuilder {
     public static Command twoCoralProcessorSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
-        Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-        ? FieldConstants.BLUE_REEF_POSES.get(22).getSecond()
-        : FieldConstants.RED_REEF_POSES.get(9).getSecond();
-        Pose2d reefTarget2 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-        ? FieldConstants.BLUE_REEF_POSES.get(17).getSecond()
-        : FieldConstants.RED_REEF_POSES.get(8).getSecond();
-        Pose2d coralStationTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-        ? FieldConstants.BLUE_CORAL_STATION_RIGHT
-        : FieldConstants.RED_CORAL_STATION_RIGHT;
+        // Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+        // ? FieldConstants.BLUE_REEF_POSES.get(22).getSecond()
+        // : FieldConstants.RED_REEF_POSES.get(9).getSecond();
+        // Pose2d reefTarget2 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+        // ? FieldConstants.BLUE_REEF_POSES.get(17).getSecond()
+        // : FieldConstants.RED_REEF_POSES.get(8).getSecond();
+        // Pose2d coralStationTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+        // ? FieldConstants.BLUE_CORAL_STATION_RIGHT
+        // : FieldConstants.RED_CORAL_STATION_RIGHT;
+
+        Pose2d reefTarget1 = FieldConstants.BLUE_REEF_POSES.get(22).getSecond();
+        Pose2d reefTarget2 = FieldConstants.BLUE_REEF_POSES.get(17).getSecond();
+        Pose2d coralStationTarget = FieldConstants.BLUE_CORAL_STATION_RIGHT;
 
         String ntTable = "Commands/auto/2 L4 coral left/";
 
@@ -147,15 +151,17 @@ public class MyAutoBuilder {
     }
 
     public static Command coralAndAlgaeCenterBarge(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
-      Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_REEF_POSES.get(21).getSecond()
-      : FieldConstants.RED_REEF_POSES.get(10).getSecond();
-      double bargeTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_BARG_POSE
-      : FieldConstants.RED_BARG_POSE;
-      Pose2d processorTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_PROCESSOR_POSE
-      : FieldConstants.RED_PROCESSOR_POSE;
+      // Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+      // ? FieldConstants.BLUE_REEF_POSES.get(21).getSecond()
+      // : FieldConstants.RED_REEF_POSES.get(10).getSecond();
+      Pose2d reefTarget1 = FieldConstants.BLUE_REEF_POSES.get(21).getSecond();
+      // double bargeTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+      // ? FieldConstants.BLUE_BARG_POSE
+      // : FieldConstants.RED_BARG_POSE;
+      // Pose2d processorTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+      // ? FieldConstants.BLUE_PROCESSOR_POSE
+      // : FieldConstants.RED_PROCESSOR_POSE;
+      Pose2d processorTarget = FieldConstants.BLUE_PROCESSOR_POSE;
 
 
       String ntTable = "Commands/auto/L4 coral and algae center/";
