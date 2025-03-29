@@ -249,7 +249,8 @@ public class Elevator extends SubsystemBase {
 
 
     public boolean atGoal() {
-        return Math.abs(m_outputEncoder.getPosition() - m_goal.position) < EPSILON;
+        final double GOAL_EPSILON = 600.0;
+        return Math.abs(getCurrentPosition() - m_goal.position) < GOAL_EPSILON;
     }
 
     public void increaseL2AlgaeOffset(double ticks) {

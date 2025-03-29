@@ -54,9 +54,7 @@ public class MyAutoBuilder {
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               " I am now moving to the coral station"))
             , new PIDtoPosition(swerve, coralStationTarget)
-                .until(() -> swerve.isNear(coralStationTarget))
-                    .withTimeout(5)
-            , new WaitCommand(2)
+                    .withTimeout(3.5)
             , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
               " I am now moving to my second reef target"))
             , new PIDtoPosition(swerve, reefTarget2)
