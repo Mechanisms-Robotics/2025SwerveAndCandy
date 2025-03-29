@@ -47,6 +47,8 @@ public class Robot extends TimedRobot
     );
 
     m_robotContainer.setElevatorToWhereItsAt();
+
+    m_robotContainer.m_coralMech.stop();
   }
 
   public Robot()
