@@ -22,7 +22,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 public class MyAutoBuilder {
-    public static Command twoCoralLeft(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
+    public static Command twoCoralProcessorSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
         Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
         ? FieldConstants.BLUE_REEF_POSES.get(22).getSecond()
         : FieldConstants.RED_REEF_POSES.get(9).getSecond();
@@ -85,13 +85,13 @@ public class MyAutoBuilder {
         );
     }
 
-    public static Command twoCoralRight(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
+    public static Command twoCoralBargeSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
       Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_REEF_POSES.get(19).getSecond()
-      : FieldConstants.RED_REEF_POSES.get(6).getSecond();
-      Pose2d reefTarget2 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
       ? FieldConstants.BLUE_REEF_POSES.get(20).getSecond()
       : FieldConstants.RED_REEF_POSES.get(11).getSecond();
+      Pose2d reefTarget2 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
+      ? FieldConstants.BLUE_REEF_POSES.get(19).getSecond()
+      : FieldConstants.RED_REEF_POSES.get(6).getSecond();
       Pose2d coralStationTarget = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
       ? FieldConstants.BLUE_CORAL_STATION_LEFT
       : FieldConstants.RED_CORAL_STATION_LEFT;
@@ -148,7 +148,7 @@ public class MyAutoBuilder {
         );
     }
 
-    public static Command coralAndAlgaeCenter(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
+    public static Command coralAndAlgaeCenterBarge(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech) {
       Pose2d reefTarget1 = DriverStation.getAlliance().equals(DriverStation.Alliance.Blue)
       ? FieldConstants.BLUE_REEF_POSES.get(21).getSecond()
       : FieldConstants.RED_REEF_POSES.get(10).getSecond();
