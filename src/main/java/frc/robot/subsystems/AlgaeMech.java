@@ -189,7 +189,7 @@ public class AlgaeMech extends SubsystemBase {
    * @return angle of the wrist as determined by the falcon internal encoder
    */
   public double getWristAngle() {
-    return m_encoder.getAbsolutePosition().getValueAsDouble() * 360 WRIST_STARTING_CONFIGURATION_ANGLE;
+    return m_encoder.getAbsolutePosition().getValueAsDouble() * 360 + WRIST_STARTING_CONFIGURATION_ANGLE;
   }
 
   /**
