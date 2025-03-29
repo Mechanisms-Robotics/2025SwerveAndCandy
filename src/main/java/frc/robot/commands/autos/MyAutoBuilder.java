@@ -1,5 +1,7 @@
 package frc.robot.commands.autos;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -9,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.ElevatorRest;
+import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.L4;
 import frc.robot.commands.swervedrive.auto.BargeAlign;
@@ -173,7 +176,7 @@ public class MyAutoBuilder {
           , Commands.runOnce(coralMech::stop)
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
             "I stopped feeding coral and am now lowering the elevator to get the algae"))
-          , new L3(elevator, algaeMech, true, false, false, false)
+          , new L2(elevator, algaeMech, () -> true, () -> false, () -> false, () -> false) 
               .until(elevator::atGoal)
                   .withTimeout(2)
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
@@ -185,8 +188,7 @@ public class MyAutoBuilder {
           , new ElevatorRest(elevator, algaeMech)
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
             "I am now moving to barge"))
-          , new BargeAlign(swerve, bargeTarget)
-              .until(swerve::atGoal)
+          , new BargeAlign(swerve, () -> bargeTarget)
                   .withTimeout(5)
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
             "I am now raising the elevator to barge"))
