@@ -8,11 +8,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,6 +16,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -29,10 +26,16 @@ import frc.robot.commands.ElevatorBarge;
 import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
 import frc.robot.commands.L3;
+import frc.robot.commands.autos.MyAutoBuilder;
+import frc.robot.commands.L4;
 import frc.robot.commands.autos.TimedLeave;
+import frc.robot.commands.swervedrive.auto.AutoReefLineup;
+import frc.robot.commands.swervedrive.auto.BargeAlign;
+import frc.robot.commands.swervedrive.auto.CoralStationLineup;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.function.Supplier;
@@ -46,19 +49,40 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  final         CommandPS4Controller driverController = new CommandPS4Controller(0);
-  private final CommandPS4Controller secondaryController = new CommandPS4Controller(3);
-  private final Joystick shifter = new Joystick(1);
-  private final Joystick gamePad = new Joystick(2);
+  // toggle setting for CONFIRM MODE for elevator commands - defaults to TRUE
+  private boolean m_shiftConfirmMode = true;
 
+  // Replace with CommandPS4Controller or CommandJoystick if needed
+
+  final         CommandPS4Controller driverController = new CommandPS4Controller(0);
+
+  private final CommandXboxController secondaryController = new CommandXboxController(3);
+
+  private final CommandJoystick pedals = new CommandJoystick(1);
+
+  private final Joystick shifter = new Joystick(2);
+
+  
   // The robot's subsystems and commands are defined here...
   public final SwerveSubsystem m_drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
     "swerve"));
   public final Elevator m_elevator = new Elevator();
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
-  private final SendableChooser<Command> m_autoChooser = new SendableChooser();
+  public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
+  public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
+  
+  private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
+
+  private Supplier<Boolean> m_algaeClutch = () -> false;
+  private Supplier<Boolean> m_coralClutch = () -> false;
+
+  private Supplier<Boolean> m_elevUp = () -> false;
+  private Supplier<Boolean> m_elevDown = () -> false;
+
+  private static final double LEFT_PEDAL_THRESHOLD = -0.6;
+  private static final double RIGHT_PEDAL_THRESHOLD = -0.8;
+  private static final double MIDDLE_PEDAL_THRESHOLD = -0.6;
 
   public void setElevatorToWhereItsAt() {
     // Prevents the elevator from moving on enable
@@ -143,7 +167,31 @@ public class RobotContainer {
 
     if (RobotBase.isSimulation())
     {
-      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      // CommandPS4Controller rotationJoystick = new CommandPS4Controller(1);
+      // SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
+      //   () -> Math.pow(driverController.getLeftY(), 3),
+      //   () -> Math.pow(driverController.getLeftX(), 3))
+      //     .withControllerRotationAxis(() -> -Math.signum(rotationJoystick.getRawAxis(0))*Math.pow(rotationJoystick.getRawAxis(0), 2))
+      //     .deadband(OperatorConstants.DEADBAND)
+      //     .scaleTranslation(0.8)
+      //     .allianceRelativeControl(true);
+      // Command driveFieldOrientedAnglularVelocityKeyboard = m_drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+
+      CommandXboxController xboxController = new CommandXboxController(0);
+      SwerveInputStream driveAngularVelocityXbox = SwerveInputStream.of(m_drivebase.getSwerveDrive(),
+        () -> Math.pow(xboxController.getLeftY(), 3),
+        () -> Math.pow(xboxController.getLeftX(), 3))
+          .withControllerRotationAxis(() -> -Math.signum(xboxController.getRightX())*Math.pow(xboxController.getRightX(), 2))
+          .deadband(OperatorConstants.DEADBAND)
+          .scaleTranslation(0.8)
+          .allianceRelativeControl(true);
+      Command driveFieldOrientedAnglularVelocityXbox = m_drivebase.driveFieldOriented(driveAngularVelocityXbox);
+
+      xboxController.a().whileTrue(new AutoReefLineup(m_drivebase, xboxController.rightBumper()));
+      xboxController.b().whileTrue(new BargeAlign(m_drivebase, () -> -xboxController.getLeftX()));
+      xboxController.x().whileTrue(new CoralStationLineup(m_drivebase));
+      xboxController.start().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityXbox);
     } else
     {
       m_drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
@@ -151,6 +199,11 @@ public class RobotContainer {
 
     if (Robot.isSimulation())
     {
+      // Testing Brennan's controller
+      DriverStation.reportWarning("Simulation Mode!",false);
+
+      configureSimSecondaryControllers();
+
       // driveDirectAngleKeyboard.driveToPose(() -> new Pose2d(new Translation2d(9, 3),
       //                                                       Rotation2d.fromDegrees(90)),
       //                                      new ProfiledPIDController(5,
@@ -194,8 +247,21 @@ public class RobotContainer {
      * 
      */
     {
-      driverController.cross().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      driverController.share().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
+      // setup secondaryController and pedals for REAL physical mode
+      configureRealSecondaryControllers();
 
+
+      // driverController.touchpad().whileTrue(new PointAtApriltag(m_drivebase, m_limeLight, 5));
+
+      // driverController.touchpad().whileTrue(new DriveWhileApriltagPoint(m_drivebase, m_limeLight1,
+      //   () -> driverController.getLeftX(),
+      //   () -> driverController.getLeftY(),
+      //   () -> driverController.getRightX(), Constants.FieldConstants.REEF_APRIL_TAGS));
+
+      driverController.L1().whileTrue(new AutoReefLineup(m_drivebase, ()->false));
+      driverController.R1().whileTrue(new AutoReefLineup(m_drivebase, ()->true));
+        
       // Algae Mech
       driverController.L2().onTrue(Commands.runOnce(m_algaeMech::intake));
       driverController.L2().onFalse(Commands.runOnce(m_algaeMech::stop));
@@ -212,10 +278,10 @@ public class RobotContainer {
         () -> m_algaeMech.setWristAngle(AlgaeMech.WRIST_ANGLE_UP)));
 
       // Coral Mech
-      driverController.R1().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
-      driverController.R1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
-      driverController.L1().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
-      driverController.L1().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.cross().onTrue(Commands.runOnce(m_coralMech::feed, m_coralMech));
+      driverController.cross().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
+      driverController.touchpad().onTrue(Commands.runOnce(m_coralMech::retract, m_coralMech));
+      driverController.touchpad().onFalse(Commands.runOnce(m_coralMech::stop, m_coralMech));
 
       // Elevator
       // Move elevator up and down manualy, kept here for now. I have no particular commitment to keeping these here
@@ -227,46 +293,6 @@ public class RobotContainer {
       driverController.povUp().onTrue(Commands.runOnce(
         () -> m_elevator.setTargetPosition(m_elevator.getCurrentPosition() + 2000), m_elevator)
       );
-
-      // Modifier controlls for elevator positions
-      Supplier<Boolean> clutch = () -> secondaryController.touchpad().getAsBoolean() || gamePad.getRawButton(1);
-      Supplier<Boolean> up = () -> secondaryController.povUp().getAsBoolean();
-      Supplier<Boolean> down = () -> secondaryController.povDown().getAsBoolean();
-      secondaryController.cross().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-
-      secondaryController.square().onTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
-      secondaryController.circle().onTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
-
-      secondaryController.triangle().onTrue(Commands.runOnce(
-        () -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
-  
-      secondaryController.R1().onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-
-      secondaryController.povRight().whileTrue(
-        Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
-
-      secondaryController.povLeft().whileTrue(
-        Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
-
-      secondaryController.L1().onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
-  
-      new Trigger(() -> shifter.getRawButtonPressed(1)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
-      // uncomment these lines to sue the commands that automatically lower the algae arms to pick up algae when in clutch
-      // and comment the lines that would cause problems (.getRawButton(2, 3))
-      // new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch));
-      // new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch));
-      // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
-      new Trigger(() -> shifter.getRawButton(2)).whileTrue(new L2(m_elevator, m_algaeMech, clutch, up, down));
-      new Trigger(() -> shifter.getRawButton(3)).whileTrue(new L3(m_elevator, m_algaeMech, clutch, up, down));
-      new Trigger(() -> shifter.getRawButton(4)).whileTrue(
-        Commands.run(() -> m_elevator.setTargetPosition(clutch.get() ? Elevator.L4_OFFSET : Elevator.L4), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(6)).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
-      new Trigger(() -> shifter.getRawButtonPressed(7)).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
-      new Trigger(() -> shifter.getRawButtonPressed(8)).onTrue(new ElevatorRest(m_elevator, m_algaeMech, clutch));
-        // new Trigger(() -> shifter.getRawButton(1) || shifter.getRawButton(2)
-      // || shifter.getRawButton(3) || shifter.getRawButton(4)).onFalse(
-        //   Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
     }  
   }
 
@@ -283,7 +309,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
     NamedCommands.registerCommand("L3 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3_ALGAE_OFFSET), m_elevator));
     NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
-    NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_OFFSET), m_elevator));
+    NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_Offset), m_elevator));
 
     /**
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
@@ -294,7 +320,10 @@ public class RobotContainer {
     m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
     m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
     m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
-    m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto")); 
+    m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
+    m_autoChooser.addOption("Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
+    m_autoChooser.addOption("Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
+    m_autoChooser.addOption("Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
@@ -313,5 +342,178 @@ public class RobotContainer {
   public void setMotorBrake(boolean brake)
   {
     m_drivebase.setMotorBrake(brake);
+  }
+
+  private void configureSimSecondaryControllers() {
+
+    Trigger trigger_button1 = secondaryController.button(1);
+    Trigger trigger_button2 = secondaryController.button(2);
+    Trigger trigger_button3 = secondaryController.button(3);
+    Trigger trigger_button4 = secondaryController.button(4);
+    Trigger trigger_button5 = secondaryController.button(5);
+    Trigger trigger_button6 = secondaryController.button(6);
+    Trigger trigger_button7 = secondaryController.button(7);
+    Trigger trigger_button8 = secondaryController.button(8);
+
+    Trigger trigger_leftTrigger = secondaryController.leftTrigger(0.3);
+    Trigger trigger_rightTrigger = secondaryController.rightTrigger(0.3);
+    Trigger trigger_povLeft = secondaryController.povLeft();
+    Trigger trigger_povRight = secondaryController.povRight();
+    Trigger trigger_povUp = secondaryController.povUp();
+    Trigger trigger_povDown = secondaryController.povDown();
+
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
+    Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
+
+    trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
+    trigger_middlePedal.onTrue(new PrintCommand("Middle Pedal pressed"));
+    trigger_rightPedal.onTrue(new PrintCommand("Right Pedal pressed"));
+
+    trigger_button1.onTrue(new PrintCommand("Button1 pressed"));
+    trigger_button2.onTrue(new PrintCommand("Button2 pressed"));
+    trigger_button3.onTrue(new PrintCommand("Button3 pressed"));
+    trigger_button4.onTrue(new PrintCommand("Button4 pressed"));
+    trigger_button5.onTrue(new PrintCommand("Button5 pressed"));
+    trigger_button6.onTrue(new PrintCommand("Button6 pressed"));
+    trigger_button7.onTrue(new PrintCommand("Button7 pressed"));
+    trigger_button8.onTrue(new PrintCommand("Button8 pressed"));
+
+    trigger_leftTrigger.onTrue(new PrintCommand("Left Trigger pressed"));
+    trigger_rightTrigger.onTrue(new PrintCommand("Right Trigger pressed"));
+
+    trigger_povLeft.onTrue(new PrintCommand("pov Left pressed"));
+    trigger_povRight.onTrue(new PrintCommand("pov Right pressed"));
+    trigger_povUp.onTrue(new PrintCommand("pov Up pressed"));
+    trigger_povDown.onTrue(new PrintCommand("pov Down pressed"));
+  }
+
+  private void configureRealSecondaryControllers()
+  {
+    // shifter triggers
+    Trigger trigger_shifter_1 = new Trigger(() -> shifter.getRawButtonPressed(1));
+
+    // since L2 - L4 leverage offsets and clutch operation, they need continuous state of shifter,
+    // thus using getRawButton()
+    Trigger trigger_shifter_2 = new Trigger(() -> shifter.getRawButton(2));
+    Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButton(3));
+    Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButton(4));
+
+    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButtonPressed(5));
+    Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButtonPressed(6));
+    Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButtonPressed(7));
+    Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButtonPressed(8));
+    
+    // using Brennan's Saber FGC controller
+    Trigger trigger_barge = secondaryController.povRight();
+    Trigger trigger_rest = secondaryController.povUp();
+    Trigger trigger_L1 = secondaryController.button(1);
+    Trigger trigger_L2 = secondaryController.button(2);
+    Trigger trigger_L3 = secondaryController.leftTrigger();
+    Trigger trigger_L4 = secondaryController.rightTrigger();
+    Trigger trigger_elevDown = secondaryController.button(3);
+    Trigger trigger_elevUp = secondaryController.button(4);
+    Trigger trigger_wristDown = secondaryController.button(5);
+    Trigger trigger_wristUp = secondaryController.button(6);
+    Trigger trigger_algaeClutch = secondaryController.povLeft();
+    Trigger trigger_coralClutch = secondaryController.povDown();
+
+    Trigger trigger_eRestPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
+    Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
+
+    // combine redundant controls into single trigger for simpler logic below
+    Trigger trigger_coralClutchDuo = trigger_coralClutch.or(trigger_coralClutchPedal);
+    Trigger trigger_algaeClutchDuo = trigger_algaeClutch.or(trigger_algaeClutchPedal);
+    Trigger trigger_bargeDuo = trigger_barge.or(trigger_shifter_7);
+    Trigger trigger_restDuo = trigger_rest.or(trigger_shifter_8);
+    Trigger trigger_L1Duo = trigger_L1.or(trigger_shifter_1);
+    Trigger trigger_L2Duo = trigger_L2.or(trigger_shifter_2);
+    Trigger trigger_L3Duo = trigger_L3.or(trigger_shifter_3);
+    Trigger trigger_L4Duo = trigger_L4.or(trigger_shifter_4);
+
+    // left pedal is emergency rest
+    trigger_eRestPedal.onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+
+    // Set BooleanSuppliers based on clutch and elevUp/elevDown states
+    m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
+    m_coralClutch = () -> trigger_coralClutch.or(trigger_coralClutchPedal).getAsBoolean();
+    Supplier<Boolean> L4_clutch = () -> m_algaeClutch.get() || m_coralClutch.get();
+    m_elevUp = () -> trigger_elevUp.getAsBoolean();
+    m_elevDown = () -> trigger_elevDown.getAsBoolean();
+
+    // Toggle CONFIRM MODE if cheat code enabled
+    //   cheat code = Barge + Rest + CoralClutch + AlgaeClutch all on gamePad
+    // 
+    // If team likes original mode better, the default at top of the file should be flipped
+    // so they don't have to toggle on gamepad for each match.
+    trigger_barge.and(trigger_rest).and(trigger_coralClutch).and(trigger_algaeClutch).onTrue(
+      Commands.runOnce(() -> toggleConfirmMode())
+    );
+
+    if (m_shiftConfirmMode) {
+    /**** BAD CODING PRACTICE BELOW [M.Fox] ***
+      We could end up in a situation where the shifter is left in one position, say L3, and the
+      gamepad requests a different position by pressing, say L2. Now the OR conditions below should
+      theoretically trigger both L2 and L3 commands to be called by the scheduler which could result
+      in indeterminate behavior. Through testing it appears that the scheduler handles this by simply
+      letting the last-executed command win. This is logical, and is fine for competition, but still
+      bad coding nonetheless. We should try to avoid such scenarios.
+    */
+
+      // Only trigger when coral clutch (CONFIRM) AND L(n) is pressed for all of these commands
+      trigger_coralClutchDuo.and(trigger_L1Duo).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+      // Since L2-L4 have elevBumps, they need to be triggered continuously to update 
+      // L2 when coral clutch (CONFIRM) AND L2 is pressed
+      trigger_coralClutchDuo.and(trigger_L2Duo).whileTrue(new L2(m_elevator, m_algaeMech, ()->false, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_coralClutchDuo.and(trigger_L3Duo).whileTrue(new L3(m_elevator, m_algaeMech, ()->false, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_coralClutchDuo.and(trigger_L4Duo).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
+
+      trigger_coralClutchDuo.and(trigger_shifter_6).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      trigger_coralClutchDuo.and(trigger_bargeDuo).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      trigger_coralClutchDuo.and(trigger_restDuo).onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+      
+      trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
+      trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+
+      // ALGAE MODE TRIGGERS FOR L2 and L3 ONLY WHEN ALGAE_CONFIRM IS PRESSED
+      trigger_algaeClutchDuo.and(trigger_L1Duo).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));      
+      trigger_algaeClutchDuo.and(trigger_L2Duo).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, ()->false, m_elevUp, m_elevDown));
+      trigger_algaeClutchDuo.and(trigger_L3Duo).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, ()->false, m_elevUp, m_elevDown));
+      // Ada said it would be intutive for the barge to be confirmed on algae clutch because barge does algae stuff
+      trigger_algaeClutchDuo.and(trigger_bargeDuo).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      trigger_algaeClutchDuo.and(trigger_restDuo).whileTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+      trigger_algaeClutchDuo.and(trigger_L4Duo).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
+
+    } else{ // original mode, SHIFT_CONFIRM_MODE = false
+
+    /**** BAD CODING PRACTICE BELOW [M.Fox] ***
+      We could end up in a situation where the shifter is left in one position, say L3, and the
+      gamepad requests a different position by pressing, say L2. Now the OR conditions below should
+      theoretically trigger both L2 and L3 commands to be called by the scheduler which could result
+      in indeterminate behavior. Through testing it appears that the scheduler handles this by simply
+      letting the last-executed command win. This is logical, and is fine for competition, but still
+      bad coding nonetheless. We should try to avoid such scenarios.
+    */
+
+      trigger_L1.or(trigger_shifter_1).onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L1), m_elevator));
+
+      // Since these have two different modes, they need to be triggered continnously to update the mode in the event the clutch is engaged
+      trigger_L2.or(trigger_shifter_2).whileTrue(new L2(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_L3.or(trigger_shifter_3).whileTrue(new L3(m_elevator, m_algaeMech, m_algaeClutch, m_coralClutch, m_elevUp, m_elevDown));
+      trigger_L4.or(trigger_shifter_4).whileTrue(new L4(m_elevator, L4_clutch, m_elevUp, m_elevDown));
+
+      trigger_shifter_6.onTrue(Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.PROCESSOR), m_elevator));
+      trigger_barge.or(trigger_shifter_7).onTrue(new ElevatorBarge(m_elevator, m_algaeMech));
+      trigger_rest.or(trigger_shifter_8).onTrue(new ElevatorRest(m_elevator, m_algaeMech, m_algaeClutch));
+      
+      trigger_wristDown.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(-AlgaeMech.WRIST_BUMP)));
+      trigger_wristUp.whileTrue(Commands.run(() -> m_algaeMech.bumpWristUp(AlgaeMech.WRIST_BUMP)));
+    }
+  }
+
+  private void toggleConfirmMode() {
+    m_shiftConfirmMode = !m_shiftConfirmMode;
+    DriverStation.reportWarning("CONFIRM_MODE CHANGED! confirmMode = "+String.valueOf(m_shiftConfirmMode),false);
   }
 }

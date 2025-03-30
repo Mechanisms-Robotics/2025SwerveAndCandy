@@ -44,6 +44,11 @@
       "/SmartDashboard/Alerts": "Alerts",
       "/SmartDashboard/AlgaeMech/controler": "PIDController",
       "/SmartDashboard/Auto Choose": "String Chooser",
+      "/SmartDashboard/Command Scheduler Visualisation": "Scheduler",
+      "/SmartDashboard/Commands/BargeAlign/forward back controller": "PIDController",
+      "/SmartDashboard/Commands/BargeAlign/rotation controller": "PIDController",
+      "/SmartDashboard/Commands/PIDtoPosition/rotation pidcontroller": "PIDController",
+      "/SmartDashboard/Commands/PIDtoPosition/translation pidcontroller": "PIDController",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
@@ -53,57 +58,14 @@
       "/SmartDashboard/Swerve Drive": "Alerts"
     },
     "windows": {
-      "/SmartDashboard/Field": {
-        "bottom": 1476,
-        "height": 8.210550308227539,
-        "left": 150,
-        "right": 2961,
-        "top": 79,
-        "width": 16.541748046875,
+      "/SmartDashboard/Auto Choose": {
         "window": {
           "visible": true
         }
       }
     }
   },
-  "NetworkTables": {
-    "Retained Values": {
-      "open": false
-    },
-    "transitory": {
-      "PathPlanner": {
-        "open": true
-      },
-      "Shuffleboard": {
-        "open": true
-      },
-      "SmartDashboard": {
-        "Auto Choose": {
-          "open": true,
-          "string[]##v_/SmartDashboard/Auto Choose/options": {
-            "open": true
-          }
-        },
-        "Field": {
-          "open": true
-        },
-        "open": true
-      }
-    }
-  },
   "NetworkTables Info": {
     "visible": true
-  },
-  "Plot": {
-    "Plot <0>": {
-      "window": {
-        "visible": false
-      }
-    },
-    "Plot <1>": {
-      "window": {
-        "visible": false
-      }
-    }
   }
 }

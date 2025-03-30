@@ -1,0 +1,27 @@
+{
+    "name": "REMORA",
+    "rotations": [
+        {
+            "axis": "x",
+            "degrees": 90
+        },
+        {
+            "axis": "z",
+            "degrees": 90
+        }
+    ],
+    "position": [0, 0, 0],
+    "cameras": [
+        {
+            "name": "LimeLight1",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -30
+                }
+            ],
+            "position": [0.3214, -0.03175, 0.16]
+        }
+    ],
+    "components": []
+}
