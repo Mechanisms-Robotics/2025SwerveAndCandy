@@ -86,10 +86,10 @@ public class StateMachine extends SubsystemBase{
         myState = State.NoTargetIdentified;
         
         // turn on white light 
-        outputLEDRed.set(false);
-        outputLEDGreen.set(false);
-        outputLEDBlue.set(false);
-        outputLEDWhite.set(true);
+        outputLEDRed.set(true);
+        outputLEDGreen.set(true);
+        outputLEDBlue.set(true);
+        
 
         return;
     }
