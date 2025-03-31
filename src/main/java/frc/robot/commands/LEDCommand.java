@@ -21,7 +21,10 @@ public class LEDCommand extends Command {
     @Override
     public void execute() {
         if (false) {
+            // TODO: add logic to set DrivingToTarget at the right time
             stateMachine.setState(State.DrivingToReefTarget);
+
+            // TODO: add logic to set ArrivedAtTarget at the right time
         } else {
             if (ApriltagData.validPositionMeasurement()) {
                 stateMachine.setState(State.DetectedReefTarget);
