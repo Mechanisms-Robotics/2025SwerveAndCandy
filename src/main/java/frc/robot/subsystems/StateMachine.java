@@ -2,8 +2,9 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class StateMachine extends SubsystemBase{
+public class StateMachine extends SubsystemBase {
 
     public enum State {
         /**No AprilTag seen by the robot */
@@ -131,5 +132,11 @@ public class StateMachine extends SubsystemBase{
 
         
         return;
+    }
+
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putString("StateMachine/State", myState.name());
     }
 }
