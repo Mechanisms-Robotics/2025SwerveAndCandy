@@ -22,6 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.StateMachine;
+import frc.robot.subsystems.StateMachine.State;;
 
 public class LimeLight extends SubsystemBase {
     private final PhotonCamera camera;
@@ -288,5 +290,9 @@ public class LimeLight extends SubsystemBase {
         for (int i = 0; i < aprilTagDatas.size(); i++) {
             aprilTagDatas.get(i).resetData();
         }
+        if (StateMachine.getState().equals(State.NoTargetIdentified) && ApriltagData.validPositionMeasurement())
+            StateMachine.setState(State.DetectedReefTarget);
+        else if (StateMachine.getState().equals(State.DetectedReefTarget) && !ApriltagData.validPositionMeasurement())
+            StateMachine.setState(State.NoTargetIdentified);
     }
 }

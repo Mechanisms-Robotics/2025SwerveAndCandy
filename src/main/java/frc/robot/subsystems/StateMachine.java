@@ -1,12 +1,13 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class StateMachine extends SubsystemBase {
+public class StateMachine {
 
-    public enum State {
+    public static enum State {
         /**No AprilTag seen by the robot */
         NoTargetIdentified,
         /**AprilTag seen on the reef */
@@ -17,11 +18,11 @@ public class StateMachine extends SubsystemBase {
         ArrivedAtReefTarget
     }
 
-    private State myState;
-    private DigitalOutput outputLEDWhite;
-    private DigitalOutput outputLEDRed;
-    private DigitalOutput outputLEDGreen;
-    private DigitalOutput outputLEDBlue;
+    private static State myState;
+    private static DigitalOutput outputLEDWhite;
+    private static DigitalOutput outputLEDRed;
+    private static DigitalOutput outputLEDGreen;
+    private static DigitalOutput outputLEDBlue;
 
     /* OFFSEASON: setup data structures to manage the LED colors as an
     *    {R,G,B} array of booleans. Each possible state should then have
@@ -35,7 +36,7 @@ public class StateMachine extends SubsystemBase {
     */
 
     /** Constructor that takes an initial state as a parameter */
-    public StateMachine(State inputState) {
+    static {
         // map LEDs to correct ports
         outputLEDWhite = new DigitalOutput(0);
         outputLEDRed = new DigitalOutput(1);
@@ -43,23 +44,14 @@ public class StateMachine extends SubsystemBase {
         outputLEDBlue = new DigitalOutput(3);
 
         /* call method to set initial state and configure lights */
-        setState(inputState);
+        setState(State.NoTargetIdentified);
     }
 
-    /** default constructor with no parameter will
-     * set initial state to "NoTargetIdentified"
-     */
-    public StateMachine() {
-        /* Call other constructur and pass default value
-         */
-        this(State.NoTargetIdentified);
-    }
-
-    public State getState() {
+    public static State getState() {
         return myState;
     }
 
-    public void setState(State newState) {
+    public static void setState(State newState) {
         // [M.Fox] This is not the most elegant way to do this,
         // but it is the most straightforward way to do for teaching
         // purposes. See comments at top of file labeled "OFFSEASON"
@@ -83,7 +75,7 @@ public class StateMachine extends SubsystemBase {
         return;
     }
 
-    private void setNotIdentified() {
+    private static void setNotIdentified() {
         myState = State.NoTargetIdentified;
         
         // turn on white light 
@@ -95,7 +87,7 @@ public class StateMachine extends SubsystemBase {
         return;
     }
 
-    private void setDetectedReefTarget() {
+    private static void setDetectedReefTarget() {
         myState = State.DetectedReefTarget;
 
         // turn on blue light 
@@ -108,7 +100,7 @@ public class StateMachine extends SubsystemBase {
         return;
     }
 
-    private void setDrivingToReefTarget() {
+    private static void setDrivingToReefTarget() {
         myState = State.DrivingToReefTarget;
 
         // turn on red light 
@@ -121,7 +113,7 @@ public class StateMachine extends SubsystemBase {
         return;
     }
 
-    private void setArrivedAtReefTarget() {
+    private static void setArrivedAtReefTarget() {
         myState = State.ArrivedAtReefTarget;
 
         // turn on green light 
@@ -135,8 +127,7 @@ public class StateMachine extends SubsystemBase {
     }
 
 
-    @Override
-    public void periodic() {
+    public static void run() {
         SmartDashboard.putString("StateMachine/State", myState.name());
     }
 }

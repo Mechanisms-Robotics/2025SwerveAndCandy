@@ -28,7 +28,6 @@ import frc.robot.commands.L2;
 import frc.robot.commands.L3;
 import frc.robot.commands.autos.MyAutoBuilder;
 import frc.robot.commands.L4;
-import frc.robot.commands.LEDCommand;
 import frc.robot.commands.autos.TimedLeave;
 import frc.robot.commands.swervedrive.auto.AutoReefLineup;
 import frc.robot.commands.swervedrive.auto.BargeAlign;
@@ -37,7 +36,6 @@ import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.LimeLight;
-import frc.robot.subsystems.StateMachine;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.function.Supplier;
@@ -73,7 +71,6 @@ public class RobotContainer {
   public final AlgaeMech m_algaeMech = new AlgaeMech();
   public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
   public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
-  public final StateMachine stateMachine = new StateMachine();
   
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
@@ -250,7 +247,6 @@ public class RobotContainer {
      * 
      */
     {
-      stateMachine.setDefaultCommand(new LEDCommand(m_drivebase, stateMachine));
       driverController.share().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
       // setup secondaryController and pedals for REAL physical mode
       configureRealSecondaryControllers();
