@@ -130,6 +130,18 @@ public class StateMachine extends SubsystemBase {
         return;
     }
 
+    public void red(){
+        setDrivingToReefTarget();
+    }
+
+    public void green(){
+        setArrivedAtReefTarget();
+    }
+
+    public void blue(){
+        setDetectedReefTarget();
+    }
+
 
     @Override
     public void periodic() {

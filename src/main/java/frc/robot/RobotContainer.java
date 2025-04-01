@@ -439,8 +439,10 @@ public class RobotContainer {
     // left pedal is emergency rest
     trigger_eRestPedal.onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
 
-    //trigger_eRestPedal.onTrue(Commands.runOnce(stateMachine.setState(StateMachine.State.DrivingToReefTarget), stateMachine));
-
+    trigger_eRestPedal.onTrue(Commands.runOnce(stateMachine::red));
+    trigger_algaeClutchPedal.onTrue(Commands.runOnce(stateMachine::green));
+    trigger_coralClutchPedal.onTrue(Commands.runOnce(stateMachine::blue));
+    
     // Set BooleanSuppliers based on clutch and elevUp/elevDown states
     m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
     m_coralClutch = () -> trigger_coralClutch.or(trigger_coralClutchPedal).getAsBoolean();
