@@ -17,10 +17,10 @@
             "rotations": [
                 {
                     "axis": "y",
-                    "degrees": -30
+                    "degrees": -23
                 }
             ],
-            "position": [0.3214, -0.03175, 0.16]
+            "position": [0.3175, -0.022225, 0.1603375]
         }
     ],
     "components": []
