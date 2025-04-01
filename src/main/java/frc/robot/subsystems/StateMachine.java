@@ -37,10 +37,9 @@ public class StateMachine extends SubsystemBase {
     /** Constructor that takes an initial state as a parameter */
     public StateMachine(State inputState) {
         // map LEDs to correct ports
-        outputLEDWhite = new DigitalOutput(0);
-        outputLEDRed = new DigitalOutput(1);
-        outputLEDGreen = new DigitalOutput(2);
-        outputLEDBlue = new DigitalOutput(3);
+        outputLEDRed = new DigitalOutput(6);
+        outputLEDGreen = new DigitalOutput(7);
+        outputLEDBlue = new DigitalOutput(8);
 
         /* call method to set initial state and configure lights */
         setState(inputState);
@@ -102,7 +101,6 @@ public class StateMachine extends SubsystemBase {
         outputLEDRed.set(false);
         outputLEDGreen.set(false);
         outputLEDBlue.set(true);
-        outputLEDWhite.set(false);
 
 
         return;
@@ -115,7 +113,6 @@ public class StateMachine extends SubsystemBase {
         outputLEDRed.set(true);
         outputLEDGreen.set(false);
         outputLEDBlue.set(false);
-        outputLEDWhite.set(false);
 
 
         return;
@@ -128,7 +125,6 @@ public class StateMachine extends SubsystemBase {
         outputLEDRed.set(false);
         outputLEDGreen.set(true);
         outputLEDBlue.set(false);
-        outputLEDWhite.set(false);
 
         
         return;

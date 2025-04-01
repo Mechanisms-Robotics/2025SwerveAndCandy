@@ -422,7 +422,7 @@ public class RobotContainer {
     Trigger trigger_algaeClutch = secondaryController.povLeft();
     Trigger trigger_coralClutch = secondaryController.povDown();
 
-    Trigger trigger_eRestPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_eRestPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
@@ -438,6 +438,8 @@ public class RobotContainer {
 
     // left pedal is emergency rest
     trigger_eRestPedal.onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+
+    //trigger_eRestPedal.onTrue(Commands.runOnce(stateMachine.setState(StateMachine.State.DrivingToReefTarget), stateMachine));
 
     // Set BooleanSuppliers based on clutch and elevUp/elevDown states
     m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();
