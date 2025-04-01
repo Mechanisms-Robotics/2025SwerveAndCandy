@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -70,7 +66,6 @@ public class RobotContainer {
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
   public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
-  public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
   
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
@@ -149,7 +144,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
-    NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    //NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
     createAutos();
   }
@@ -297,33 +292,46 @@ public class RobotContainer {
   }
 
   public void createAutos() {
-    NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feed, m_coralMech));
-    NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::stop, m_coralMech));
-    NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
-    NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
-    NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
+    // NamedCommands.registerCommand("Feed Coral", Commands.runOnce(m_coralMech::feed, m_coralMech));
+    // NamedCommands.registerCommand("Stop Feeding Coral", Commands.runOnce(m_coralMech::stop, m_coralMech));
+    // NamedCommands.registerCommand("Intake Algae", Commands.runOnce(m_algaeMech::intake, m_algaeMech));
+    // NamedCommands.registerCommand("Outtake Algae", Commands.runOnce(m_algaeMech::outtake, m_algaeMech));
+    // NamedCommands.registerCommand("Stop Algae Wheels", Commands.runOnce(m_algaeMech::stop, m_algaeMech));
 
-    NamedCommands.registerCommand("RestElevator", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
-    NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
-    NamedCommands.registerCommand("L2 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET), m_elevator));
-    NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
-    NamedCommands.registerCommand("L3 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3_ALGAE_OFFSET), m_elevator));
-    NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
-    NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_Offset), m_elevator));
+    // NamedCommands.registerCommand("RestElevator", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.RESTING), m_elevator));
+    // NamedCommands.registerCommand("L2", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2), m_elevator));
+    // NamedCommands.registerCommand("L2 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L2_ALGAE_OFFSET), m_elevator));
+    // NamedCommands.registerCommand("L3", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3), m_elevator));
+    // NamedCommands.registerCommand("L3 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L3_ALGAE_OFFSET), m_elevator));
+    // NamedCommands.registerCommand("L4", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4), m_elevator));
+    // NamedCommands.registerCommand("L4 Offset", Commands.runOnce(() -> m_elevator.setTargetPosition(Elevator.L4_Offset), m_elevator));
 
     /**
      * [Color of starting zone][Location within starting zone][Field Area][Field Area Loaction][Number scored]
      */
+
+
     m_autoChooser.setDefaultOption("Timed Leave", new TimedLeave(m_drivebase));
+    
+    
     //m_autoChooser.addOption("Leave", new PathPlannerAuto("Leave"));
     //m_autoChooser.addOption("BlueTHexTRL4", new PathPlannerAuto("BlueTHexTRL4")); 
-    m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
-    m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
-    m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
-    m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
-    m_autoChooser.addOption("Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
-    m_autoChooser.addOption("Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
-    m_autoChooser.addOption("Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech));
+
+    // m_autoChooser.addOption("L4 Coral", new PathPlannerAuto("L4 Coral")); 
+    // m_autoChooser.addOption("L2 Coral", new PathPlannerAuto("L2 Coral")); 
+    // m_autoChooser.addOption("L2 Coral Reflected", new PathPlannerAuto("L2 Coral Reflected")); 
+    // m_autoChooser.addOption("Test Auto", new PathPlannerAuto("Test Auto"));
+
+
+
+
+    m_autoChooser.addOption("Red Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
+    m_autoChooser.addOption("Red Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
+    m_autoChooser.addOption("Red Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
+    
+    m_autoChooser.addOption("Blue Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
+    m_autoChooser.addOption("Blue Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
+    m_autoChooser.addOption("Blue Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }

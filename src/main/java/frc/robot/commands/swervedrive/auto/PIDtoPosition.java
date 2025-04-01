@@ -27,8 +27,8 @@ public class PIDtoPosition extends Command {
     private final double maxRotationVelocity = Math.PI;
 
     // outputs the direction the robot is trying to go, this is meant for visualisation
-    private final StructPublisher<Pose2d> pidOutputPublisher;
-    private final StructPublisher<Pose2d> targetPositionPublisher;
+    // private final StructPublisher<Pose2d> pidOutputPublisher;
+    // private final StructPublisher<Pose2d> targetPositionPublisher;
 
     /**
      * PID to a given position. It pids x, y and rotational compents seperately.
@@ -48,13 +48,13 @@ public class PIDtoPosition extends Command {
         // tollerance is used to exit the function when it is good enough
         this.rotationController.setTolerance(rotationTolerance);
 
-        String ntFolder = "SmartDashboard/Commands/PIDtoPosition/";
-        pidOutputPublisher = NetworkTableInstance.getDefault()
-          .getStructTopic(ntFolder + "output vector", Pose2d.struct).publish();
-        targetPositionPublisher = NetworkTableInstance.getDefault()
-          .getStructTopic(ntFolder + "target position", Pose2d.struct).publish();
-        SmartDashboard.putData("Commands/PIDtoPosition/translation pidcontroller", driveController);
-        SmartDashboard.putData("Commands/PIDtoPosition/rotation pidcontroller", rotationController);
+        // String ntFolder = "SmartDashboard/Commands/PIDtoPosition/";
+        // pidOutputPublisher = NetworkTableInstance.getDefault()
+        //   .getStructTopic(ntFolder + "output vector", Pose2d.struct).publish();
+        // targetPositionPublisher = NetworkTableInstance.getDefault()
+        //   .getStructTopic(ntFolder + "target position", Pose2d.struct).publish();
+        // SmartDashboard.putData("Commands/PIDtoPosition/translation pidcontroller", driveController);
+        // SmartDashboard.putData("Commands/PIDtoPosition/rotation pidcontroller", rotationController);
         
         addRequirements(this.swerve);
     }
@@ -82,8 +82,8 @@ public class PIDtoPosition extends Command {
         swerve.drive(ChassisSpeeds.fromFieldRelativeSpeeds(fieldRelativeSpeeds, currentPosition.getRotation()));
 
         Rotation2d vectorAngle = Rotation2d.fromRadians(Math.atan2(velocityY, velocityX));
-        pidOutputPublisher.set(new Pose2d(swerve.getMyPose().getX(), currentPosition.getY(), vectorAngle));
-        targetPositionPublisher.set(targetPosition);
+        // pidOutputPublisher.set(new Pose2d(swerve.getMyPose().getX(), currentPosition.getY(), vectorAngle));
+        // targetPositionPublisher.set(targetPosition);
     }
 
     @Override
