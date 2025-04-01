@@ -19,7 +19,28 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /*
 
-STARTUP AND TUNING PROCEDURE
+MARCH STARTUP AND TUNING PROCEDURE
+
+Look through the code and find the RETUNE keyword. There are comments there about
+   retuning.
+
+Use the Rev Hardware Client to move the new elevator slowly up and down. See if
+the forward and reverse soft limits still make sense. If they are too far off, change
+them in the code here, deploy the code, run it on the robot by enabling teleop then
+disabling (to push the new limits), then recheck them using the Rev client.
+
+Retune the parameters I have marked below with RETUNE comments. Make it fast and
+accurate!
+
+   First rough in the elevator positions at a medium speed.
+   Then tune the other elevator speed and motion constants.
+   Then recheck the elevator positions to make sure they're about right
+     with the new speeds (see RETUNE comments below).
+
+
+
+
+PREVIOUS STARTUP AND TUNING PROCEDURE
 
 We deviated from these instructions a bit. Use some common sense.
 
@@ -73,24 +94,28 @@ https://github.com/FRC3546/2025-Reefscape-Competition/blob/main/src/main/java/fr
 */
 
 public class Elevator extends SubsystemBase {
-    // Soft limits determined experimentally. We set the lower limit at 100, at
-    // which time gravity will let it fall a little lower.
-    private static final double FORWARD_SOFT_LIMIT = 40500.0; // Ticks
+    private static final int THROUGHBORE_TICKS_PER_REVOLUTION = 8192;
+
+    // Soft limits determined experimentally.
+    private static final double FORWARD_SOFT_LIMIT = 32900.0; // Ticks
     private static final double REVERSE_SOFT_LIMIT = 10.0; // Ticks
 
     // Elevator positions in encoder ticks (8,192 ticks per revolution)
-    // about 700 ticks per inch
+    // about 600 ticks to inch
 
     public static final int RESTING = (int)REVERSE_SOFT_LIMIT;
-    public static final int PROCESSOR = 500;
-    public static final int LOADING = 1000;
-    public static final int L1 = 6000;
-    public static final int L2 = 12500;
-    public static int L2_ALGAE_OFFSET = 16500;
-    public static final int L3 = 19700;
-    public static int L3_ALGAE_OFFSET = 23500;
-    public static final int L4 = 32700;
-    public static final int L4_OFFSET = 34000;
+    public static final int PROCESSOR = 407;
+    public static final int LOADING = 815;
+    public static final int L1 = 4889;
+    public static int L1_Offset = L1; // same at the robot start
+    public static final int L2 = 10200;
+    public static int L2_Offset = L2;
+    public static int L2_ALGAE_OFFSET = 12110;
+    public static final int L3 = 16500;
+    public static int L3_Offset = L3;
+    public static int L3_ALGAE_OFFSET = 17880;
+    public static final int L4 = 26800;
+    public static int L4_Offset = 27703;
     public static final int BARGE = (int)FORWARD_SOFT_LIMIT - 100;
 
     private static final int LEADER_CAN_ID = 11;
@@ -108,11 +133,14 @@ public class Elevator extends SubsystemBase {
         = m_leader.getClosedLoopController();
 
     // Tunables for the SparkMax PID and output
-    private static final double KP = 0.000175;
+    
+    private static final double KP = 0.00025;
     private static final double KI = 0.0;
     private static final double KD = 0.0;
-    private static final double MIN_OUTPUT = -10.0; // Volts
-    private static final double MAX_OUTPUT = 10.0; // Volts
+
+    private static final double MIN_OUTPUT = -12.0; // Volts
+    private static final double MAX_OUTPUT = 12.0; // Volts
+    private static final int CURRENT_LIMIT = 40; // Amps per motor
     
     // Tunables for the elevator feedforward
     // private static final double KA = 0.0; // Acceleration feedforward Volts per something
@@ -120,10 +148,32 @@ public class Elevator extends SubsystemBase {
     // private static final double KG = 0.0; // Volts required to overcome gravity
     // private static final double KV = 0.0; // Velocity constant in Volts per distance per second
 
+    /**
+     * RETUNE: After the soft limits are verified, you can run the elevator at these low
+     * speeds to see what happens. After that, I suggest trying this:
+     * 
+     *   Increase the multiplier on MAX_VELOCITY to 2. If that seems okay, try 4.
+     *   If that seems okay, rough in the elevator positions. You MAY have to change
+     *   the max voltage and PID outputs above, but probably not.
+     * 
+     *   After you've got the positions roughly right with these medium speeds,
+     *   try increasing the MAX_VELOCITY multiplier to 6 then maybe 8. Be sure to
+     *   stress testing by throwing it from resting to barge and interrupting it to a
+     *   different position mid motion.
+     * 
+     *   You probably can leave MAX_ACCELERATION = 2*MAX_VELOCITY because that multiplier
+     *   worked well on the 4910 2018 and 2019 elevators, IIRC. But you can change that if
+     *   need be.
+     * 
+     *   As you increase the speeds, you may need to tweak the voltage and PID numbers above.
+     * 
+     *   If it's inconsistent, you could tweak EPSILON, but I think it's really tight as it is.
+     */
+
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 5*8192.0; // Ticks per second?
-    private static final double MAX_ACCELERATION = 8*8192; // Ticks per second per second?
-    private static final double EPSILON = 5.0; // Allowed error, presumably in ticks
+    private static final double MAX_VELOCITY = 6*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
+    private static final double MAX_ACCELERATION = 2*MAX_VELOCITY; // Ticks per second per second
+    private static final double EPSILON = 40.0; // Allowed error, presumably in ticks
 
     private final TrapezoidProfile profile = new TrapezoidProfile(
         new TrapezoidProfile.Constraints(MAX_VELOCITY, MAX_ACCELERATION));
@@ -131,7 +181,6 @@ public class Elevator extends SubsystemBase {
         = new TrapezoidProfile.State(0.0, 0.0); // Starting lowered
     private TrapezoidProfile.State m_goal = m_setpoint; // The elevator's goal setting
 
-    private static final int CURRENT_LIMIT = 40; // Amps per motor
 
     public Elevator() {
         // Zero the encoder
@@ -142,7 +191,6 @@ public class Elevator extends SubsystemBase {
         SparkMaxConfig leaderConfig = new SparkMaxConfig();
         SparkMaxConfig followerConfig = new SparkMaxConfig();
 
-        final int THROUGHBORE_TICKS_PER_REVOLUTION = 8192;
         leaderConfig.alternateEncoder
             .countsPerRevolution(THROUGHBORE_TICKS_PER_REVOLUTION)
             .setSparkMaxDataPortConfig()
@@ -199,14 +247,32 @@ public class Elevator extends SubsystemBase {
         return m_outputEncoder.getPosition();
     }
 
-    public void increaseL2Offset(double ticks) {
+
+    public boolean atGoal() {
+        final double GOAL_EPSILON = 600.0;
+        return Math.abs(getCurrentPosition() - m_goal.position) < GOAL_EPSILON;
+    }
+
+    public void increaseL2AlgaeOffset(double ticks) {
         L2_ALGAE_OFFSET += ticks;
     }
 
-    
-    public void increaseL3Offset(double ticks) {
+    public void increaseL2Offset(double ticks) {
+        L2_Offset += ticks;
+    }
+
+    public void increaseL3AlgaeOffset(double ticks) {
         L3_ALGAE_OFFSET += ticks;
     }
+
+    public void increaseL3Offset(double ticks) {
+        L3_Offset += ticks;
+    }
+
+    public void increaseL4Offset(double ticks) {
+        L4_Offset += ticks;
+    }
+
 
     @Override
     public void periodic() {
