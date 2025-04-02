@@ -83,7 +83,7 @@ public class RobotContainer {
   private Supplier<Boolean> m_elevUp = () -> false;
   private Supplier<Boolean> m_elevDown = () -> false;
 
-  private static final double LEFT_PEDAL_THRESHOLD = -0.6;
+  private static final double LEFT_PEDAL_THRESHOLD = +0.2;
   private static final double RIGHT_PEDAL_THRESHOLD = -0.8;
   private static final double MIDDLE_PEDAL_THRESHOLD = -0.6;
 
@@ -250,7 +250,7 @@ public class RobotContainer {
      * 
      */
     {
-      stateMachine.setDefaultCommand(new LEDCommand(m_drivebase, stateMachine));
+      //stateMachine.setDefaultCommand(new LEDCommand(m_drivebase, stateMachine));
       driverController.share().onTrue(Commands.runOnce(m_drivebase::zeroGyro));
       // setup secondaryController and pedals for REAL physical mode
       configureRealSecondaryControllers();
@@ -366,13 +366,18 @@ public class RobotContainer {
     Trigger trigger_povUp = secondaryController.povUp();
     Trigger trigger_povDown = secondaryController.povDown();
 
-    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
     trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
     trigger_middlePedal.onTrue(new PrintCommand("Middle Pedal pressed"));
     trigger_rightPedal.onTrue(new PrintCommand("Right Pedal pressed"));
+
+    trigger_leftPedal.onTrue(Commands.runOnce(stateMachine::red));
+    trigger_middlePedal.onTrue(Commands.runOnce(stateMachine::green));
+    trigger_rightPedal.onTrue(Commands.runOnce(stateMachine::blue));
+
 
     trigger_button1.onTrue(new PrintCommand("Button1 pressed"));
     trigger_button2.onTrue(new PrintCommand("Button2 pressed"));
