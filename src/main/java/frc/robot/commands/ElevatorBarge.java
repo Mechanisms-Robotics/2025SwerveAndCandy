@@ -29,6 +29,11 @@ public class ElevatorBarge extends Command {
         this.down = down;
         addRequirements(elevator, algaeMech);
     }
+    
+    @Override
+    public void initialize() {
+        m_algaeMech.setWristAngle(AlgaeMech.WRIST_BARGE);
+    }
 
     public ElevatorBarge(Elevator elevator, AlgaeMech algaeMech) {
         this(elevator, algaeMech, ()->false, ()->false);
@@ -36,8 +41,6 @@ public class ElevatorBarge extends Command {
 
     @Override
     public void execute() {
-        final double WRIST_ANGLE = 35.0;
-        m_algaeMech.setWristAngle(WRIST_ANGLE);
         m_elevator.setTargetPosition(Elevator.BARGE);
     }
 }
