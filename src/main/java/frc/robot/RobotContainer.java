@@ -40,6 +40,8 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.function.Supplier;
 
+import frc.robot.subsystems.StateMachine;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -432,6 +434,11 @@ public class RobotContainer {
     Trigger trigger_eRestPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
+
+    // TEST LIGHTS
+    trigger_eRestPedal.onTrue(Commands.runOnce(()->StateMachine.red()));
+    trigger_algaeClutchPedal.onTrue(Commands.runOnce(()->StateMachine.green()));
+    trigger_coralClutchPedal.onTrue(Commands.runOnce(()->StateMachine.blue()));
 
     // combine redundant controls into single trigger for simpler logic below
     Trigger trigger_coralClutchDuo = trigger_coralClutch.or(trigger_coralClutchPedal);
