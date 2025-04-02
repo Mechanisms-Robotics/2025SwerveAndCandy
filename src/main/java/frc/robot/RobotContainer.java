@@ -368,9 +368,9 @@ public class RobotContainer {
     Trigger trigger_povUp = secondaryController.povUp();
     Trigger trigger_povDown = secondaryController.povDown();
 
-    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
-    Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
-    Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD).and(pedals::isConnected);
+    Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD).and(pedals::isConnected);
+    Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD).and(pedals::isConnected);
 
     trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
     trigger_middlePedal.onTrue(new PrintCommand("Middle Pedal pressed"));
