@@ -10,6 +10,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.StateMachine;
+import frc.robot.subsystems.LimeLight.ApriltagData;
+import frc.robot.subsystems.StateMachine.State;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 /**
@@ -57,6 +60,8 @@ public class PIDtoPosition extends Command {
         SmartDashboard.putData("Commands/PIDtoPosition/rotation pidcontroller", rotationController);
         
         addRequirements(this.swerve);
+
+        StateMachine.setState(State.DrivingToReefTarget);
     }
 
 
@@ -84,12 +89,19 @@ public class PIDtoPosition extends Command {
         Rotation2d vectorAngle = Rotation2d.fromRadians(Math.atan2(velocityY, velocityX));
         pidOutputPublisher.set(new Pose2d(swerve.getMyPose().getX(), currentPosition.getY(), vectorAngle));
         targetPositionPublisher.set(targetPosition);
+
+        if (currentDistance < 0.1)
+            StateMachine.setState(State.ArrivedAtReefTarget);
     }
 
     @Override
     public void end(boolean interupted) {
         // stop the swerve on end
         swerve.driveFieldOriented(new ChassisSpeeds());
+        if (ApriltagData.validPositionMeasurement())
+            StateMachine.setState(State.DetectedReefTarget);
+        else
+            StateMachine.setState(State.NoTargetIdentified);
     }
 
     @Override
