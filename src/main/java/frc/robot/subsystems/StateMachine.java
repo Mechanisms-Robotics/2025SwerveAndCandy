@@ -1,8 +1,6 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class StateMachine {
@@ -19,10 +17,14 @@ public class StateMachine {
     }
 
     private static State myState;
-    private static DigitalOutput outputLEDWhite;
-    private static DigitalOutput outputLEDRed;
-    private static DigitalOutput outputLEDGreen;
-    private static DigitalOutput outputLEDBlue;
+    private static PWMSparkMax outputLEDRed;
+    private static PWMSparkMax outputLEDGreen;
+    private static PWMSparkMax outputLEDBlue;
+
+    // brightness will be set based on speedvalues passed into PWM controller
+    // ranging from 0 to 1
+    private static final double MIN_BRIGHTNESS = 0;
+    private static final double MAX_BRIGHTNESS = 0.83;
 
     /* OFFSEASON: setup data structures to manage the LED colors as an
     *    {R,G,B} array of booleans. Each possible state should then have
@@ -35,12 +37,12 @@ public class StateMachine {
     *    states in the future.
     */
 
-    /** Constructor that takes an initial state as a parameter */
+    /** Constructor */
     static {
         // map LEDs to correct ports
-        outputLEDRed = new DigitalOutput(6);
-        outputLEDGreen = new DigitalOutput(7);
-        outputLEDBlue = new DigitalOutput(8);
+        outputLEDRed = new PWMSparkMax(6);
+        outputLEDGreen = new PWMSparkMax(7);
+        outputLEDBlue = new PWMSparkMax(8);
 
         /* call method to set initial state and configure lights */
         setState(State.NoTargetIdentified);
@@ -69,6 +71,7 @@ public class StateMachine {
                 setArrivedAtReefTarget();
                 break;
             default:
+                setNotIdentified();
                 break;
         }
         return;
@@ -77,11 +80,8 @@ public class StateMachine {
     private static void setNotIdentified() {
         myState = State.NoTargetIdentified;
         
-        // turn on white light 
-        outputLEDRed.set(true);
-        outputLEDGreen.set(true);
-        outputLEDBlue.set(true);
-        
+        // turn on white light by driving all LEDs high
+        white();
 
         return;
     }
@@ -90,10 +90,7 @@ public class StateMachine {
         myState = State.DetectedReefTarget;
 
         // turn on blue light 
-        outputLEDRed.set(false);
-        outputLEDGreen.set(false);
-        outputLEDBlue.set(true);
-
+        blue();
 
         return;
     }
@@ -102,10 +99,7 @@ public class StateMachine {
         myState = State.DrivingToReefTarget;
 
         // turn on red light 
-        outputLEDRed.set(true);
-        outputLEDGreen.set(false);
-        outputLEDBlue.set(false);
-
+        red();
 
         return;
     }
@@ -114,16 +108,36 @@ public class StateMachine {
         myState = State.ArrivedAtReefTarget;
 
         // turn on green light 
-        outputLEDRed.set(false);
-        outputLEDGreen.set(true);
-        outputLEDBlue.set(false);
+        green();
 
-        
         return;
     }
 
-
     public static void run() {
         SmartDashboard.putString("StateMachine/State", myState.name());
+    }
+
+    public static void red() {
+        outputLEDRed.set(MAX_BRIGHTNESS);
+        outputLEDGreen.set(MIN_BRIGHTNESS);
+        outputLEDBlue.set(MIN_BRIGHTNESS);
+    }
+
+    public static void green() {
+        outputLEDRed.set(MIN_BRIGHTNESS);
+        outputLEDGreen.set(MAX_BRIGHTNESS);
+        outputLEDBlue.set(MIN_BRIGHTNESS);
+    }
+
+    public static void blue() {
+        outputLEDRed.set(MIN_BRIGHTNESS);
+        outputLEDGreen.set(MIN_BRIGHTNESS);
+        outputLEDBlue.set(MAX_BRIGHTNESS);
+    }
+
+    public static void white() {
+        outputLEDRed.set(MAX_BRIGHTNESS);
+        outputLEDGreen.set(MAX_BRIGHTNESS);
+        outputLEDBlue.set(MAX_BRIGHTNESS);
     }
 }

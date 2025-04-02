@@ -80,7 +80,7 @@ public class RobotContainer {
   private Supplier<Boolean> m_elevUp = () -> false;
   private Supplier<Boolean> m_elevDown = () -> false;
 
-  private static final double LEFT_PEDAL_THRESHOLD = -0.6;
+  private static final double LEFT_PEDAL_THRESHOLD = 0.2;
   private static final double RIGHT_PEDAL_THRESHOLD = -0.8;
   private static final double MIDDLE_PEDAL_THRESHOLD = -0.6;
 
@@ -368,13 +368,18 @@ public class RobotContainer {
     Trigger trigger_povUp = secondaryController.povUp();
     Trigger trigger_povDown = secondaryController.povDown();
 
-    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
     trigger_leftPedal.onTrue(new PrintCommand("Left Pedal pressed"));
     trigger_middlePedal.onTrue(new PrintCommand("Middle Pedal pressed"));
     trigger_rightPedal.onTrue(new PrintCommand("Right Pedal pressed"));
+
+    // test lights
+    //trigger_button1.onTrue(Commands.runOnce(()->StateMachine.red()));
+    //trigger_button2.onTrue(Commands.runOnce(()->StateMachine.green()));
+    //trigger_button3.onTrue(Commands.runOnce(()->StateMachine.blue()));
 
     trigger_button1.onTrue(new PrintCommand("Button1 pressed"));
     trigger_button2.onTrue(new PrintCommand("Button2 pressed"));
