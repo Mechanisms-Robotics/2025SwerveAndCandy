@@ -40,9 +40,9 @@ public class StateMachine {
     /** Constructor that takes an initial state as a parameter */
     static {
         // map LEDs to correct ports
-        outputLEDRed = new PWMSparkMax(6);
-        outputLEDGreen = new PWMSparkMax(7);
-        outputLEDBlue = new PWMSparkMax(8);
+        outputLEDRed = new PWMSparkMax(7);
+        outputLEDGreen = new PWMSparkMax(8);
+        outputLEDBlue = new PWMSparkMax(9);
 
         /* call method to set initial state and configure lights */
         setState(State.NoTargetIdentified);
