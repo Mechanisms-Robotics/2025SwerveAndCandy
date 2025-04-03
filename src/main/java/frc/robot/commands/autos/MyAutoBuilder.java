@@ -26,11 +26,11 @@ import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 public class MyAutoBuilder {
     public static Command twoCoralProcessorSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech, DriverStation.Alliance alliance) {
         Pose2d reefTarget1 = alliance.equals(DriverStation.Alliance.Blue)
-        ? FieldConstants.BLUE_REEF_POSES.get(22).getSecond()
-        : FieldConstants.RED_REEF_POSES.get(9).getSecond();
+        ? FieldConstants.BLUE_REEF_POSES_AUTO.get(22).getSecond()
+        : FieldConstants.RED_REEF_POSES_AUTO.get(9).getSecond();
         Pose2d reefTarget2 = alliance.equals(DriverStation.Alliance.Blue)
-        ? FieldConstants.BLUE_REEF_POSES.get(17).getSecond()
-        : FieldConstants.RED_REEF_POSES.get(8).getSecond();
+        ? FieldConstants.BLUE_REEF_POSES_AUTO.get(17).getSecond()
+        : FieldConstants.RED_REEF_POSES_AUTO.get(8).getSecond();
         Pose2d coralStationTarget = alliance.equals(DriverStation.Alliance.Blue)
         ? FieldConstants.BLUE_CORAL_STATION_RIGHT
         : FieldConstants.RED_CORAL_STATION_RIGHT;
@@ -87,11 +87,11 @@ public class MyAutoBuilder {
 
     public static Command twoCoralBargeSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech, DriverStation.Alliance alliance) {
       Pose2d reefTarget1 = alliance.equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_REEF_POSES.get(20).getSecond()
-      : FieldConstants.RED_REEF_POSES.get(11).getSecond();
+      ? FieldConstants.BLUE_REEF_POSES_AUTO.get(20).getSecond()
+      : FieldConstants.RED_REEF_POSES_AUTO.get(11).getSecond();
       Pose2d reefTarget2 = alliance.equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_REEF_POSES.get(19).getSecond()
-      : FieldConstants.RED_REEF_POSES.get(6).getSecond();
+      ? FieldConstants.BLUE_REEF_POSES_AUTO.get(19).getSecond()
+      : FieldConstants.RED_REEF_POSES_AUTO.get(6).getSecond();
       Pose2d coralStationTarget = alliance.equals(DriverStation.Alliance.Blue)
       ? FieldConstants.BLUE_CORAL_STATION_LEFT
       : FieldConstants.RED_CORAL_STATION_LEFT;
@@ -148,8 +148,8 @@ public class MyAutoBuilder {
 
     public static Command coralAndAlgaeCenterBarge(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech, DriverStation.Alliance alliance) {
       Pose2d reefTarget1 = alliance.equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_REEF_POSES.get(21).getSecond()
-      : FieldConstants.RED_REEF_POSES.get(10).getSecond();
+      ? FieldConstants.BLUE_REEF_POSES_AUTO.get(21).getSecond()
+      : FieldConstants.RED_REEF_POSES_AUTO.get(10).getSecond();
       double bargeTarget = alliance.equals(DriverStation.Alliance.Blue)
       ? FieldConstants.BLUE_BARG_POSE
       : FieldConstants.RED_BARG_POSE;
