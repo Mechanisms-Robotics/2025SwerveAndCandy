@@ -70,7 +70,7 @@ public class RobotContainer {
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
   public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
-  public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
+  //public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
   
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
