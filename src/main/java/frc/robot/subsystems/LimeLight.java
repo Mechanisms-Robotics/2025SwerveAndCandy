@@ -81,6 +81,7 @@ public class LimeLight extends SubsystemBase {
         private boolean goodForPositionMeasurements = false;
         private static boolean hasPose = false;
         private String tableName;
+        public static boolean hasTarget = false;
 
         private final StructPublisher<Pose3d> visionLocalisationPublisher;
 
@@ -257,6 +258,14 @@ public class LimeLight extends SubsystemBase {
         var results = camera.getAllUnreadResults();
         SmartDashboard.putBoolean(cameraName + "/connected", camera.isConnected());
         SmartDashboard.putNumber(cameraName + "/Target Number", results.size());
+        ApriltagData.hasTarget = results.stream().anyMatch(result -> result.hasTargets());
+        SmartDashboard.putBoolean(cameraName + "/has target", ApriltagData.hasTarget);
+
+        // only changes the state if it is in target identiied or not in target identified
+        if (StateMachine.getState().equals(State.NoTargetIdentified) && ApriltagData.hasTarget)
+            StateMachine.setState(State.DetectedReefTarget);
+        else if (StateMachine.getState().equals(State.DetectedReefTarget) && !ApriltagData.hasTarget)
+            StateMachine.setState(State.NoTargetIdentified);
 
         for (PhotonPipelineResult result : results) {
             SmartDashboard.putBoolean(cameraName + "/Apriltag detected", result.hasTargets());
@@ -290,9 +299,6 @@ public class LimeLight extends SubsystemBase {
         for (int i = 0; i < aprilTagDatas.size(); i++) {
             aprilTagDatas.get(i).resetData();
         }
-        if (StateMachine.getState().equals(State.NoTargetIdentified) && ApriltagData.validPositionMeasurement())
-            StateMachine.setState(State.DetectedReefTarget);
-        else if (StateMachine.getState().equals(State.DetectedReefTarget) && !ApriltagData.validPositionMeasurement())
-            StateMachine.setState(State.NoTargetIdentified);
+
     }
 }

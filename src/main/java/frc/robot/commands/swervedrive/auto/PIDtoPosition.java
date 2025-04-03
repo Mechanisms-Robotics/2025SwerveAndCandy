@@ -97,7 +97,7 @@ public class PIDtoPosition extends Command {
     public void end(boolean interupted) {
         // stop the swerve on end
         swerve.driveFieldOriented(new ChassisSpeeds());
-        if (ApriltagData.validPositionMeasurement())
+        if (ApriltagData.hasTarget)
             StateMachine.setState(State.DetectedReefTarget);
         else
             StateMachine.setState(State.NoTargetIdentified);
