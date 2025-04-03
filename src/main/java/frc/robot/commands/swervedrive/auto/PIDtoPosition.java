@@ -87,10 +87,10 @@ public class PIDtoPosition extends Command {
         pidOutputPublisher.set(new Pose2d(swerve.getMyPose().getX(), currentPosition.getY(), vectorAngle));
         targetPositionPublisher.set(targetPosition);
 
-        if (currentDistance < 0.1)
-            StateMachine.setState(State.ArrivedAtReefTarget);
-        else 
-            StateMachine.setState(State.DrivingToReefTarget);
+        final double ARRIVED_EPSILON_METERS = 0.05;
+        StateMachine.setState(
+            currentDistance < ARRIVED_EPSILON_METERS ? State.ArrivedAtReefTarget : State.DrivingToReefTarget
+        );
     }
 
     @Override
