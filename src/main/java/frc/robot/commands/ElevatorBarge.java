@@ -35,9 +35,12 @@ public class ElevatorBarge extends Command {
     }
 
     @Override
+    public void initialize() {
+        m_algaeMech.setWristAngle(AlgaeMech.WRIST_BARGE);
+    }
+
+    @Override
     public void execute() {
-        final double WRIST_ANGLE = 35.0;
-        m_algaeMech.setWristAngle(WRIST_ANGLE);
         m_elevator.setTargetPosition(Elevator.BARGE);
     }
 }
