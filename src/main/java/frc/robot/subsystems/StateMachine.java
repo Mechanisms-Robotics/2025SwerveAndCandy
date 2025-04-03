@@ -22,9 +22,9 @@ public class StateMachine {
     }
 
     private static State myState;
-    private static PWM outputLEDRed;
-    private static PWM outputLEDGreen;
-    private static PWM outputLEDBlue;
+    private static PWMSparkMax outputLEDRed;
+    private static PWMSparkMax outputLEDGreen;
+    private static PWMSparkMax outputLEDBlue;
     
     /* OFFSEASON: setup data structures to manage the LED colors as an
     *    {R,G,B} array of booleans. Each possible state should then have
@@ -40,10 +40,9 @@ public class StateMachine {
     /** Constructor that takes an initial state as a parameter */
     static {
         // map LEDs to correct ports
-        outputLEDRed = new PWM(6);
-        outputLEDGreen = new PWM(7);
-        outputLEDBlue = new PWM(8);
-
+        outputLEDRed = new PWMSparkMax(6);
+        outputLEDGreen = new PWMSparkMax(7);
+        outputLEDBlue = new PWMSparkMax(8);
 
         /* call method to set initial state and configure lights */
         setState(State.NoTargetIdentified);
@@ -82,11 +81,9 @@ public class StateMachine {
         myState = State.NoTargetIdentified;
         
         // turn on white light 
-        outputLEDRed.setSpeed(1.0);
-        outputLEDGreen.setSpeed(1.0);
-        outputLEDBlue.setSpeed(1.0);
-        
-
+        outputLEDRed.set(1.0);
+        outputLEDGreen.set(1.0);
+        outputLEDBlue.set(1.0);
         return;
     }
 
@@ -94,11 +91,9 @@ public class StateMachine {
         myState = State.DetectedReefTarget;
 
         // turn on blue light 
-        outputLEDRed.setSpeed(0.0);
-        outputLEDGreen.setSpeed(0.0);
-        outputLEDBlue.setSpeed(1.0);
-
-
+        outputLEDRed.set(0.0);
+        outputLEDGreen.set(0.0);
+        outputLEDBlue.set(1.0);
         return;
     }
 
@@ -106,11 +101,9 @@ public class StateMachine {
         myState = State.DrivingToReefTarget;
 
         // turn on red light 
-        outputLEDRed.setSpeed(1.0);;
-        outputLEDGreen.setSpeed(0.0);;
-        outputLEDBlue.setSpeed(0.0);
-
-
+        outputLEDRed.set(1.0);;
+        outputLEDGreen.set(0.0);;
+        outputLEDBlue.set(0.0);
         return;
     }
 
@@ -118,11 +111,9 @@ public class StateMachine {
         myState = State.ArrivedAtReefTarget;
 
         // turn on green light 
-        outputLEDRed.setSpeed(0.0);
-        outputLEDGreen.setSpeed(1.0);
-        outputLEDBlue.setSpeed(0.0);
-
-        
+        outputLEDRed.set(0.0);
+        outputLEDGreen.set(1.0);
+        outputLEDBlue.set(0.0);
         return;
     }
 
