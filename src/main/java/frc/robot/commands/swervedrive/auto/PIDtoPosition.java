@@ -60,10 +60,7 @@ public class PIDtoPosition extends Command {
         SmartDashboard.putData("Commands/PIDtoPosition/rotation pidcontroller", rotationController);
         
         addRequirements(this.swerve);
-
-        StateMachine.setState(State.DrivingToReefTarget);
     }
-
 
     @Override
     public void execute() {
@@ -92,6 +89,8 @@ public class PIDtoPosition extends Command {
 
         if (currentDistance < 0.1)
             StateMachine.setState(State.ArrivedAtReefTarget);
+        else 
+            StateMachine.setState(State.DrivingToReefTarget);
     }
 
     @Override
