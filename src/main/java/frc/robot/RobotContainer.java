@@ -80,7 +80,7 @@ public class RobotContainer {
   private Supplier<Boolean> m_elevUp = () -> false;
   private Supplier<Boolean> m_elevDown = () -> false;
 
-  private static final double LEFT_PEDAL_THRESHOLD = -0.6;
+  private static final double LEFT_PEDAL_THRESHOLD = 0.2;
   private static final double RIGHT_PEDAL_THRESHOLD = -0.8;
   private static final double MIDDLE_PEDAL_THRESHOLD = -0.6;
 
@@ -368,7 +368,7 @@ public class RobotContainer {
     Trigger trigger_povUp = secondaryController.povUp();
     Trigger trigger_povDown = secondaryController.povDown();
 
-    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
