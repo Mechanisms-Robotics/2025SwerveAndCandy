@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class StateMachine {
@@ -19,11 +22,10 @@ public class StateMachine {
     }
 
     private static State myState;
-    private static DigitalOutput outputLEDWhite;
-    private static DigitalOutput outputLEDRed;
-    private static DigitalOutput outputLEDGreen;
-    private static DigitalOutput outputLEDBlue;
-
+    private static PWM outputLEDRed;
+    private static PWM outputLEDGreen;
+    private static PWM outputLEDBlue;
+    
     /* OFFSEASON: setup data structures to manage the LED colors as an
     *    {R,G,B} array of booleans. Each possible state should then have
     *    a corresponding {R,G,B} array that represent the desired color
@@ -38,13 +40,15 @@ public class StateMachine {
     /** Constructor that takes an initial state as a parameter */
     static {
         // map LEDs to correct ports
-        outputLEDRed = new DigitalOutput(6);
-        outputLEDGreen = new DigitalOutput(7);
-        outputLEDBlue = new DigitalOutput(8);
+        outputLEDRed = new PWM(6);
+        outputLEDGreen = new PWM(7);
+        outputLEDBlue = new PWM(8);
+
 
         /* call method to set initial state and configure lights */
         setState(State.NoTargetIdentified);
     }
+
 
     public static State getState() {
         return myState;
@@ -78,9 +82,9 @@ public class StateMachine {
         myState = State.NoTargetIdentified;
         
         // turn on white light 
-        outputLEDRed.set(true);
-        outputLEDGreen.set(true);
-        outputLEDBlue.set(true);
+        outputLEDRed.setSpeed(1.0);
+        outputLEDGreen.setSpeed(1.0);
+        outputLEDBlue.setSpeed(1.0);
         
 
         return;
@@ -90,9 +94,9 @@ public class StateMachine {
         myState = State.DetectedReefTarget;
 
         // turn on blue light 
-        outputLEDRed.set(false);
-        outputLEDGreen.set(false);
-        outputLEDBlue.set(true);
+        outputLEDRed.setSpeed(0.0);
+        outputLEDGreen.setSpeed(0.0);
+        outputLEDBlue.setSpeed(1.0);
 
 
         return;
@@ -102,9 +106,9 @@ public class StateMachine {
         myState = State.DrivingToReefTarget;
 
         // turn on red light 
-        outputLEDRed.set(true);
-        outputLEDGreen.set(false);
-        outputLEDBlue.set(false);
+        outputLEDRed.setSpeed(1.0);;
+        outputLEDGreen.setSpeed(0.0);;
+        outputLEDBlue.setSpeed(0.0);
 
 
         return;
@@ -114,9 +118,9 @@ public class StateMachine {
         myState = State.ArrivedAtReefTarget;
 
         // turn on green light 
-        outputLEDRed.set(false);
-        outputLEDGreen.set(true);
-        outputLEDBlue.set(false);
+        outputLEDRed.setSpeed(0.0);
+        outputLEDGreen.setSpeed(1.0);
+        outputLEDBlue.setSpeed(0.0);
 
         
         return;
