@@ -44,6 +44,7 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_ANGLE_LEVEL = 5.0;
   public final static double WRIST_ANGLE_DOWN = -10.0;
   public final static double WRIST_INTAKE = WRIST_ANGLE_LEVEL;
+  public final static double WRIST_BARGE = 35.0;
 
   private final double m_wristStartingAngle; // Degrees
 
