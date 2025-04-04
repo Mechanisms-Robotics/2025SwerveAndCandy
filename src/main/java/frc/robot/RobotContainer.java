@@ -405,10 +405,10 @@ public class RobotContainer {
     Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButton(3));
     Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButton(4));
 
-    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButtonPressed(5));
-    Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButtonPressed(6));
-    Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButtonPressed(7));
-    Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButtonPressed(8));
+    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButton(5));
+    Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButton(6));
+    Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButton(7));
+    Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButton(8));
     
     // using Brennan's Saber FGC controller
     Trigger trigger_barge = secondaryController.povRight();
