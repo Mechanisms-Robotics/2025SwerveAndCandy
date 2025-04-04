@@ -117,7 +117,7 @@ public class Robot extends TimedRobot
     
     // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
     
-    final double MIN_SPEED_REDUCTION_FACTOR = 0.05;
+    final double MIN_SPEED_REDUCTION_FACTOR = 0.15;
     double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
     double reductionFactor = 1.0 + (MIN_SPEED_REDUCTION_FACTOR - 1.0)
       *(currentPosition - Elevator.RESTING)/(Elevator.BARGE - Elevator.RESTING);
