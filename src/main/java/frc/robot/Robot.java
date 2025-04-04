@@ -96,24 +96,10 @@ public class Robot extends TimedRobot
     {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
-
-    // // Interpolations to throttle the swerve drive when the elevator is raised
-
-    final double SPEED_REDUCTION_FACTOR = 0.05;
-
-    swerveVelocityMap.put(
-      (double)Elevator.RESTING, Constants.MAX_SPEED);
-    swerveVelocityMap.put(
-      (double)Elevator.BARGE, Constants.MAX_SPEED * SPEED_REDUCTION_FACTOR);
-
-    swerveRotationSpeedMap.put(
-      (double)Elevator.RESTING, m_robotContainer.m_drivebase.defaultAngularVelocity);
-    swerveRotationSpeedMap.put(
-      (double)Elevator.BARGE, m_robotContainer.m_drivebase.defaultAngularVelocity * SPEED_REDUCTION_FACTOR);
-
+            
     resetMotorsOnInit();
   }
-
+          
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics that you want ran
    * during disabled, autonomous, teleoperated and test.
@@ -124,17 +110,20 @@ public class Robot extends TimedRobot
   @Override
   public void robotPeriodic()
   {
-    // // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
-    // // commands, running already-scheduled commands, removing finished or interrupted commands,
-    // // and running subsystem periodic() methods.  This must be called from the robot's periodic
-    // // block in order for anything in the Command-based framework to work.
-
-    // // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
-
-    double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
-    double swerveVelocityThrottle = swerveVelocityMap.get(currentPosition);
-    double swerveRotationThrottle = swerveRotationSpeedMap.get(currentPosition);
+    // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
+    // commands, running already-scheduled commands, removing finished or interrupted commands,
+    // and running subsystem periodic() methods.  This must be called from the robot's periodic
+    // block in order for anything in the Command-based framework to work.
     
+    // Gets the current position of the elevator and uses the maps to reduce the speed of the swerve
+    
+    final double MIN_SPEED_REDUCTION_FACTOR = 0.05;
+    double currentPosition = m_robotContainer.m_elevator.getCurrentPosition();
+    double reductionFactor = 1.0 + (MIN_SPEED_REDUCTION_FACTOR - 1.0)
+      *(currentPosition - Elevator.RESTING)/(Elevator.BARGE - Elevator.RESTING);
+    double swerveVelocityThrottle = Constants.MAX_SPEED*reductionFactor;
+    double swerveRotationThrottle = m_robotContainer.m_drivebase.defaultAngularVelocity*reductionFactor;
+  
     SmartDashboard.putNumber("Swerve/Velocity Throttle", swerveVelocityThrottle);
     SmartDashboard.putNumber("Swerve/Rotation Throttle", swerveRotationThrottle);
     
