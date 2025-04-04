@@ -75,7 +75,7 @@ public class AlgaeMech extends SubsystemBase {
   Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
   Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
 
-  private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
+  private static final double WRIST_MOTOR_CURRENT_LIMIT = 5.0; // A
 
   enum State {
     /** Motors are spinning inward, so it can intake algae */
@@ -232,8 +232,11 @@ public class AlgaeMech extends SubsystemBase {
       final double POOR_MANS_FEEDFORWARD = 2.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
-    m_wristMotor.set(0.0);
-    // m_wristMotor.set(output);
+    if (m_encoder.isConnected()) {
+      m_wristMotor.set(output);
+    } else {
+      m_wristMotor.set(0.0);
+    }
 
     SmartDashboard.putNumber("AlgaeMech/Wrist/Controlv Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
