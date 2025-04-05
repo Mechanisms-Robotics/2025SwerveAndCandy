@@ -23,7 +23,7 @@ public class PIDtoPosition extends Command {
     private final PIDController driveController = new PIDController(3.0, 0, 0);
     private final double positionTolerance = 0.0;
     private final double rotationTolerance = 0.0;
-    private final double maxVelocity = 2.0;
+    private double maxVelocity = 2.0;
     private final double maxRotationVelocity = Math.PI;
 
     // outputs the direction the robot is trying to go, this is meant for visualisation
@@ -59,6 +59,10 @@ public class PIDtoPosition extends Command {
         addRequirements(this.swerve);
     }
 
+    public PIDtoPosition(SwerveSubsystem swerve, Pose2d targetPosition, double maxVelocity) {
+        this(swerve, targetPosition);
+        this.maxVelocity = maxVelocity;
+    }
 
     @Override
     public void execute() {
