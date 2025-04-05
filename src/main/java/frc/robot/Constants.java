@@ -153,20 +153,24 @@ public final class Constants
     public static final Pose2d BLUE_PROCESSOR_POSE = new Pose2d(FIELD_LENGTH - RED_PROCESSOR_POSE.getX(), FIELD_WIDTH - RED_PROCESSOR_POSE.getY(), Rotation2d.fromDegrees(-90));
 
     
-    // Reef positions pairs, first for left, second for right, mapped to the apriltag ids
+
+
     public static final HashMap<Integer, Pair<Pose2d, Pose2d>> BLUE_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
     public static final HashMap<Integer, Pair<Pose2d, Pose2d>> RED_REEF_POSES = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
+
     static {
       // Note for doing the math, it is counter clockwise positive, and the right side of the blue side is the origin
       // Rotating around the center of the reef by 60 degrees (counter clockwise positive) is how we calculate the reef positions
       // from one measured reef position
       // Here, we measured the position that worked using apriltag id 7. We rotate around 7 for the other positions
-      Pose2d tag7refLeft = new Pose2d(14.5, 3.52, Rotation2d.fromDegrees(180));
+      // THIS ONLY APPLIES TO TELEOP. DECREASE X TO BE MORE TOWARD REEF AND INCREASE Y TO MOVE RIGHT
+      final double FUDGE_FACTOR = -Units.inchesToMeters(2.5);
+      final double SYMETRIC_FUDGE = Units.inchesToMeters(1.0);
+      Pose2d tag7refLeft = new Pose2d(14.5, 3.52 + SYMETRIC_FUDGE, Rotation2d.fromDegrees(180));
 
       // Offseting the left position by the reef pipe center to center distance computes the right position
       // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
-      final double FUDGE_FACTOR = -Units.inchesToMeters(2.5);
-      Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE + FUDGE_FACTOR, Rotation2d.kZero));
+      Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE + FUDGE_FACTOR + SYMETRIC_FUDGE, Rotation2d.kZero));
 
       // I think that we should make a list of all the apriltag values on each reef, and in the place of the keys below, it would be x in the reference, 
       //x-1 in the one before, x+1 in the one after, etc, where x it the item number of the id on the list
@@ -247,6 +251,95 @@ public final class Constants
         FIELD_WIDTH - RED_CORAL_STATION_LEFT.getY(),
         RED_CORAL_STATION_LEFT.getRotation().unaryMinus().rotateBy(Rotation2d.k180deg)
       );
+
+      
+    }
+
+
+
+
+
+
+
+    // Reef positions pairs, first for left, second for right, mapped to the apriltag ids
+    public static final HashMap<Integer, Pair<Pose2d, Pose2d>> BLUE_REEF_POSES_AUTO = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
+    public static final HashMap<Integer, Pair<Pose2d, Pose2d>> RED_REEF_POSES_AUTO = new HashMap<Integer, Pair<Pose2d, Pose2d>>();
+    
+    static {
+      // Note for doing the math, it is counter clockwise positive, and the right side of the blue side is the origin
+      // Rotating around the center of the reef by 60 degrees (counter clockwise positive) is how we calculate the reef positions
+      // from one measured reef position
+      // Here, we measured the position that worked using apriltag id 7. We rotate around 7 for the other positions
+      // DO NOT CHANGE AUTO POSITIONS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      Pose2d tag7refLeft = new Pose2d(14.5, 3.52, Rotation2d.fromDegrees(180));
+
+      // Offseting the left position by the reef pipe center to center distance computes the right position
+      // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
+      final double FUDGE_FACTOR = -Units.inchesToMeters(2.5);
+      Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE + FUDGE_FACTOR, Rotation2d.kZero));
+
+      // I think that we should make a list of all the apriltag values on each reef, and in the place of the keys below, it would be x in the reference, 
+      //x-1 in the one before, x+1 in the one after, etc, where x it the item number of the id on the list
+
+
+
+      RED_REEF_POSES_AUTO.put(6, new Pair<>(
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
+      ));
+      RED_REEF_POSES_AUTO.put(7, new Pair<>(
+        tag7refLeft,
+        tag7refRight
+      ));
+      RED_REEF_POSES_AUTO.put(8, new Pair<>(
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0))
+      ));
+      RED_REEF_POSES_AUTO.put(9, new Pair<>(
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*2.0))
+      ));
+      RED_REEF_POSES_AUTO.put(10, new Pair<>(
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*3.0))
+      ));
+      RED_REEF_POSES_AUTO.put(11, new Pair<>(
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0)),
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0))
+      ));
+
+      // I'm just creating a reference point at 11 so I can reflect it across the field
+      Pose2d tag11ref = 
+        tag7refLeft.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
+      Pose2d tag11refOffset = 
+        tag7refRight.rotateAround(RED_REEF_CENTER, Rotation2d.fromDegrees(60.0*4.0));
+
+      Pose2d tag17ref = new Pose2d(tag11ref.getX() - REEF_CENTER_DISTANCE, tag11ref.getY(), Rotation2d.fromDegrees(60.0));
+      Pose2d tag17refOffset = new Pose2d(tag11refOffset.getX() - REEF_CENTER_DISTANCE, tag11refOffset.getY(), Rotation2d.fromDegrees(60.0));
+      BLUE_REEF_POSES_AUTO.put(17, new Pair<>(
+        tag17ref, 
+        tag17refOffset
+      ));
+      BLUE_REEF_POSES_AUTO.put(18, new Pair<>(
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0))
+      ));
+      BLUE_REEF_POSES_AUTO.put(19, new Pair<>(
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*2.0))
+      ));
+      BLUE_REEF_POSES_AUTO.put(20, new Pair<>(
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*3.0))
+      ));
+      BLUE_REEF_POSES_AUTO.put(21, new Pair<>(
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*4.0))
+      ));
+      BLUE_REEF_POSES_AUTO.put(22, new Pair<>(
+        tag17ref.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*5.0)),
+        tag17refOffset.rotateAround(BLUE_REEF_CENTER, Rotation2d.fromDegrees(-60.0*5.0))
+      ));      
     }
   }
 }
