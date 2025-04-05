@@ -326,11 +326,12 @@ public class RobotContainer {
     m_autoChooser.addOption("Red Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
     m_autoChooser.addOption("Red Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
     m_autoChooser.addOption("Red Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
-    m_autoChooser.addOption("Red Three Coral Barge Side", MyAutoBuilder.threeCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
+    m_autoChooser.addOption("Red Three Coral Barge Side", MyAutoBuilder.threeCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
     
     m_autoChooser.addOption("Blue Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
     m_autoChooser.addOption("Blue Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
     m_autoChooser.addOption("Blue Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
+    m_autoChooser.addOption("Blue Three Coral Barge Side", MyAutoBuilder.threeCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }

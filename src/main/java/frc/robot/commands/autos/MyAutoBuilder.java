@@ -220,19 +220,19 @@ public class MyAutoBuilder {
   }
 
   
-  public static Command threeCoralBargeSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech, DriverStation.Alliance alliance) {
+  public static Command threeCoralProcessorSide(SwerveSubsystem swerve, Elevator elevator, AlgaeMech algaeMech, CoralMech coralMech, DriverStation.Alliance alliance) {
     Pose2d reefTarget1 = alliance.equals(DriverStation.Alliance.Blue)
-    ? FieldConstants.BLUE_REEF_POSES.get(20).getSecond()
-    : FieldConstants.RED_REEF_POSES.get(11).getSecond();
+    ? FieldConstants.BLUE_REEF_POSES_AUTO.get(22).getSecond()
+    : FieldConstants.RED_REEF_POSES_AUTO.get(9).getSecond();
     Pose2d reefTarget2 = alliance.equals(DriverStation.Alliance.Blue)
-    ? FieldConstants.BLUE_REEF_POSES.get(19).getSecond()
-    : FieldConstants.RED_REEF_POSES.get(6).getSecond();
+    ? FieldConstants.BLUE_REEF_POSES_AUTO.get(17).getSecond()
+    : FieldConstants.RED_REEF_POSES_AUTO.get(8).getSecond();
     Pose2d reefTarget3 = alliance.equals(DriverStation.Alliance.Blue)
-    ? FieldConstants.BLUE_REEF_POSES.get(19).getFirst()
-    : FieldConstants.RED_REEF_POSES.get(6).getFirst();
+    ? FieldConstants.BLUE_REEF_POSES_AUTO.get(17).getFirst()
+    : FieldConstants.RED_REEF_POSES_AUTO.get(8).getFirst();
     Pose2d coralStationTarget = alliance.equals(DriverStation.Alliance.Blue)
-    ? FieldConstants.BLUE_CORAL_STATION_LEFT
-    : FieldConstants.RED_CORAL_STATION_LEFT;
+    ? FieldConstants.BLUE_CORAL_STATION_RIGHT
+    : FieldConstants.RED_CORAL_STATION_RIGHT;
 
     String ntTable = "Commands/auto/3 L4 coral right/";
 
@@ -293,7 +293,7 @@ public class MyAutoBuilder {
       , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
         " I am now moving to my second reef target"))
       // Third reef target
-      , new PIDtoPosition(swerve, reefTarget3, 3.0)
+      , new PIDtoPosition(swerve, reefTarget3, Constants.MAX_SPEED)
           .until(() -> swerve.isNear(reefTarget3))
       , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
         "I am now moving elevator to L4"))
