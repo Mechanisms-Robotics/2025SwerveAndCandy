@@ -49,7 +49,7 @@ public class AlgaeMech extends SubsystemBase {
   private final double m_wristStartingAngle; // Degrees
 
   // determine this by putting the arm up without any offset shenanigans and seeing what the angle reads
-  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.411865;
+  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.081787; // -0.411865;
 
   private double m_wristOffset = 0.0; // Degrees
   public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
@@ -75,7 +75,7 @@ public class AlgaeMech extends SubsystemBase {
   Duty cycle is the ratio of the pulse width (active pulse time) over total time. It is like percent output.
   Further reading: https://en.wikipedia.org/wiki/Duty_cycle */
 
-  private static final double WRIST_MOTOR_CURRENT_LIMIT = 5.0; // A
+  private static final double WRIST_MOTOR_CURRENT_LIMIT = 20.0; // A
 
   enum State {
     /** Motors are spinning inward, so it can intake algae */
