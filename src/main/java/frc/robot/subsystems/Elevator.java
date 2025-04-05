@@ -171,7 +171,7 @@ public class Elevator extends SubsystemBase {
      */
 
     // Tunables for the elevator's trapezoidal motion profile
-    private static final double MAX_VELOCITY = 6*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
+    private static final double MAX_VELOCITY = 9*THROUGHBORE_TICKS_PER_REVOLUTION; // Ticks per second
     private static final double MAX_ACCELERATION = 2*MAX_VELOCITY; // Ticks per second per second
     private static final double EPSILON = 40.0; // Allowed error, presumably in ticks
 
