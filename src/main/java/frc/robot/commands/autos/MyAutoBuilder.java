@@ -196,10 +196,10 @@ public class MyAutoBuilder {
           , Commands.runOnce(() -> SmartDashboard.putString(ntTable + "state",
             " I am now moving the elevator to rest"))
           , Commands.runOnce(() -> elevator.setTargetPosition(Elevator.L1))
-          , new WaitCommand(1)
-          , new PIDtoPosition(swerve, processorTarget)
-            .until(() -> swerve.isNear(processorTarget))
-          , Commands.runOnce(algaeMech::outtake)
+          // , new WaitCommand(1)
+          // , new PIDtoPosition(swerve, processorTarget)
+          //   .until(() -> swerve.isNear(processorTarget))
+          // , Commands.runOnce(algaeMech::outtake)
           // , Commands.runOnce(() -> swerve.drive(new ChassisSpeeds(0.0, 1.0, 0.0)))
           //   .withTimeout(2)
           
