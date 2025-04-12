@@ -70,7 +70,7 @@ public class RobotContainer {
   public final CoralMech m_coralMech = new CoralMech();
   public final AlgaeMech m_algaeMech = new AlgaeMech();
   public final LimeLight m_limeLight1 = new LimeLight(Constants.LimeLight1.NICKNAME, Constants.LimeLight1.FIELD_TO_CAMERA, m_drivebase);
-  public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
+  //public final LimeLight m_limeLight2 = new LimeLight(Constants.LimeLight2.NICKNAME, Constants.LimeLight2.FIELD_TO_CAMERA, m_drivebase);
   
   private final SendableChooser<Command> m_autoChooser = new SendableChooser<>();
 
@@ -80,7 +80,7 @@ public class RobotContainer {
   private Supplier<Boolean> m_elevUp = () -> false;
   private Supplier<Boolean> m_elevDown = () -> false;
 
-  private static final double LEFT_PEDAL_THRESHOLD = -0.6;
+  private static final double LEFT_PEDAL_THRESHOLD = 0.2;
   private static final double RIGHT_PEDAL_THRESHOLD = -0.8;
   private static final double MIDDLE_PEDAL_THRESHOLD = -0.6;
 
@@ -326,10 +326,12 @@ public class RobotContainer {
     m_autoChooser.addOption("Red Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
     m_autoChooser.addOption("Red Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
     m_autoChooser.addOption("Red Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
+    m_autoChooser.addOption("Red Three Coral Processor Side", MyAutoBuilder.threeCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Red));
     
     m_autoChooser.addOption("Blue Two Coral Barge Side", MyAutoBuilder.twoCoralBargeSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
     m_autoChooser.addOption("Blue Two Coral Proccessor Side", MyAutoBuilder.twoCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
     m_autoChooser.addOption("Blue Coral and Algae Center", MyAutoBuilder.coralAndAlgaeCenterBarge(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
+    m_autoChooser.addOption("Blue Three Coral Processor Side", MyAutoBuilder.threeCoralProcessorSide(m_drivebase, m_elevator, m_algaeMech, m_coralMech, DriverStation.Alliance.Blue));
 
     SmartDashboard.putData("Auto Choose", m_autoChooser);
   }
@@ -368,7 +370,7 @@ public class RobotContainer {
     Trigger trigger_povUp = secondaryController.povUp();
     Trigger trigger_povDown = secondaryController.povDown();
 
-    Trigger trigger_leftPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_leftPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_middlePedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_rightPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
@@ -405,10 +407,10 @@ public class RobotContainer {
     Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButton(3));
     Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButton(4));
 
-    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButtonPressed(5));
-    Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButtonPressed(6));
-    Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButtonPressed(7));
-    Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButtonPressed(8));
+    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButton(5));
+    Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButton(6));
+    Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButton(7));
+    Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButton(8));
     
     // using Brennan's Saber FGC controller
     Trigger trigger_barge = secondaryController.povRight();
@@ -424,7 +426,7 @@ public class RobotContainer {
     Trigger trigger_algaeClutch = secondaryController.povLeft();
     Trigger trigger_coralClutch = secondaryController.povDown();
 
-    Trigger trigger_eRestPedal = pedals.axisGreaterThan(1, LEFT_PEDAL_THRESHOLD);
+    Trigger trigger_eRestPedal = pedals.axisGreaterThan(0, LEFT_PEDAL_THRESHOLD);
     Trigger trigger_algaeClutchPedal = pedals.axisGreaterThan(2, MIDDLE_PEDAL_THRESHOLD);
     Trigger trigger_coralClutchPedal = pedals.axisGreaterThan(3, RIGHT_PEDAL_THRESHOLD);
 
@@ -440,6 +442,8 @@ public class RobotContainer {
 
     // left pedal is emergency rest
     trigger_eRestPedal.onTrue(new ElevatorRest(m_elevator, m_algaeMech, ()->false));
+
+    //trigger_eRestPedal.onTrue(Commands.runOnce(stateMachine.setState(StateMachine.State.DrivingToReefTarget), stateMachine));
 
     // Set BooleanSuppliers based on clutch and elevUp/elevDown states
     m_algaeClutch = () -> trigger_algaeClutch.or(trigger_algaeClutchPedal).getAsBoolean();

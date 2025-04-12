@@ -26,7 +26,10 @@ public class AutoReefLineup extends SequentialCommandGroup {
             // After pathplanner "does its best" or "gives up" a simple pid controller to the position is used, note this rechecks if the right
             // boolean supplier is pressed. If leif holds right bumper when the pathplanner drive position is initalized, but not when the
             // pid controller drive position is initalized, it will start going to the left side of the reef when it finished path planner
-            new DeferredCommand(() -> new PIDtoPosition(swerve, findClosestTarget(swerve.getMyPose(), right.getAsBoolean())), getRequirements())
+            new DeferredCommand(() -> {
+                var position = findClosestTarget(swerve.getMyPose(), right.getAsBoolean());
+                return new PIDtoPosition(swerve, position).until(() -> swerve.isNear(position));
+            }, getRequirements())
         );
         targetPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
             .getStructTopic("Target Position Pose2d", Pose2d.struct).publish();

@@ -10,6 +10,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.StateMachine;
+import frc.robot.subsystems.LimeLight.ApriltagData;
+import frc.robot.subsystems.StateMachine.State;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 
 /**
@@ -23,7 +26,7 @@ public class PIDtoPosition extends Command {
     private final PIDController driveController = new PIDController(3.0, 0, 0);
     private final double positionTolerance = 0.0;
     private final double rotationTolerance = 0.0;
-    private final double maxVelocity = 2.0;
+    private double maxVelocity = 2.0;
     private final double maxRotationVelocity = Math.PI;
 
     // outputs the direction the robot is trying to go, this is meant for visualisation
@@ -59,6 +62,10 @@ public class PIDtoPosition extends Command {
         addRequirements(this.swerve);
     }
 
+    public PIDtoPosition(SwerveSubsystem swerve, Pose2d targetPosition, double maxVelocity) {
+        this(swerve, targetPosition);
+        this.maxVelocity = maxVelocity;
+    }
 
     @Override
     public void execute() {
@@ -84,12 +91,21 @@ public class PIDtoPosition extends Command {
         Rotation2d vectorAngle = Rotation2d.fromRadians(Math.atan2(velocityY, velocityX));
         pidOutputPublisher.set(new Pose2d(swerve.getMyPose().getX(), currentPosition.getY(), vectorAngle));
         targetPositionPublisher.set(targetPosition);
+
+        final double ARRIVED_EPSILON_METERS = 0.05;
+        StateMachine.setState(
+            currentDistance < ARRIVED_EPSILON_METERS ? State.ArrivedAtReefTarget : State.DrivingToReefTarget
+        );
     }
 
     @Override
     public void end(boolean interupted) {
         // stop the swerve on end
         swerve.driveFieldOriented(new ChassisSpeeds());
+        if (ApriltagData.validPositionMeasurement())
+            StateMachine.setState(State.DetectedReefTarget);
+        else
+            StateMachine.setState(State.NoTargetIdentified);
     }
 
     @Override

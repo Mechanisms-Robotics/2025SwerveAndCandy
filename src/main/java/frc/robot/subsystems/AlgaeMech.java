@@ -44,11 +44,12 @@ public class AlgaeMech extends SubsystemBase {
   public final static double WRIST_ANGLE_LEVEL = 5.0;
   public final static double WRIST_ANGLE_DOWN = -10.0;
   public final static double WRIST_INTAKE = WRIST_ANGLE_LEVEL;
+  public final static double WRIST_BARGE = 35.0;
 
   private final double m_wristStartingAngle; // Degrees
 
   // determine this by putting the arm up without any offset shenanigans and seeing what the angle reads
-  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.411865;
+  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.081787; // -0.411865;
 
   private double m_wristOffset = 0.0; // Degrees
   public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
@@ -231,7 +232,11 @@ public class AlgaeMech extends SubsystemBase {
       final double POOR_MANS_FEEDFORWARD = 2.0;
       output /= POOR_MANS_FEEDFORWARD;
     }
-    m_wristMotor.set(output);
+    if (m_encoder.isConnected()) {
+      m_wristMotor.set(output);
+    } else {
+      m_wristMotor.set(0.0);
+    }
 
     SmartDashboard.putNumber("AlgaeMech/Wrist/Controlv Output", output);
     SmartDashboard.putString("AlgaeMech/State", state.toString());
