@@ -39,6 +39,7 @@ import frc.robot.subsystems.LimeLight;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import java.util.function.Supplier;
+import frc.robot.BuildInfo;
 
 import swervelib.SwerveInputStream;
 
@@ -146,12 +147,24 @@ public class RobotContainer {
    */
   public RobotContainer()
   {
+    // [FOX - testing] output build info to console
+    outputBuildInfo();    
+
     // Configure the trigger bindings
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
     createAutos();
+
+  }
+
+  private void outputBuildInfo() {
+    System.out.println("Build Info:");
+    System.out.println("  Build Date: " + BuildInfo.BUILD_DATE);
+    System.out.println("  Git Commit: " + BuildInfo.GIT_COMMIT);
+    System.out.println("  Git Branch: " + BuildInfo.GIT_BRANCH);
+    System.out.println("  Has Uncommitted Changes: " + BuildInfo.HAS_UNCOMMITTED_CHANGES);
   }
 
   /**

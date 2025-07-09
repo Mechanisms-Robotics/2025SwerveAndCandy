@@ -8,6 +8,57 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+// **************************************************************
+// TM8736 - 2025-07-08 adding task to inject build details to deployed code
+// **************************************************************
+import java.text.SimpleDateFormat
+import java.util.Date
+
+// Task to generate BuildInfo.java
+task generateBuildInfo {
+    def gitCommit = 'git rev-parse --short HEAD'.execute().text.trim()
+    def gitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    def buildDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
+    def gitChanges = 'git status --porcelain'.execute().text.trim()
+    def hasUncommittedChanges = !gitChanges.isEmpty() // True if there are uncommitted changes
+
+    def outputDir = "${buildDir}/generated/sources/buildInfo"
+    def packageName = "frc.robot" // Replace with your package name
+    def className = "BuildInfo"
+
+    inputs.property("gitCommit", gitCommit)
+    inputs.property("gitBranch", gitBranch)
+    inputs.property("hasUncommittedChanges", hasUncommittedChanges)
+    inputs.property("buildDate", buildDate)
+
+    outputs.dir(outputDir)
+
+    doLast {
+        def file = file("${outputDir}/${packageName.replace('.', '/')}/${className}.java")
+        file.parentFile.mkdirs()
+        file.text = """
+            package ${packageName};
+
+            public class ${className} {
+                public static final String BUILD_DATE = "${buildDate}";
+                public static final String GIT_COMMIT = "${gitCommit}";
+                public static final String GIT_BRANCH = "${gitBranch}";
+                public static final boolean HAS_UNCOMMITTED_CHANGES = ${hasUncommittedChanges};
+            }
+        """
+    }
+}
+
+
+// Ensure the task runs before compilation
+compileJava.dependsOn generateBuildInfo
+
+// Add the generated sources to the source set
+sourceSets.main.java.srcDirs += "${buildDir}/generated/sources/buildInfo"
+
+//*********************************************************************
+//*********************************************************************
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
