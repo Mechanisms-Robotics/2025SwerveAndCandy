@@ -10,7 +10,7 @@
     "canbus": "rio"
   },
   "angle": {
-    "type": "sparkmax_neo",
+    "type": "falcon500foc",
     "id": 5,
     "canbus": "rio"
   },
