@@ -546,6 +546,8 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public void drive(ChassisSpeeds velocity)
   {
+    // When we changed the motors it started turning the wrong way. This fixed it.
+    velocity.omegaRadiansPerSecond *= -1;
     swerveDrive.drive(velocity);
   }
 
