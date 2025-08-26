@@ -3,7 +3,7 @@
     "front": -13.375,
     "left": 10.875
   },
-  "absoluteEncoderOffset": 55.195312,
+  "absoluteEncoderOffset": 57,
   "drive": {
     "type": "falcon500foc",
     "id": 3,
@@ -15,7 +15,7 @@
     "canbus": "rio"
   },
   "inverted": {
-    "angle": true,
+    "angle": false,
     "drive": false
   },
   "encoder": {
