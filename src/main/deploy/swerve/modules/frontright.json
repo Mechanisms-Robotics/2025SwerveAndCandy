@@ -3,7 +3,7 @@
     "front": 13.375,
     "left": -10.875
   },
-  "absoluteEncoderOffset": 203,
+  "absoluteEncoderOffset": 195,
   "drive": {
     "type": "falcon500foc",
     "id": 1,
@@ -16,7 +16,7 @@
   },
   "inverted": {
     "angle": false,
-    "drive": false
+    "drive": true
   },
   "encoder": {
     "type": "cancoder",

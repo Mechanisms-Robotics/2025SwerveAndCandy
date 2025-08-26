@@ -3,7 +3,7 @@
     "front": -13.375,
     "left": -10.875
   },
-  "absoluteEncoderOffset": 220,
+  "absoluteEncoderOffset": 47,
   "drive": {
     "type": "falcon500foc",
     "id": 4,
