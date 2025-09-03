@@ -1,8 +1,5 @@
 package frc.robot.commands.autos;
 
-import java.lang.reflect.Field;
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -10,15 +7,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.commands.ElevatorRest;
 import frc.robot.commands.L2;
-import frc.robot.commands.L3;
 import frc.robot.commands.L4;
-import frc.robot.commands.swervedrive.auto.BargeAlign;
 import frc.robot.commands.swervedrive.auto.PIDtoPosition;
 import frc.robot.subsystems.AlgaeMech;
 import frc.robot.subsystems.CoralMech;
@@ -152,13 +146,7 @@ public class MyAutoBuilder {
       Pose2d reefTarget1 = alliance.equals(DriverStation.Alliance.Blue)
       ? FieldConstants.BLUE_REEF_POSES_AUTO.get(21).getSecond()
       : FieldConstants.RED_REEF_POSES_AUTO.get(10).getSecond();
-      double bargeTarget = alliance.equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_BARG_POSE
-      : FieldConstants.RED_BARG_POSE;
-      Pose2d processorTarget = alliance.equals(DriverStation.Alliance.Blue)
-      ? FieldConstants.BLUE_PROCESSOR_POSE
-      : FieldConstants.RED_PROCESSOR_POSE;
-
+      
 
       String ntTable = "Commands/auto/L4 coral and algae center/";
 

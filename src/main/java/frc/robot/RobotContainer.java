@@ -5,8 +5,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -407,7 +405,7 @@ public class RobotContainer {
     Trigger trigger_shifter_3 = new Trigger(() -> shifter.getRawButton(3));
     Trigger trigger_shifter_4 = new Trigger(() -> shifter.getRawButton(4));
 
-    Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButton(5));
+    // Trigger trigger_shifter_5 = new Trigger(() -> shifter.getRawButton(5));
     Trigger trigger_shifter_6 = new Trigger(() -> shifter.getRawButton(6));
     Trigger trigger_shifter_7 = new Trigger(() -> shifter.getRawButton(7));
     Trigger trigger_shifter_8 = new Trigger(() -> shifter.getRawButton(8));
