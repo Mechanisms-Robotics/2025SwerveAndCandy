@@ -65,38 +65,39 @@ public final class Constants
     // Nickname is enough to differentiate so I have not changed it. I am not sure what hostname does to differentitate between cameras.
     public static final AprilTagFields FIELD = AprilTagFields.k2025ReefscapeWelded;
   }
-  public static final class LimeLight1
-  {
-    public static final String NICKNAME = "LimeLight1";
-    // This uses the https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html#robot-coordinate-system courdinate system
-    public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
-      // Forward distance from the center of the robot to the camera
-      Units.inchesToMeters(16.0) - 0.085,
-      // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
-      // the distance from the right of the center from YOUR perspective.
-      Units.inchesToMeters(-1.25),
-      // Distance from the floor to the camera
-      0.16,
-      // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
-      new Rotation3d(0.0, Units.degreesToRadians(-30.0), 0.0));
-  }
 
-  public static final class LimeLight2
+  public static final class CameraRight
   {
-    public static final String NICKNAME = "LimeLight2";
+    public static final String NICKNAME = "CameraRight";
     public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
       // Forward distance from the center of the robot to the camera
-      Units.inchesToMeters(-(32.0 + 1.0/8.0)/2.0 + 1.0),
+      Units.inchesToMeters((32.0 + 1.0/8.0)/2.0 - 1.125),
       // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
       // the distance from the right of the center from YOUR perspective.
-      Units.inchesToMeters(-(27.0 + 3.0/4.0)/2.0 + 7.5),
+      Units.inchesToMeters((27.0 + 3.0/4.0)/-2.0 + 6.25),
       // Distance from the floor to the camera
-      Units.inchesToMeters(27.0 + 3.0/4.0),
-      // Rotation 3d containing the role, pitch, and yaw. This Camera only uses pitch because it simply points up so it can see more.
-      new Rotation3d(0.0, 0.0, 180)
+      Units.inchesToMeters(8.25),
+      // Rotation 3d containing the role, pitch, and yaw.
+      new Rotation3d(0*Math.PI/180, -19.0*Math.PI/180.0, 0*Math.PI/180) // -4.5 -15, 30
     );
   }
-  
+
+  public static final class CameraLeft
+  {
+    public static final String NICKNAME = "CameraLeft";
+    public static final Transform3d FIELD_TO_CAMERA = new Transform3d(
+      // Forward distance from the center of the robot to the camera
+      Units.inchesToMeters((32.0 + 1.0/8.0)/2.0 - 1.125),
+      // Distance to the left of the center of the robot from the robots perspective, i.e. when you look at the front of the robot,
+      // the distance from the right of the center from YOUR perspective.
+      Units.inchesToMeters((27.0 + 3.0/4.0)/2.0 - 5.25),
+      // Distance from the floor to the camera
+      Units.inchesToMeters(8.25),
+      // Rotation 3d containing the role, pitch, and yaw.
+      new Rotation3d(-4.5*Math.PI/180, -10.0*Math.PI/180, -30*Math.PI/180) 
+    );
+  }
+
   public static final class FieldConstants {
     public static final double FIELD_LENGTH = 17.548; // meters
     public static final double FIELD_WIDTH = 8.052; // meters
