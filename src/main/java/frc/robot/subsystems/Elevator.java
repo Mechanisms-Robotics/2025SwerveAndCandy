@@ -278,10 +278,23 @@ public class Elevator extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("Elevator/Position", getCurrentPosition());
         SmartDashboard.putNumber("Elevator/Goal ", m_goal.position);
+        
         SmartDashboard.putNumber("Elevator/Motor leader/Current", m_leader.getOutputCurrent());
         SmartDashboard.putNumber("Elevator/Motor leader/Temperature", m_leader.getMotorTemperature());
+        SmartDashboard.putNumber("Elevator/Motor leader/Position", m_leader.getAlternateEncoder().getPosition());
+        SmartDashboard.putBoolean("Elevator/Motor leader/Warnings/sensor", m_leader.getWarnings().sensor);
+        SmartDashboard.putBoolean("Elevator/Motor leader/Warnings/brownout", m_leader.getWarnings().brownout);
+        SmartDashboard.putBoolean("Elevator/Motor leader/Warnings/overcurrent", m_leader.getWarnings().overcurrent);
+        SmartDashboard.putBoolean("Elevator/Motor leader/Warnings/stall", m_leader.getWarnings().stall);
+
         SmartDashboard.putNumber("Elevator/Motor follower/Current", m_follower.getOutputCurrent());
         SmartDashboard.putNumber("Elevator/Motor follower/Temperature", m_follower.getMotorTemperature());
+
+        SmartDashboard.putBoolean("Elevator/Motor follower/Warnings/sensor", m_follower.getWarnings().sensor);
+        SmartDashboard.putBoolean("Elevator/Motor follower/Warnings/brownout", m_follower.getWarnings().brownout);
+        SmartDashboard.putBoolean("Elevator/Motor follower/Warnings/overcurrent", m_follower.getWarnings().overcurrent);
+        SmartDashboard.putBoolean("Elevator/Motor follower/Warnings/stall", m_follower.getWarnings().stall);
+    
         SmartDashboard.putNumber("Elevator/Bus Voltage", m_leader.getBusVoltage());
 
         final double DT = 0.02; // seconds (based on periodic time)

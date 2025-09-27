@@ -78,7 +78,7 @@ public final class Constants
       // Distance from the floor to the camera
       Units.inchesToMeters(8.25),
       // Rotation 3d containing the role, pitch, and yaw.
-      new Rotation3d(0*Math.PI/180, -19.0*Math.PI/180.0, 0*Math.PI/180) // -4.5 -15, 30
+      new Rotation3d(-4.5*Math.PI/180, -15*Math.PI/180.0, 0*Math.PI/180) // -4.5 -15, 30
     );
   }
 
@@ -94,7 +94,7 @@ public final class Constants
       // Distance from the floor to the camera
       Units.inchesToMeters(8.25),
       // Rotation 3d containing the role, pitch, and yaw.
-      new Rotation3d(-4.5*Math.PI/180, -10.0*Math.PI/180, -30*Math.PI/180) 
+      new Rotation3d(-4.5*Math.PI/180, -10*Math.PI/180, 0*Math.PI/180) // 4.5 -10 -30
     );
   }
 
