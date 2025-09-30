@@ -49,7 +49,7 @@ public class AlgaeMech extends SubsystemBase {
   private final double m_wristStartingAngle; // Degrees
 
   // determine this by putting the arm up without any offset shenanigans and seeing what the angle reads
-  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.081787; // -0.411865;
+  private static final double WRIST_ENCODER_MAGNET_OFFSET = -0.079590; // -0.411865;
 
   private double m_wristOffset = 0.0; // Degrees
   public static final double WRIST_BUMP = 0.3; // Degrees (called once per 20 ms)
