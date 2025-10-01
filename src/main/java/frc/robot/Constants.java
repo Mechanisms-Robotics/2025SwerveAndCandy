@@ -165,13 +165,11 @@ public final class Constants
       // from one measured reef position
       // Here, we measured the position that worked using apriltag id 7. We rotate around 7 for the other positions
       // THIS ONLY APPLIES TO TELEOP. DECREASE X TO BE MORE TOWARD REEF AND INCREASE Y TO MOVE RIGHT
-      final double FUDGE_FACTOR = -Units.inchesToMeters(2.5);
-      final double SYMETRIC_FUDGE = Units.inchesToMeters(1.0);
-      Pose2d tag7refLeft = new Pose2d(14.5, 3.52 + SYMETRIC_FUDGE, Rotation2d.fromDegrees(180));
+      Pose2d tag7refLeft = new Pose2d(14.5, 3.54, Rotation2d.fromDegrees(180));
 
       // Offseting the left position by the reef pipe center to center distance computes the right position
       // Saving the offset to is good because it is easier to rotate around the offset rather than rotate around the left peg side
-      Pose2d tag7refRight = tag7refLeft.transformBy(new Transform2d(0.0, -PIPE_DISTANCE + FUDGE_FACTOR + SYMETRIC_FUDGE, Rotation2d.kZero));
+      Pose2d tag7refRight = new Pose2d(14.5, 3.96, Rotation2d.fromDegrees(180));
 
       // I think that we should make a list of all the apriltag values on each reef, and in the place of the keys below, it would be x in the reference, 
       //x-1 in the one before, x+1 in the one after, etc, where x it the item number of the id on the list

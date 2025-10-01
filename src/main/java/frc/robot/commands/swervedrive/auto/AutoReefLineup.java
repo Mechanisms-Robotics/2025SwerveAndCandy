@@ -28,7 +28,7 @@ public class AutoReefLineup extends SequentialCommandGroup {
             // pid controller drive position is initalized, it will start going to the left side of the reef when it finished path planner
             new DeferredCommand(() -> {
                 var position = findClosestTarget(swerve.getMyPose(), right.getAsBoolean());
-                return new PIDtoPosition(swerve, position).until(() -> swerve.isNear(position));
+                return new PIDtoPosition(swerve, position);
             }, getRequirements())
         );
         targetPositionPublisher = NetworkTableInstance.getDefault().getTable("SmartDashboard")
